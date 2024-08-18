@@ -1,0 +1,222 @@
+
+package compi2.pascal.valitations.analysis;
+
+import java_cup.runtime.*;
+import java.util.*;
+
+
+/*-----------------------------------------------------------
+  CUP Specification for the Parser Class
+  -----------------------------------------------------------*/
+parser code {:
+    //fields
+    Lexer lex;
+    private List<String> syntaxErrors;
+
+    //conect the parser with the lexer
+    public Parser(Lexer lex){
+        super(lex);
+        syntaxErrors = new LinkedList<>();
+    }
+
+    //getters
+    public Lexer getLexer(){
+        return this.lex;
+    }
+    public List<String> getSyntaxErrors(){
+        return this.syntaxErrors;
+    }
+    
+    /*SOBREESCRIBISEMICOLONO LOS METODOS DE ERROR*/
+    public void syntax_error(Symbol cur_token) {
+        String mss = "Simbolo: " + symbl_name_from_id(cur_token.sym)
+                    + ", linea: " + cur_token.left
+                    + ", columna: " + cur_token.right;
+        if (expected_token_ids().isEmpty()) {
+            mss += " -- ya no se esperaba ningun simbolo";
+        }
+        syntaxErrors.add(mss);
+    }
+    public void unrecovered_syntax_error(Symbol cur_token) {
+        syntaxErrors.add("Errores de sintaxis severos detectados, revisa municiosamente el codigo");
+    }
+:}
+
+/*---------------------------------------
+             Declarations
+-----------------------------------------*/
+/* Terminals (tokens returned by the scanner). */
+terminal            PLUS, MINUS, TIMES, BARRA,
+                    LLAVE_L, LLAVE_R, PARENTESIS_L, PARENTESIS_R, CORCHETE_L, CORCHETE_R, ACENT,
+                    EQUALS, DIFFERENT, GRATER, LESS, GRATER_EQUALS, LESS_EQUALS,
+                    ASSIGNATION, COMA, DOT, SEMICOLON,
+                    AND, ARRAY, BEGIN, CASE, CONST, DIV, DO,
+                    DOWNTO, ELSE, SEMICOLON, FILE, FOR, FUNCTION, GOTO,
+                    IF, IN, LABEL, MOD, NIL, NOT, OF,
+                    OR, PACKED, PROCEDURE, PROGRAM, RECORD, REPEAT, SET,
+                    THEN, TO, TYPE, UNTIL, VAR, WHILE, WITH,
+                    INTEGER, REAL, BOOLEAN, CHAR, STRING,
+                    ID, INTEGER_LIT, BOOLEAN_LIT, REAL_LIT, STRING_LIT, CHAR_LIT,
+                    UMINUS
+                    ;
+
+/* Non-terminals */
+non terminal        s;
+
+/*----------------------------------------
+            Precedences 
+-----------------------------------------*/
+
+/*booleanos*/
+precedence left THEN;
+precedence left ELSE;
+precedence left OR;
+precedence left AND;
+precedence left NOT;
+
+/*relacionales*/
+precedence left EQUALS, DIFFERENT, GRATER, GRATER_EQUALS, LESS, LESS_EQUALS;
+
+/*operaciones*/
+precedence left PLUS, MINUS;
+precedence left DIV, MOD;
+procedence left UMINUS;
+
+
+/* --------------------------------------
+            The grammar 
+-----------------------------------------*/
+start with s;
+s ::=   header 
+        types_b 
+        const_b 
+        var_b 
+        functions_b
+        procedure_b
+        main
+        ;
+        
+header ::= PROGRAM ID ;
+
+/*------------------- UTILITIES --------------------*/
+var_type ::= INTEGER
+            | REAL
+            | BOOLEAN
+            | CHAR
+            | STRING
+            ;
+
+integer_exp ::= INTEGER
+            | ID
+            ;
+
+id_list ::= id_list COMA ID
+            | ID
+            ;
+
+literals ::= BOOLEAN_LIT
+            | INTEGER_LIT
+            | REAL_LIT
+            | CHAR_LIT
+            | STRING_LIT
+            ;
+
+/*------------------- TYPES BLOCK --------------------*/
+type_b ::= TYPE type_dec
+            | /* empty */
+            ;
+type_dec ::=  id_list EQUALS var_type SEMICOLON
+            | id_list EQUALS range SEMICOLON
+            | id_list EQUALS ARRAY CORCHETE_L /*integer type*/ DOT DOT /*integer type*/ CORCHETE_R OF var_type SEMICOLON
+            | id_list EQUALS RECORD record_b END SEMICOLON
+            ;
+
+
+record_b ::=
+            ;
+
+
+/*------------------- CONST BLOCK --------------------*/
+const_b ::= CONST const_dec
+            | /* empty */
+            ;
+
+const_dec ::= const_dec ID EQUALS literals SEMICOLON;
+
+
+/*------------------- VARIABLES BLOCK --------------------*/
+var_b ::= VAR var_dec
+            ;
+var_dec ::= id_list COLON var_type SEMICOLON
+            | id_list COLON expression INTEGER_LIT DOT DOT INTEGER_LIT SEMICOLON
+            | id_list COLON ARRAY CORCHETE_L INTEGER_LIT DOT DOT INTEGER_LIT CORCHETE_R OF var_type SEMICOLON
+            | id_list EQUALS RECORD /*fiels*/ END SEMICOLON
+            ;
+
+
+/*-------------------- EXPRESSION BLOCK -------------------------*/
+
+/**************************************
+expression ::= expression AND expression
+        | expression AND THEN expression
+        | expression OR expression
+        | expression OR ELSE expression
+        | NOT expression
+        | expression
+        ;
+
+bool ::= bool EQUALS bool
+        | bool DIFFERENT bool
+        | bool GRATER bool
+        | bool LESS bool
+        | bool GRATER_EQUALS bool
+        | bool LESS_EQUALS bool
+        | arit
+        ;
+
+arit ::= arit PLUS arit
+        | arit MINUS arit
+        | arit TIMES arit
+        | arit DIV arit
+        | arit MOD arit
+        | single
+        ;
+
+single ::= ID vect
+        | ID DOT ID
+        | STRING_LIT
+        | INTEGER_LIT
+        | REAL_LIT
+        | BOOLEAN_LIT
+        | STRING_LIT
+        ;
+*****************************************/
+
+e ::= e PLUS e
+        | e MINUS e
+        | e TIMES e
+        | e DIV e
+        | e MOD e
+        | e AND e
+        | e AND THEN e
+        | e OR e
+        | e OR ELSE e
+        | e NOT e
+        | e EQUALS e
+        | e DIFFERENT e
+        | e GRATER e
+        | e GRATER_EQUALS e
+        | e LESS e
+        | e LESS_EQUALS e
+        | ID vect
+        | ID DOT ID
+        | STRING_LIT
+        | INTEGER_LIT
+        | REAL_LIT
+        | BOOLEAN_LIT
+        | STRING_LIT
+        ;
+
+vect ::= CORCHETE_L expression CORCHETE_R
+        | /*empty*/
+        ;

@@ -125,6 +125,7 @@ public class Fronted extends javax.swing.JFrame {
         fileNameDisplay = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         columnaDisplay = new javax.swing.JLabel();
+        ClearBtn1 = new javax.swing.JButton();
         menu = new javax.swing.JMenuBar();
         projectMenu = new javax.swing.JMenu();
         openDirectoryOp = new javax.swing.JMenuItem();
@@ -175,7 +176,7 @@ public class Fronted extends javax.swing.JFrame {
         );
         treeDirectoryLayout.setVerticalGroup(
             treeDirectoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 582, Short.MAX_VALUE)
         );
 
         interfazPanel.setBackground(new java.awt.Color(20, 20, 20));
@@ -214,7 +215,7 @@ public class Fronted extends javax.swing.JFrame {
 
         ClearBtn.setBackground(new java.awt.Color(0, 0, 102));
         ClearBtn.setForeground(new java.awt.Color(204, 204, 204));
-        ClearBtn.setText("Limpiar");
+        ClearBtn.setText("Clear Console");
         ClearBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ClearBtnActionPerformed(evt);
@@ -233,6 +234,15 @@ public class Fronted extends javax.swing.JFrame {
         columnaDisplay.setForeground(new java.awt.Color(204, 204, 204));
         columnaDisplay.setText("0000");
 
+        ClearBtn1.setBackground(new java.awt.Color(0, 0, 102));
+        ClearBtn1.setForeground(new java.awt.Color(204, 204, 204));
+        ClearBtn1.setText("Analysis");
+        ClearBtn1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ClearBtn1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout interfazPanelLayout = new javax.swing.GroupLayout(interfazPanel);
         interfazPanel.setLayout(interfazPanelLayout);
         interfazPanelLayout.setHorizontalGroup(
@@ -247,13 +257,15 @@ public class Fronted extends javax.swing.JFrame {
                         .addComponent(archivoTxt)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(fileNameDisplay, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(64, 400, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, interfazPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(interfazPanelLayout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(columnaDisplay, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(ClearBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 345, Short.MAX_VALUE)
+                        .addComponent(ClearBtn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(ClearBtn1, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         interfazPanelLayout.setVerticalGroup(
@@ -265,14 +277,15 @@ public class Fronted extends javax.swing.JFrame {
                     .addComponent(fileNameDisplay)
                     .addComponent(archivoTxt))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(displayScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(displayScroll)
                 .addGap(18, 18, 18)
                 .addGroup(interfazPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ClearBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1)
-                    .addComponent(columnaDisplay))
+                    .addComponent(columnaDisplay)
+                    .addComponent(ClearBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ClearBtn1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(consoleScroll)
+                .addComponent(consoleScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -574,9 +587,14 @@ public class Fronted extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, "Espere la actulizacion para usar esta herramienta");
     }//GEN-LAST:event_deleteFolderOpActionPerformed
 
+    private void ClearBtn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearBtn1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ClearBtn1ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ClearBtn;
+    private javax.swing.JButton ClearBtn1;
     private javax.swing.JMenuItem CloseFileOp;
     private javax.swing.JMenu Information;
     private javax.swing.JLabel archivoTxt;
