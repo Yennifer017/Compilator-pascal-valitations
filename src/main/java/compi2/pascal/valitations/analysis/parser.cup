@@ -61,7 +61,19 @@ terminal            PLUS, MINUS, TIMES, BARRA,
                     ;
 
 /* Non-terminals */
-non terminal        s;
+non terminal        s, header,
+                    var_type, integer_exp, id_list, literals,
+                    type_b, type_dec, record_b,
+                    const_b, const_dec, var_b, var_dec,
+                    expression,
+                    conditional, if_stmt, elif_stmt, else_stmt,
+                    case_stmt,
+                    while_stmt, for_stmt,
+                    statements, block_stmt, stmt,
+                    functions_b, functions, function_dec,
+                    procedure_b, procedures, procedure_dec,
+                    arguments, type_arg, main
+                    ;
 
 /*----------------------------------------
             Precedences 
@@ -90,7 +102,7 @@ start with s;
 s ::=   header 
         types_b 
         const_b 
-        var_b 
+        var_b
         functions_b
         procedure_b
         main
@@ -104,6 +116,7 @@ var_type ::= INTEGER
             | BOOLEAN
             | CHAR
             | STRING
+            | ID
             ;
 
 integer_exp ::= INTEGER
@@ -220,3 +233,102 @@ e ::= e PLUS e
 vect ::= CORCHETE_L expression CORCHETE_R
         | /*empty*/
         ;
+
+
+/*-------------------- STATEMENTS BLOCK -------------------------*/
+
+/************************* conditionals *****************************/
+
+conditional ::= if_stm elif_stmt else_stmt
+        ;
+if_stmt ::= IF PARENTESIS_L expression PARENTESIS_R THEN statements
+        ;
+
+elif_stmt ::= elif_stmt ELSE IF PARENTESIS_L expression PARENTESIS_R THEN statements
+        | ELSE IF PARENTESIS_L expression PARENTESIS_R THEN statements
+        | /* empty */
+        ;
+
+else_stmt ::= ELSE statements
+        | /* empty */
+        ;
+
+/************************* case *****************************/
+
+case_stmt ::= CASE PARENTESIS_L expression PARENTESIS_R OF  /*HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE*/
+        ;
+
+/************************* ciclos *****************************/
+
+while_stmt ::= WHILE PARENTESIS_L expression PARENTESIS_R DO statements
+        ;
+
+for_stmt ::= FOR expression ASSIGNATION expression TO expression DO statements
+        ;
+
+/************************* statements *****************************/
+statements ::= stmt
+        | stmt SEMICOLON
+        | BEGIN block_stmt END SEMICOLON
+        ;
+
+block_stmt ::= block_stmt stmt SEMICOLON
+        | stmt SEMICOLON
+        | /* empty */
+        ;
+
+stmt ::= conditional
+        | case_stmt
+        | while_stmt
+        | for_stmt
+        | BREAK
+        | CONTINUE
+        | ID ASSIGNATION expression
+        | assign_stmt  /*HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE*/
+        ;
+
+/*-------------------- FUNCTIONS -------------------------*/
+
+functions_b ::= functions
+        | /* empty */
+        ;
+
+functions ::= functions function_dec
+        ;
+
+function_dec ::= function_dec FUNCTION ID PARENTESIS_L arguments PARENTESIS_R COLON var_type SEMICOLON
+            var_b
+            BEGIN block_stmt END SEMICOLON
+        ;
+
+/*-------------------- PROCEDURES -------------------------*/
+
+procedure_b ::= procedures
+        | /* empty */
+        ;
+
+procedures ::= procedures procedure_dec
+        | procedure_dec
+        ;
+
+procedure_dec ::= PROCEDURE ID PARENTESIS_L arguments PARENTESIS_R SEMICOLON
+            var_b
+            BEGIN block_stmt END SEMICOLON
+        ;
+
+/*-------------------- PARAMS -------------------------*/
+arguments ::= args COMA type_arg
+        | type_arg
+        | /* empty */
+        ;
+
+type_arg ::= VAR id_list COLON var_type
+        | id_list COLON var_type
+        ;
+
+/*-------------------- MAIN SECTION -------------------------*/
+main ::= BEGIN block_stmt END DOT
+        ;
+
+
+/*-------------------- OTHERS -------------------------*/

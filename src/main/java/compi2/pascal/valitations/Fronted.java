@@ -127,22 +127,22 @@ public class Fronted extends javax.swing.JFrame {
         columnaDisplay = new javax.swing.JLabel();
         ClearBtn1 = new javax.swing.JButton();
         menu = new javax.swing.JMenuBar();
-        projectMenu = new javax.swing.JMenu();
-        openDirectoryOp = new javax.swing.JMenuItem();
-        createProyectOp = new javax.swing.JMenuItem();
-        closeProjectOp = new javax.swing.JMenuItem();
         fileMenu = new javax.swing.JMenu();
         openFileOp = new javax.swing.JMenuItem();
         newFileOp = new javax.swing.JMenuItem();
         saveOp = new javax.swing.JMenuItem();
         saveAsOp = new javax.swing.JMenuItem();
-        CloseFileOp = new javax.swing.JMenuItem();
-        foldersMenu = new javax.swing.JMenu();
-        createFolder = new javax.swing.JMenuItem();
-        deleteFolderOp = new javax.swing.JMenuItem();
-        Information = new javax.swing.JMenu();
+        closeFile = new javax.swing.JMenuItem();
+        InformationMenu = new javax.swing.JMenu();
         helpOp = new javax.swing.JMenuItem();
         creditsOp = new javax.swing.JMenuItem();
+        CodeMenu = new javax.swing.JMenu();
+        showSTop = new javax.swing.JMenuItem();
+        showTreeOp = new javax.swing.JMenuItem();
+        toolsMenu = new javax.swing.JMenu();
+        analyzeAllOp = new javax.swing.JMenuItem();
+        closeAll = new javax.swing.JMenuItem();
+        saveCloseAllOp = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -215,7 +215,7 @@ public class Fronted extends javax.swing.JFrame {
 
         ClearBtn.setBackground(new java.awt.Color(0, 0, 102));
         ClearBtn.setForeground(new java.awt.Color(204, 204, 204));
-        ClearBtn.setText("Clear Console");
+        ClearBtn.setText("Limpiar Consola");
         ClearBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ClearBtnActionPerformed(evt);
@@ -236,7 +236,7 @@ public class Fronted extends javax.swing.JFrame {
 
         ClearBtn1.setBackground(new java.awt.Color(0, 0, 102));
         ClearBtn1.setForeground(new java.awt.Color(204, 204, 204));
-        ClearBtn1.setText("Analysis");
+        ClearBtn1.setText("Analizar");
         ClearBtn1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ClearBtn1ActionPerformed(evt);
@@ -262,7 +262,7 @@ public class Fronted extends javax.swing.JFrame {
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(columnaDisplay, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 345, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 328, Short.MAX_VALUE)
                         .addComponent(ClearBtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(ClearBtn1, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -289,37 +289,7 @@ public class Fronted extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        projectMenu.setText("Proyecto");
-
-        openDirectoryOp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.ALT_DOWN_MASK | java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        openDirectoryOp.setText("Abrir carpeta");
-        openDirectoryOp.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openDirectoryOpActionPerformed(evt);
-            }
-        });
-        projectMenu.add(openDirectoryOp);
-
-        createProyectOp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.ALT_DOWN_MASK | java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        createProyectOp.setText("Crear proyecto");
-        createProyectOp.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                createProyectOpActionPerformed(evt);
-            }
-        });
-        projectMenu.add(createProyectOp);
-
-        closeProjectOp.setText("Cerrar proyecto");
-        closeProjectOp.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                closeProjectOpActionPerformed(evt);
-            }
-        });
-        projectMenu.add(closeProjectOp);
-
-        menu.add(projectMenu);
-
-        fileMenu.setText("Archivo");
+        fileMenu.setText("Archivos");
 
         openFileOp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         openFileOp.setText("Abrir archivo");
@@ -357,38 +327,18 @@ public class Fronted extends javax.swing.JFrame {
         });
         fileMenu.add(saveAsOp);
 
-        CloseFileOp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        CloseFileOp.setText("Cerrar archivo");
-        CloseFileOp.addActionListener(new java.awt.event.ActionListener() {
+        closeFile.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        closeFile.setText("Cerrar archivo");
+        closeFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                CloseFileOpActionPerformed(evt);
+                closeFileActionPerformed(evt);
             }
         });
-        fileMenu.add(CloseFileOp);
+        fileMenu.add(closeFile);
 
         menu.add(fileMenu);
 
-        foldersMenu.setText("Carpetas");
-
-        createFolder.setText("Crear nueva carpeta");
-        createFolder.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                createFolderActionPerformed(evt);
-            }
-        });
-        foldersMenu.add(createFolder);
-
-        deleteFolderOp.setText("Eliminar carpeta");
-        deleteFolderOp.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteFolderOpActionPerformed(evt);
-            }
-        });
-        foldersMenu.add(deleteFolderOp);
-
-        menu.add(foldersMenu);
-
-        Information.setText("Informacion");
+        InformationMenu.setText("Informacion");
 
         helpOp.setText("Ayuda");
         helpOp.addActionListener(new java.awt.event.ActionListener() {
@@ -396,7 +346,7 @@ public class Fronted extends javax.swing.JFrame {
                 helpOpActionPerformed(evt);
             }
         });
-        Information.add(helpOp);
+        InformationMenu.add(helpOp);
 
         creditsOp.setText("Creditos");
         creditsOp.addActionListener(new java.awt.event.ActionListener() {
@@ -404,9 +354,57 @@ public class Fronted extends javax.swing.JFrame {
                 creditsOpActionPerformed(evt);
             }
         });
-        Information.add(creditsOp);
+        InformationMenu.add(creditsOp);
 
-        menu.add(Information);
+        menu.add(InformationMenu);
+
+        CodeMenu.setText("Codigo");
+
+        showSTop.setText("Ver tabla de simbolos");
+        showSTop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showSTopActionPerformed(evt);
+            }
+        });
+        CodeMenu.add(showSTop);
+
+        showTreeOp.setText("Ver arbol de activaciones");
+        showTreeOp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showTreeOpActionPerformed(evt);
+            }
+        });
+        CodeMenu.add(showTreeOp);
+
+        menu.add(CodeMenu);
+
+        toolsMenu.setText("Herramientas");
+
+        analyzeAllOp.setText("Analizar todo");
+        analyzeAllOp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                analyzeAllOpActionPerformed(evt);
+            }
+        });
+        toolsMenu.add(analyzeAllOp);
+
+        closeAll.setText("Cerrar todo");
+        closeAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeAllActionPerformed(evt);
+            }
+        });
+        toolsMenu.add(closeAll);
+
+        saveCloseAllOp.setText("Guardar y cerrar todo");
+        saveCloseAllOp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveCloseAllOpActionPerformed(evt);
+            }
+        });
+        toolsMenu.add(saveCloseAllOp);
+
+        menu.add(toolsMenu);
 
         setJMenuBar(menu);
 
@@ -427,10 +425,6 @@ public class Fronted extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void openDirectoryOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openDirectoryOpActionPerformed
-        openProject();
-    }//GEN-LAST:event_openDirectoryOpActionPerformed
 
     private void openFileOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileOpActionPerformed
         /*try {
@@ -509,13 +503,9 @@ public class Fronted extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, "Sera implementado en la v 1.2");
     }//GEN-LAST:event_saveAsOpActionPerformed
 
-    private void CloseFileOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CloseFileOpActionPerformed
+    private void closeFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeFileActionPerformed
         this.closeFile();
-    }//GEN-LAST:event_CloseFileOpActionPerformed
-
-    private void closeProjectOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeProjectOpActionPerformed
-        closeProject();
-    }//GEN-LAST:event_closeProjectOpActionPerformed
+    }//GEN-LAST:event_closeFileActionPerformed
 
     private void consoleCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_consoleCaretUpdate
         numConsole.updateColumna(columnaDisplay);
@@ -528,24 +518,6 @@ public class Fronted extends javax.swing.JFrame {
     private void consoleCaretPositionChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_consoleCaretPositionChanged
         numConsole.updateColumna(columnaDisplay);
     }//GEN-LAST:event_consoleCaretPositionChanged
-
-    private void createProyectOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createProyectOpActionPerformed
-        /*try {
-            try {
-                admiFiles.closeFile();
-            } catch (Exception e) {
-            }
-            admiFiles.openProject(admiFiles.createProject());
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "No se pudo crear el proyecto :/");
-        } catch (DirectoryException | ProjectOpenException | FileOpenException e) {
-            System.out.println("excepcion controlada");
-        } catch (InvalidDataException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage());
-        } catch (Exception ex) {
-            showInesperatedError();
-        }*/
-    }//GEN-LAST:event_createProyectOpActionPerformed
 
     private void newFileOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newFileOpActionPerformed
         /*try {
@@ -567,62 +539,62 @@ public class Fronted extends javax.swing.JFrame {
         }*/
     }//GEN-LAST:event_newFileOpActionPerformed
 
-    private void createFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createFolderActionPerformed
-        /*try {
-            String rootFolder = admiFiles.createFolder();
-            admiFiles.closeProject();
-            admiFiles.openProject(rootFolder);
-        } catch (InvalidDataException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage());
-        } catch (IOException ex) {
-            showInesperatedError();
-        } catch (DirectoryException ex) {
-            JOptionPane.showMessageDialog(null, "Ocurrio un error con el directorio");
-        } catch (Exception ex) {
-            showInesperatedError();
-        }*/
-    }//GEN-LAST:event_createFolderActionPerformed
-
-    private void deleteFolderOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteFolderOpActionPerformed
-        JOptionPane.showMessageDialog(null, "Espere la actulizacion para usar esta herramienta");
-    }//GEN-LAST:event_deleteFolderOpActionPerformed
-
     private void ClearBtn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearBtn1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_ClearBtn1ActionPerformed
+
+    private void showSTopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showSTopActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_showSTopActionPerformed
+
+    private void showTreeOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showTreeOpActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_showTreeOpActionPerformed
+
+    private void analyzeAllOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analyzeAllOpActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_analyzeAllOpActionPerformed
+
+    private void closeAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeAllActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_closeAllActionPerformed
+
+    private void saveCloseAllOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveCloseAllOpActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_saveCloseAllOpActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ClearBtn;
     private javax.swing.JButton ClearBtn1;
-    private javax.swing.JMenuItem CloseFileOp;
-    private javax.swing.JMenu Information;
+    private javax.swing.JMenu CodeMenu;
+    private javax.swing.JMenu InformationMenu;
+    private javax.swing.JMenuItem analyzeAllOp;
     private javax.swing.JLabel archivoTxt;
-    private javax.swing.JMenuItem closeProjectOp;
+    private javax.swing.JMenuItem closeAll;
+    private javax.swing.JMenuItem closeFile;
     private javax.swing.JLabel columnaDisplay;
     private javax.swing.JTextPane console;
     private javax.swing.JScrollPane consoleScroll;
-    private javax.swing.JMenuItem createFolder;
-    private javax.swing.JMenuItem createProyectOp;
     private javax.swing.JMenuItem creditsOp;
-    private javax.swing.JMenuItem deleteFolderOp;
     private javax.swing.JTextPane display;
     private javax.swing.JScrollPane displayScroll;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JLabel fileNameDisplay;
-    private javax.swing.JMenu foldersMenu;
     private javax.swing.JMenuItem helpOp;
     private javax.swing.JPanel interfazPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JMenuBar menu;
     private javax.swing.JMenuItem newFileOp;
-    private javax.swing.JMenuItem openDirectoryOp;
     private javax.swing.JMenuItem openFileOp;
     private javax.swing.JPanel openFilesPanel;
-    private javax.swing.JMenu projectMenu;
     private javax.swing.JMenuItem saveAsOp;
+    private javax.swing.JMenuItem saveCloseAllOp;
     private javax.swing.JMenuItem saveOp;
+    private javax.swing.JMenuItem showSTop;
+    private javax.swing.JMenuItem showTreeOp;
+    private javax.swing.JMenu toolsMenu;
     private javax.swing.JPanel treeDirectory;
     private javax.swing.JTree treeDisplay;
     // End of variables declaration//GEN-END:variables
