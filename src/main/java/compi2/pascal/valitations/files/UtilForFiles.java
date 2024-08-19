@@ -106,14 +106,13 @@ public class UtilForFiles {
         archivo.delete();
     }
 
-    public void saveAs(String text, String extension, String rootFolder, String path) {
+    public boolean saveAs(String text, String extension, String rootFolder, String path) {
         if (path != null && !path.equals("")) {
             File file = new File(path + extension);
             if (!file.exists()) {
                 this.saveFile(text, rootFolder + UtilForDirectories.getCarpetSeparatorStatic() 
                         +  path + extension);
-                JOptionPane.showMessageDialog(null, "Se ha guardado el archivo", ""
-                        + "Guardado exitoso", JOptionPane.INFORMATION_MESSAGE);
+                return true;
             } else {
                 int opcion = JOptionPane.showConfirmDialog(null, """
                         Se ha encontrado un archivo con el mismo nombre especificado.
@@ -121,8 +120,7 @@ public class UtilForFiles {
                         JOptionPane.OK_CANCEL_OPTION, JOptionPane.OK_CANCEL_OPTION);
                 if (opcion == 0) {
                     this.saveFile(text, path + extension);
-                    JOptionPane.showMessageDialog(null, "Se ha guardado el archivo", ""
-                            + "Guardado exitoso", JOptionPane.INFORMATION_MESSAGE);
+                    return true;
                 }
             }
         } else if (path != null && path.equals("")) {
@@ -131,6 +129,7 @@ public class UtilForFiles {
                                             no se ha podido guardar, intentalo de nuevo.""",
                     "Se ha producido un error", JOptionPane.ERROR_MESSAGE);
         }
+        return false;
     }
 
     public void saveFromExistentPath(String text, String path, String fileName) {

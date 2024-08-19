@@ -5,13 +5,17 @@ package compi2.pascal.valitations;
  * @author yenni
  */
 
-import compi2.pascal.valitations.exceptions.DirectoryException;
+import compi2.pascal.valitations.exceptions.FileException;
+import compi2.pascal.valitations.exceptions.FileExtensionException;
+import compi2.pascal.valitations.exceptions.ProjectOpenException;
 import compi2.pascal.valitations.files.AdmiFiles;
 import compi2.pascal.valitations.util.NumberLine;
 import java.awt.Dimension;
+import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.JTextPane;
 
 public class Fronted extends javax.swing.JFrame {
 
@@ -64,13 +68,19 @@ public class Fronted extends javax.swing.JFrame {
     }
 
     private void closeFile() {
-        /*try {
+        try {
             admiFiles.closeFile();
-        } catch (FileException ex1) {
+        } catch (FileException ex) {
+            JOptionPane.showInternalMessageDialog(
+                    null, 
+                    "No hay ningun archivo abierto", 
+                    "Error al cerrar un archivo", 
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (Exception e){
             showInesperatedError();
-        } catch (Exception ex) {
-            showInesperatedError();
-        }*/
+        }
+
     }
 
     private void openProject() {
@@ -101,6 +111,18 @@ public class Fronted extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, "Ocurrio un error inesperado",
                 "Error", JOptionPane.PLAIN_MESSAGE);
     }
+    
+    private void saveAs(){
+        try {
+            String path = admiFiles.saveAs(display.getText());
+            admiFiles.openFile(new File(path));
+        } catch (FileException ex1) {
+            JOptionPane.showMessageDialog(null, "No se guardo el archivo");
+        } catch (IOException ex1) {
+            showInesperatedError();
+        }
+        
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -127,6 +149,9 @@ public class Fronted extends javax.swing.JFrame {
         columnaDisplay = new javax.swing.JLabel();
         ClearBtn1 = new javax.swing.JButton();
         menu = new javax.swing.JMenuBar();
+        fileMenu1 = new javax.swing.JMenu();
+        openFileOp1 = new javax.swing.JMenuItem();
+        newFileOp1 = new javax.swing.JMenuItem();
         fileMenu = new javax.swing.JMenu();
         openFileOp = new javax.swing.JMenuItem();
         newFileOp = new javax.swing.JMenuItem();
@@ -142,7 +167,7 @@ public class Fronted extends javax.swing.JFrame {
         toolsMenu = new javax.swing.JMenu();
         analyzeAllOp = new javax.swing.JMenuItem();
         closeAll = new javax.swing.JMenuItem();
-        saveCloseAllOp = new javax.swing.JMenuItem();
+        creditsOp3 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -289,6 +314,26 @@ public class Fronted extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        fileMenu1.setText("Carpetas");
+
+        openFileOp1.setText("Abrir Carpeta");
+        openFileOp1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openFileOp1ActionPerformed(evt);
+            }
+        });
+        fileMenu1.add(openFileOp1);
+
+        newFileOp1.setText("Cerrar Carpeta");
+        newFileOp1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newFileOp1ActionPerformed(evt);
+            }
+        });
+        fileMenu1.add(newFileOp1);
+
+        menu.add(fileMenu1);
+
         fileMenu.setText("Archivos");
 
         openFileOp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_DOWN_MASK));
@@ -396,13 +441,13 @@ public class Fronted extends javax.swing.JFrame {
         });
         toolsMenu.add(closeAll);
 
-        saveCloseAllOp.setText("Guardar y cerrar todo");
-        saveCloseAllOp.addActionListener(new java.awt.event.ActionListener() {
+        creditsOp3.setText("Guardar y cerrar todo");
+        creditsOp3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveCloseAllOpActionPerformed(evt);
+                creditsOp3ActionPerformed(evt);
             }
         });
-        toolsMenu.add(saveCloseAllOp);
+        toolsMenu.add(creditsOp3);
 
         menu.add(toolsMenu);
 
@@ -427,7 +472,7 @@ public class Fronted extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void openFileOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileOpActionPerformed
-        /*try {
+        try {
             admiFiles.openFile();
         } catch (ProjectOpenException ex) {
             JOptionPane.showMessageDialog(null,
@@ -439,7 +484,7 @@ public class Fronted extends javax.swing.JFrame {
                     "El archivo seleccionado no tiene una extension aceptada por el ide");
         } catch (Exception ex) {
             showInesperatedError();
-        }*/
+        }
 
     }//GEN-LAST:event_openFileOpActionPerformed
 
@@ -470,37 +515,18 @@ public class Fronted extends javax.swing.JFrame {
                 "Ayuda", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_creditsOpActionPerformed
 
-    private void treeDisplayMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeDisplayMouseClicked
-        /*if (evt.getClickCount() == 2) {
-            try {
-                admiFiles.openFileFromProject();
-            } catch (IOException ex) {
-                showInesperatedError();
-            } catch (FileOpenException ex) {
-                JOptionPane.showMessageDialog(null, "El archivo ya esta abierto");
-            } catch (FileException ex) {
-                System.out.println("Excepcion controlada");
-            } catch (FileExtensionException ex) {
-                JOptionPane.showMessageDialog(null,
-                        "El archivo no es compatible con los aceptados por el ide (deber ser .txt o .csv)");
-            } catch (Exception ex) {
-                showInesperatedError();
-            }
-        }*/
-    }//GEN-LAST:event_treeDisplayMouseClicked
-
     private void saveOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveOpActionPerformed
-        /*try {
+        try {
             admiFiles.saveFile();
         } catch (FileException ex) {
-            JOptionPane.showMessageDialog(null, "No se pudo guardar el archivo :/");
+            saveAs();
         } catch (Exception ex) {
-            showInesperatedError();
-        }*/
+            JOptionPane.showMessageDialog(null, "No se pudo guardar el archivo :/");
+        }
     }//GEN-LAST:event_saveOpActionPerformed
 
     private void saveAsOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsOpActionPerformed
-        JOptionPane.showMessageDialog(null, "Sera implementado en la v 1.2");
+        saveAs();
     }//GEN-LAST:event_saveAsOpActionPerformed
 
     private void closeFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeFileActionPerformed
@@ -520,23 +546,22 @@ public class Fronted extends javax.swing.JFrame {
     }//GEN-LAST:event_consoleCaretPositionChanged
 
     private void newFileOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newFileOpActionPerformed
-        /*try {
+        try {
             if (admiFiles.isOpenProject()) {
-                String rootPath = admiFiles.saveNewFileInProject();
+                /*String rootPath = admiFiles.saveNewFileInProject();
                 admiFiles.closeProject();
-                admiFiles.openProject(rootPath);
+                admiFiles.openProject(rootPath);*/
             } else {
-                admiFiles.saveNewFile();
+                String path = admiFiles.saveNewFile();
+                admiFiles.openFile(new File(path));
             }
-        } catch (InvalidDataException ex) {
+        } catch (FileException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage());
         } catch (IOException ex) {
             showInesperatedError();
-        } catch (DirectoryException ex) {
-            JOptionPane.showMessageDialog(null, "Ocurrio un error con el directorio");
         } catch (Exception ex) {
             showInesperatedError();
-        }*/
+        }
     }//GEN-LAST:event_newFileOpActionPerformed
 
     private void ClearBtn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearBtn1ActionPerformed
@@ -556,12 +581,39 @@ public class Fronted extends javax.swing.JFrame {
     }//GEN-LAST:event_analyzeAllOpActionPerformed
 
     private void closeAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeAllActionPerformed
-        // TODO add your handling code here:
+        this.admiFiles.closeOpenFiles();
     }//GEN-LAST:event_closeAllActionPerformed
 
-    private void saveCloseAllOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveCloseAllOpActionPerformed
+    private void creditsOp3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_creditsOp3ActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_saveCloseAllOpActionPerformed
+    }//GEN-LAST:event_creditsOp3ActionPerformed
+
+    private void treeDisplayMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeDisplayMouseClicked
+        /*if (evt.getClickCount() == 2) {
+            try {
+                admiFiles.openFileFromProject();
+            } catch (IOException ex) {
+                showInesperatedError();
+            } catch (FileOpenException ex) {
+                JOptionPane.showMessageDialog(null, "El archivo ya esta abierto");
+            } catch (FileException ex) {
+                System.out.println("Excepcion controlada");
+            } catch (FileExtensionException ex) {
+                JOptionPane.showMessageDialog(null,
+                    "El archivo no es compatible con los aceptados por el ide (deber ser .txt o .csv)");
+            } catch (Exception ex) {
+                showInesperatedError();
+            }
+        }*/
+    }//GEN-LAST:event_treeDisplayMouseClicked
+
+    private void openFileOp1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileOp1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_openFileOp1ActionPerformed
+
+    private void newFileOp1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newFileOp1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_newFileOp1ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -577,9 +629,11 @@ public class Fronted extends javax.swing.JFrame {
     private javax.swing.JTextPane console;
     private javax.swing.JScrollPane consoleScroll;
     private javax.swing.JMenuItem creditsOp;
+    private javax.swing.JMenuItem creditsOp3;
     private javax.swing.JTextPane display;
     private javax.swing.JScrollPane displayScroll;
     private javax.swing.JMenu fileMenu;
+    private javax.swing.JMenu fileMenu1;
     private javax.swing.JLabel fileNameDisplay;
     private javax.swing.JMenuItem helpOp;
     private javax.swing.JPanel interfazPanel;
@@ -587,10 +641,11 @@ public class Fronted extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JMenuBar menu;
     private javax.swing.JMenuItem newFileOp;
+    private javax.swing.JMenuItem newFileOp1;
     private javax.swing.JMenuItem openFileOp;
+    private javax.swing.JMenuItem openFileOp1;
     private javax.swing.JPanel openFilesPanel;
     private javax.swing.JMenuItem saveAsOp;
-    private javax.swing.JMenuItem saveCloseAllOp;
     private javax.swing.JMenuItem saveOp;
     private javax.swing.JMenuItem showSTop;
     private javax.swing.JMenuItem showTreeOp;

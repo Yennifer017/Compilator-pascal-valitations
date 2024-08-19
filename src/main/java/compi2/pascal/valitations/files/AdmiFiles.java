@@ -1,8 +1,13 @@
 package compi2.pascal.valitations.files;
 
 
+import compi2.pascal.valitations.files.model.OpenFile;
+import compi2.pascal.valitations.exceptions.FileException;
+import compi2.pascal.valitations.exceptions.FileExtensionException;
+import compi2.pascal.valitations.exceptions.ProjectOpenException;
+import compi2.pascal.valitations.files.model.FileProject;
+import compi2.pascal.valitations.util.BinarySearch;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,11 +18,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyledDocument;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
@@ -25,12 +25,13 @@ import javax.swing.tree.DefaultTreeModel;
  */
 public class AdmiFiles {
 
-    public static final String aceptedExtensions[] = {"csv"};
+    public static final String aceptedExtensions[] = {"pass", "pp", "txt"};
     private static final String EMPTY_NOTATION = "[none]";
+    private static final String FILE_NAME_REGEX = "[A-Za-z][A-Za-z0-9_]*";
 
-    /*private List<FileProject> currentProject;
+    private List<FileProject> currentProject;
     private List<OpenFile> openFiles;
-    private OpenFile currentFile;*/
+    private OpenFile currentFile;
 
     private UtilForFiles filesU;
     private UtilForDirectories directoryU;
@@ -46,8 +47,8 @@ public class AdmiFiles {
         this.treeDisplay = treeDisplay;
         this.filesU = new UtilForFiles();
         this.directoryU = new UtilForDirectories();
-        //currentProject = new LinkedList<>();
-        //openFiles = new ArrayList<>();
+        currentProject = new LinkedList<>();
+        openFiles = new ArrayList<>();
         this.filesBar = filesBar;
         this.displayContent = displayContent;
         this.labelForFileName = labelForFileName;
@@ -142,7 +143,16 @@ public class AdmiFiles {
         }
     }*/
 
-    /*private void openProjectFile(File file) throws IOException {
+    /**
+        Abre un proyecto con la particularidad de que setea botones en la parte superior
+        y los agrega a la lista de archivos abiertos
+     * @param file
+     * @throws java.io.IOException
+    */
+    public void openFile(File file) throws IOException {
+        if(currentFile !=  null){
+            currentFile.setOpenContent(displayContent.getText());
+        }
         String content = filesU.readTextFile(file.getAbsolutePath());
         currentFile = new OpenFile(file, content);
         openFiles.add(currentFile);
@@ -152,7 +162,7 @@ public class AdmiFiles {
         //anadir los botones
         currentFile.init(displayContent, labelForFileName, this);
         filesBar.add(currentFile);
-    }*/
+    }
 
     /**
      * Ciera el proyecto actual
@@ -173,34 +183,25 @@ public class AdmiFiles {
         }
     }*/
 
-    /*private void closeFileInProject() throws FileException {
-        if (currentFile != null) {
-            int position = BinarySearch.search(openFiles, currentFile.getFile().getAbsolutePath());
-            if (position != -1) {
-                openFiles.remove(position);
-                filesBar.remove(currentFile);
-                filesBar.revalidate();
-                filesBar.repaint();
-                currentFile = null;
-                displayContent.setText("");
-                labelForFileName.setText(EMPTY_NOTATION);
-            } else {
-                throw new FileException();
-            }
+    public void closeFile() throws FileException {
+        int position = BinarySearch.search(openFiles, currentFile.getFile().getAbsolutePath());
+        if (position != -1) {
+            openFiles.remove(position);
+            filesBar.remove(currentFile);
+            filesBar.revalidate();
+            filesBar.repaint();
+            currentFile = null;
+            displayContent.setText("");
+            labelForFileName.setText(EMPTY_NOTATION);
         } else {
             throw new FileException();
         }
-    }*/
+    }
 
-    /*public void closeFile() throws FileException {
-        if (!currentProject.isEmpty()) {
-            closeFileInProject();
-        } else if (currentFile != null) {
-            closeOpenFiles();
-        }
-    }*/
-
-    /*public void closeOpenFiles() {
+    /**
+     * Cierra todos los archivos
+     */
+    public void closeOpenFiles() {
         filesBar.removeAll();
         filesBar.revalidate();
         filesBar.repaint();
@@ -208,46 +209,71 @@ public class AdmiFiles {
         currentFile = null;
         displayContent.setText("");
         labelForFileName.setText(EMPTY_NOTATION);
-    }*/
+    }
 
     /**
      * Guarda el archivo actual
      *
-     * @throws compi1.sqlemulator.exceptions.FileException
      */
-    /*public void saveFile() throws FileException {
+    public void saveFile() throws FileException {
         if (currentFile != null) {
             filesU.saveFile(displayContent.getText(), currentFile.getFile());
         } else {
             throw new FileException();
         }
-    }*/
-
+    }
+    
     /**
-     * Abre un archivo cuando no hay un proyecto abierto
-     *
-     * @throws compi1.sqlemulator.exceptions.ProjectOpenException cuando hay un
-     * proyecto abierto
-     * @throws java.io.IOException por cualquier excepcion extra
-     * @throws compi1.sqlemulator.exceptions.FileExtensionException
+     * Guarda el contenido actual como un nuevo archivo y lo abre a su vez
+     * @param content
+     * @return el path
+     * @throws compi2.pascal.valitations.exceptions.FileException 
+     * @throws java.io.IOException 
      */
-    /*public void openFile()
+    public String saveAs(String content) throws FileException, IOException{
+        JOptionPane.showMessageDialog(null, "Selecciona la carpeta donde se guardara el archivo");
+        String root = directoryU.getPathFolder();
+        
+        String path = JOptionPane.showInputDialog(null, "Ingresa un nombre para guardar el archivo",
+                "Guardando un nuevo archivo", JOptionPane.QUESTION_MESSAGE);
+        if (!path.matches(FILE_NAME_REGEX)) {
+            throw new FileException("El nombre del archivo es invalido");
+        }
+        filesU.saveAs(content, ".pass", root, path);
+        return root + directoryU.getCarpetSeparator() + path + ".pass";
+    }
+
+    /** 
+     * Guarda un nuevo archivo en blanco
+     * @return el path del archivo creado
+     * @throws compi2.pascal.valitations.exceptions.FileException
+     * @throws java.io.IOException
+     */
+    public String saveNewFile() throws FileException, IOException{
+        return this.saveAs("");
+    }
+    
+    /**
+     * Abre un archivo pidiendo al usuario un path
+     *
+     * @throws compi2.pascal.valitations.exceptions.ProjectOpenException
+     * @throws java.io.IOException por cualquier excepcion extra
+     * @throws compi2.pascal.valitations.exceptions.FileExtensionException
+     */
+    public void openFile()
             throws ProjectOpenException, IOException, FileExtensionException {
-        if (!currentProject.isEmpty() || currentFile != null) {
+        if (!currentProject.isEmpty()) {
             throw new ProjectOpenException();
         } else {
-            File file = new File(filesU.getPath("Archivos svc o txt",
+            File file = new File(filesU.getPath("Archivos pascal",
                     aceptedExtensions));
             if (!filesU.hasAceptedPath(aceptedExtensions, file)) {
                 throw new FileExtensionException();
             }
-            String content = filesU.readTextFile(file.getAbsolutePath());
-            displayContent.setText(content);
-            this.labelForFileName.setText(file.getName());
-            currentFile = new OpenFile(file, content);
+            openFile(file);
         }
-    }*/
-
+    }    
+    
     /*public String createProject() throws IOException, InvalidDataException {
         JOptionPane.showMessageDialog(null,
                 "A continuacion selecciona el path donde sera guardado el proyecto");
@@ -326,7 +352,7 @@ public class AdmiFiles {
 
     public void setNewContent(String content) {
         displayContent.setText(content);
-    }
+    }*/
 
     public void setCurrentFile(OpenFile currentFile) {
         this.currentFile = currentFile;
@@ -336,11 +362,7 @@ public class AdmiFiles {
         return this.currentFile;
     }
 
-    public CSVinterpretor getCSVinterpretor() {
-        return this.csvInterpretor;
-    }
-
-    public String getCurrentDisplayTxt() {
+    /*public String getCurrentDisplayTxt() {
         return this.displayContent.getText().replace("\t", "");
     }*/
 
@@ -380,27 +402,9 @@ public class AdmiFiles {
         }
     }*/
 
-    /*public boolean isOpenProject() {
+    public boolean isOpenProject() {
         return !currentProject.isEmpty();
-    }/
-
-    /*public String saveNewFile() throws InvalidDataException, IOException {
-        JOptionPane.showMessageDialog(null, "Selecciona la carpeta donde se guardara el archivo,"
-                + " toma en cuenta que tendraas que abirlo manualmente luego de haber sido guardado");
-        String root = directoryU.getPathFolder();
-        String content = JOptionPane.showInputDialog(
-                "Ingresa las columnas que iran en el archivo, separado con comas y sin espacios");
-        if (!content.matches(CSV_COLUMNS_FORMAT)) {
-            throw new InvalidDataException("El formato de columnas es invalido");
-        }
-        String path = JOptionPane.showInputDialog(null, "Ingresa un nombre para guardar el archivo",
-                "Guardando un nuevo archivo", JOptionPane.QUESTION_MESSAGE);
-        if (!path.matches(COLUMN_FORMAT)) {
-            throw new InvalidDataException("El nombre del archivo es invalido");
-        }
-        filesU.saveAs(content, ".csv", root, path);
-        return root + directoryU.getCarpetSeparator() + path + ".csv";
-    }*/
+    }
 
     /*public String createFolder() throws InvalidDataException, IOException, DirectoryException {
         if (!currentProject.isEmpty()) {
