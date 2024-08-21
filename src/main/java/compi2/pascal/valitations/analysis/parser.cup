@@ -58,7 +58,7 @@ terminal            PLUS, MINUS, TIMES, BARRA,
                     INTEGER, REAL, BOOLEAN, CHAR, STRING,
                     ID, INTEGER_LIT, BOOLEAN_LIT, REAL_LIT, STRING_LIT, CHAR_LIT,
                     WRITELN, READLN, RETURN, BREAK, CONTINUE,
-                    UMINUS
+                    UMINUS, COND
                     ;
 
 /* Non-terminals */
@@ -68,15 +68,16 @@ non terminal        s, header,
                     const_b, const_dec,
                     var_b, var_dec,
                     expression, bool_exp,  arit_exp, literals,
-                    conditional, if_stmt, elif_stmt, else_stmt,
+                    conditional, if_stmt, elif_stmt, else_stmt, pos_if, pos_elif, statements_wc,
                     case_stmt, case_block, labels, single_stm,
                     while_stmt, for_stmt, repeat_stmt,
-                    statements, statements_sm, block_stmt, stmt,
+                    statements, block_stmt, stmt,
                     functions_b, functions, function_dec,
                     procedure_b, procedures, procedure_dec,
                     arguments, type_arg,
                     main,
-                    definite_fun, writefn, readfn
+                    definite_fun, writefn, readfn,
+                    list_stmts
                     ;
 
 /*----------------------------------------
@@ -92,9 +93,11 @@ precedence left NOT;
 
 /*operaciones*/
 precedence left PLUS, MINUS;
-precedence left DIV, MOD;
+precedence left TIMES, DIV, MOD;
 precedence right UMINUS;
 
+precedence left ELSE;
+precedence right SEMICOLON;
 
 /* --------------------------------------
             The grammar 
@@ -192,12 +195,12 @@ arit_exp ::=
             | arit_exp DIV arit_exp
             | arit_exp MOD arit_exp
             | literals
-            | ID
             | ID CORCHETE_L arit_exp CORCHETE_R
             | ID DOT ID
             | ID PARENTESIS_L id_list PARENTESIS_R
+            | ID
             %prec UMINUS
-            | PARENTESIS_L arit_exp PARENTESIS_R
+            | PARENTESIS_L expression PARENTESIS_R
             ;
 
 
@@ -213,18 +216,38 @@ literals ::= BOOLEAN_LIT
 
 /************************* conditionals *****************************/
 
-conditional ::= if_stmt elif_stmt else_stmt
+conditional ::= if_stmt pos_if
         ;
-if_stmt ::= IF PARENTESIS_L expression PARENTESIS_R THEN statements
+if_stmt ::= IF PARENTESIS_L expression PARENTESIS_R THEN
         ;
 
-elif_stmt ::= elif_stmt ELSE IF PARENTESIS_L expression PARENTESIS_R THEN statements
-        | ELSE IF PARENTESIS_L expression PARENTESIS_R THEN statements
+pos_if ::= stmt SEMICOLON
+        | stmt elif_stmt
+        | BEGIN block_stmt END SEMICOLON
+        | BEGIN block_stmt END elif_stmt
+        ;
+
+statements_woutc ::= stmt
+        | BEGIN block_stmt END SEMICOLON
+        ;
+
+elif_stmt ::= elif_stmt ELSE IF PARENTESIS_L expression PARENTESIS_R THEN pos_elif
+        | ELSE IF PARENTESIS_L expression PARENTESIS_R THEN pos_elif
+        | else_stmt
+        ;
+
+pos_elif ::= stmt SEMICOLON
+        | stmt else_stmt
+        | BEGIN block_stmt END SEMICOLON
+        | BEGIN block_stmt END else_stmt
+        ;
+
+else_stmt ::= ELSE statements_wc
         | /* empty */
         ;
 
-else_stmt ::= ELSE statements_sm
-        | /* empty */
+statements_wc ::= stmt SEMICOLON
+        | BEGIN block_stmt END SEMICOLON
         ;
 
 /************************* case *****************************/
@@ -262,13 +285,12 @@ statements ::= stmt
         | BEGIN block_stmt END SEMICOLON
         ;
 
-statements_sm ::= stmt SEMICOLON
-        | BEGIN block_stmt END SEMICOLON
+block_stmt ::= list_stmts
+        | /* empty */
         ;
 
-block_stmt ::= block_stmt stmt SEMICOLON
+list_stmts ::= list_stmts stmt SEMICOLON
         | stmt SEMICOLON
-        | /* empty */
         ;
 
 stmt ::= conditional
@@ -280,7 +302,7 @@ stmt ::= conditional
         | CONTINUE
         | ID ASSIGNATION expression
         | ID PARENTESIS_L expression_list PARENTESIS_R
-        | ID DOT ID
+        | ID DOT ID ASSIGNATION expression
         | definite_fun
         ;
 
