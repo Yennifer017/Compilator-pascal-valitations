@@ -77,7 +77,7 @@ non terminal        s, header,
                     arguments, type_arg,
                     main,
                     definite_fun, writefn, readfn,
-                    list_stmts
+                    list_stmts, more_stmts
                     ;
 
 /*----------------------------------------
@@ -112,7 +112,7 @@ s ::=   header
         main
         ;
         
-header ::= PROGRAM ID ;
+header ::= PROGRAM ID SEMICOLON;
 
 /*------------------- UTILITIES --------------------*/
 var_type ::= INTEGER
@@ -137,7 +137,7 @@ record_b ::= ID COLON var_type SEMICOLON
             | ID COLON PACKED ARRAY arr_range OF var_type SEMICOLON
             ;
 
-expression_list ::= expression_list expression
+expression_list ::= expression_list COMA expression
             | expression
             ;
 
@@ -162,6 +162,7 @@ const_dec ::= const_dec ID EQUALS expression SEMICOLON;
 
 /*------------------- VARIABLES BLOCK --------------------*/
 var_b ::= VAR var_dec
+            | /* emtpy */
             ;
 var_dec ::= id_list COLON var_type SEMICOLON
             | id_list COLON range SEMICOLON
@@ -186,6 +187,7 @@ bool_exp ::= arit_exp EQUALS arit_exp
             | arit_exp LESS arit_exp
             | arit_exp GRATER_EQUALS arit_exp
             | arit_exp LESS_EQUALS arit_exp
+            | arit_exp
             ;
 
 arit_exp ::=
@@ -289,8 +291,14 @@ block_stmt ::= list_stmts
         | /* empty */
         ;
 
-list_stmts ::= list_stmts stmt SEMICOLON
+list_stmts ::= more_stmts SEMICOLON stmt SEMICOLON
+        | more_stmts SEMICOLON stmt
+        | stmt
         | stmt SEMICOLON
+        ;
+
+more_stmts ::= more_stmts stmt
+        | stmt
         ;
 
 stmt ::= conditional

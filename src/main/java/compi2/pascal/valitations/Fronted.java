@@ -5,6 +5,7 @@ package compi2.pascal.valitations;
  * @author yenni
  */
 
+import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.exceptions.FileException;
 import compi2.pascal.valitations.exceptions.FileExtensionException;
 import compi2.pascal.valitations.exceptions.ProjectOpenException;
@@ -13,8 +14,6 @@ import compi2.pascal.valitations.util.NumberLine;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class Fronted extends javax.swing.JFrame {
@@ -22,6 +21,8 @@ public class Fronted extends javax.swing.JFrame {
     //FIELDS
     private NumberLine numConsole, numDisplayFile;
     private AdmiFiles admiFiles;
+    
+    private Analyzator analyzator;
 
     /**
      * Creates new form Fronted
@@ -32,6 +33,7 @@ public class Fronted extends javax.swing.JFrame {
         initNumeracion();
         initVariables();
         initConsole();
+        analyzator = new Analyzator();
     }
 
     private void initVariables() {
@@ -147,7 +149,7 @@ public class Fronted extends javax.swing.JFrame {
         fileNameDisplay = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         columnaDisplay = new javax.swing.JLabel();
-        ClearBtn1 = new javax.swing.JButton();
+        AnalyzatorBtn = new javax.swing.JButton();
         menu = new javax.swing.JMenuBar();
         fileMenu1 = new javax.swing.JMenu();
         openFileOp1 = new javax.swing.JMenuItem();
@@ -211,29 +213,29 @@ public class Fronted extends javax.swing.JFrame {
         display.setFont(new java.awt.Font("Dialog", 0, 13)); // NOI18N
         display.setForeground(new java.awt.Color(234, 234, 234));
         display.setCaretColor(new java.awt.Color(255, 255, 255));
+        display.addCaretListener(new javax.swing.event.CaretListener() {
+            public void caretUpdate(javax.swing.event.CaretEvent evt) {
+                displayCaretUpdate(evt);
+            }
+        });
+        display.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+                displayCaretPositionChanged(evt);
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+            }
+        });
+        display.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                displayKeyTyped(evt);
+            }
+        });
         displayScroll.setViewportView(display);
 
         console.setBackground(new java.awt.Color(0, 0, 43));
         console.setFont(new java.awt.Font("Dialog", 0, 13)); // NOI18N
         console.setForeground(new java.awt.Color(234, 234, 234));
         console.setCaretColor(new java.awt.Color(255, 255, 255));
-        console.addCaretListener(new javax.swing.event.CaretListener() {
-            public void caretUpdate(javax.swing.event.CaretEvent evt) {
-                consoleCaretUpdate(evt);
-            }
-        });
-        console.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
-                consoleCaretPositionChanged(evt);
-            }
-            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
-            }
-        });
-        console.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                consoleKeyTyped(evt);
-            }
-        });
         consoleScroll.setViewportView(console);
 
         openFilesPanel.setBackground(new java.awt.Color(0, 0, 0));
@@ -259,12 +261,12 @@ public class Fronted extends javax.swing.JFrame {
         columnaDisplay.setForeground(new java.awt.Color(204, 204, 204));
         columnaDisplay.setText("0000");
 
-        ClearBtn1.setBackground(new java.awt.Color(0, 0, 102));
-        ClearBtn1.setForeground(new java.awt.Color(204, 204, 204));
-        ClearBtn1.setText("Analizar");
-        ClearBtn1.addActionListener(new java.awt.event.ActionListener() {
+        AnalyzatorBtn.setBackground(new java.awt.Color(0, 0, 102));
+        AnalyzatorBtn.setForeground(new java.awt.Color(204, 204, 204));
+        AnalyzatorBtn.setText("Analizar");
+        AnalyzatorBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ClearBtn1ActionPerformed(evt);
+                AnalyzatorBtnActionPerformed(evt);
             }
         });
 
@@ -290,7 +292,7 @@ public class Fronted extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 328, Short.MAX_VALUE)
                         .addComponent(ClearBtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(ClearBtn1, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(AnalyzatorBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         interfazPanelLayout.setVerticalGroup(
@@ -308,7 +310,7 @@ public class Fronted extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(columnaDisplay)
                     .addComponent(ClearBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ClearBtn1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(AnalyzatorBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(consoleScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -533,18 +535,6 @@ public class Fronted extends javax.swing.JFrame {
         this.closeFile();
     }//GEN-LAST:event_closeFileActionPerformed
 
-    private void consoleCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_consoleCaretUpdate
-        numConsole.updateColumna(columnaDisplay);
-    }//GEN-LAST:event_consoleCaretUpdate
-
-    private void consoleKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_consoleKeyTyped
-        numConsole.updateColumna(columnaDisplay);
-    }//GEN-LAST:event_consoleKeyTyped
-
-    private void consoleCaretPositionChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_consoleCaretPositionChanged
-        numConsole.updateColumna(columnaDisplay);
-    }//GEN-LAST:event_consoleCaretPositionChanged
-
     private void newFileOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newFileOpActionPerformed
         try {
             if (admiFiles.isOpenProject()) {
@@ -564,9 +554,13 @@ public class Fronted extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_newFileOpActionPerformed
 
-    private void ClearBtn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearBtn1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_ClearBtn1ActionPerformed
+    private void AnalyzatorBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AnalyzatorBtnActionPerformed
+        console.setText(
+            analyzator.comprobate(
+                display.getText()
+            )
+        );
+    }//GEN-LAST:event_AnalyzatorBtnActionPerformed
 
     private void showSTopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showSTopActionPerformed
         // TODO add your handling code here:
@@ -615,10 +609,22 @@ public class Fronted extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_newFileOp1ActionPerformed
 
+    private void displayCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_displayCaretUpdate
+        numDisplayFile.updateColumna(columnaDisplay);
+    }//GEN-LAST:event_displayCaretUpdate
+
+    private void displayCaretPositionChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_displayCaretPositionChanged
+        numDisplayFile.updateColumna(columnaDisplay);
+    }//GEN-LAST:event_displayCaretPositionChanged
+
+    private void displayKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_displayKeyTyped
+        numDisplayFile.updateColumna(columnaDisplay);
+    }//GEN-LAST:event_displayKeyTyped
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton AnalyzatorBtn;
     private javax.swing.JButton ClearBtn;
-    private javax.swing.JButton ClearBtn1;
     private javax.swing.JMenu CodeMenu;
     private javax.swing.JMenu InformationMenu;
     private javax.swing.JMenuItem analyzeAllOp;

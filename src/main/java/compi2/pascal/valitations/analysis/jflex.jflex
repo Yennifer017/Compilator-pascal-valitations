@@ -21,7 +21,7 @@ import java.util.*;
     string = new StringBuilder();
 %init}
 
-%state STRING
+%state CHARLITERAL
 
 LineTerminator = \r|\n|\r\n 
 
@@ -36,12 +36,19 @@ Comment = {SingleComment} | {MultilineComment}
 SingleComment = "{" [^*] ~"\n" ~"}" | "{" "}"
 MultilineComment   = "(*" [^*] ~"*)" | "(*" "*" + ")"
 
+/* string and character literals */
+StringCharacter = [^\r\n\"\\]
+SingleCharacter = [^\r\n\'\\]
+
+OctDigit          = [0-7]
+
 %{
     StringBuilder string;
   /*--------------------------------------------
     CODIGO PARA EL MANEJO DE ERRORES
   ----------------------------------------------*/
     private List<String> errorsList;
+    public List<String> symbols = new ArrayList();
 
     public List<String> getErrors(){
         return this.errorsList;
@@ -51,10 +58,12 @@ MultilineComment   = "(*" [^*] ~"*)" | "(*" "*" + ")"
         CODIGO PARA EL PARSER
     ----------------------------------------------*/
     private Symbol symbol(int type) {
+        symbols.add(yytext());
         return new Symbol(type, yyline+1, yycolumn+1);
     }
 
     private Symbol symbol(int type, Object value) {
+        symbols.add(value.toString());
         return new Symbol(type, yyline+1, yycolumn+1, value);
     }
 
@@ -161,23 +170,49 @@ MultilineComment   = "(*" [^*] ~"*)" | "(*" "*" + ")"
         {Boolean}                      { return symbol(sym.BOOLEAN_LIT, Boolean.valueOf(yytext()));}
         {DecIntegerLiteral}            { return symbol(sym.INTEGER_LIT, Integer.valueOf(yytext())); }
         {DecFloatLiteral}              { return symbol(sym.REAL_LIT, Float.parseFloat(yytext()));}
-        {DecCharLiteral}               { return symbol(sym.CHAR_LIT, CHAR.parseFloat(yytext().charAt(1)));}
+        {DecCharLiteral}               { return symbol(sym.CHAR_LIT, yytext().charAt(1));}
 
 
-        \"                             { string.setLength(0); yybegin(STRING); }
+        /* character literal */
+        \'                             { string.setLength(0); yybegin(CHARLITERAL); }
     }
 
-    <STRING> {
-        \"                             { yybegin(YYINITIAL);
-                                       return symbol(sym.STRING_LIT, 
-                                       string.toString()); }
-        [^\n\r\"\\]+                   { string.append( yytext() ); }
-        \\t                            { string.append('\t'); }
-        \\n                            { string.append('\n'); }
+    <CHARLITERAL> {
+        {SingleCharacter}\'            { yybegin(YYINITIAL); return symbol(sym.CHAR_LIT, yytext().charAt(0)); }
 
-        \\r                            { string.append('\r'); }
-        \\\"                           { string.append('\"'); }
-        \\                             { string.append('\\'); }
+        /* escape sequences */
+        "\\b"\'                        { yybegin(YYINITIAL); return symbol(sym.CHAR_LIT, '\b');}
+        "\\t"\'                        { yybegin(YYINITIAL); return symbol(sym.CHAR_LIT, '\t');}
+        "\\n"\'                        { yybegin(YYINITIAL); return symbol(sym.CHAR_LIT, '\n');}
+        "\\f"\'                        { yybegin(YYINITIAL); return symbol(sym.CHAR_LIT, '\f');}
+        "\\r"\'                        { yybegin(YYINITIAL); return symbol(sym.CHAR_LIT, '\r');}
+        "\\\""\'                       { yybegin(YYINITIAL); return symbol(sym.CHAR_LIT, '\"');}
+        "\\'"\'                        { yybegin(YYINITIAL); return symbol(sym.CHAR_LIT, '\'');}
+        "\\\\"\'                       { yybegin(YYINITIAL); return symbol(sym.CHAR_LIT, '\\'); }
+        \\[0-3]?{OctDigit}?{OctDigit}\' { yybegin(YYINITIAL);
+                                                            int val = Integer.parseInt(yytext().substring(1,yylength()-1),8);
+                                                          return symbol(sym.CHAR_LIT, (char)val); }
+
+
+        \'                             { yybegin(YYINITIAL); return symbol(sym.STRING_LIT, string.toString()); }
+
+        {StringCharacter}+             { string.append( yytext() ); }
+
+        /* escape sequences */
+        "\\b"                          { string.append( '\b' ); }
+        "\\t"                          { string.append( '\t' ); }
+        "\\n"                          { string.append( '\n' ); }
+        "\\f"                          { string.append( '\f' ); }
+        "\\r"                          { string.append( '\r' ); }
+        "\\\""                         { string.append( '\"' ); }
+        "\\'"                          { string.append( '\'' ); }
+        "\\\\"                         { string.append( '\\' ); }
+        \\[0-3]?{OctDigit}?{OctDigit}  { char val = (char) Integer.parseInt(yytext().substring(1),8);
+                                                                   string.append( val ); }
+
+        /* error cases */
+        \\.                            { throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
+        {LineTerminator}               { throw new RuntimeException("Unterminated character literal at end of line"); }
     }
 
 
