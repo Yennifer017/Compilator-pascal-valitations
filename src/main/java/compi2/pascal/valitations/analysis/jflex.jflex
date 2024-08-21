@@ -30,6 +30,7 @@ Identifier = [:jletter:] ([:jletterdigit:]|_)*
 Boolean = 0|1
 DecIntegerLiteral = [0-9]+
 DecFloatLiteral = {DecIntegerLiteral}\.{DecIntegerLiteral}
+DecCharLiteral = \'[\x00-\x7F]\'
 
 Comment = {SingleComment} | {MultilineComment}
 SingleComment = "{" [^*] ~"\n" ~"}" | "{" "}"
@@ -98,7 +99,7 @@ MultilineComment   = "(*" [^*] ~"*)" | "(*" "*" + ")"
     ","             { return symbol(sym.COMA); }
     "."             { return symbol(sym.DOT); }
     ";"             { return symbol(sym.SEMICOLON); }
-    ":  "             { return symbol(sym.COLON); }
+    ":"             { return symbol(sym.COLON); }
 
 
     /* keywords */
@@ -111,7 +112,7 @@ MultilineComment   = "(*" [^*] ~"*)" | "(*" "*" + ")"
     <YYINITIAL> "do"        { return symbol(sym.DO);   }
     <YYINITIAL> "downto"    { return symbol(sym.DOWNTO);   }
     <YYINITIAL> "else"      { return symbol(sym.ELSE);   }
-    <YYINITIAL> "end"      { return symbol(sym.ELSE);   }
+    <YYINITIAL> "end"      { return symbol(sym.END);   }
     <YYINITIAL> "and"       { return symbol(sym.AND);   }
     <YYINITIAL> "file"      { return symbol(sym.FILE);   }
     <YYINITIAL> "for"       { return symbol(sym.FOR);   }
@@ -139,6 +140,12 @@ MultilineComment   = "(*" [^*] ~"*)" | "(*" "*" + ")"
     <YYINITIAL> "while"     { return symbol(sym.WHILE);   }
     <YYINITIAL> "with"      { return symbol(sym.WITH);   }
 
+    <YYINITIAL> "writeln"   { return symbol(sym.WRITELN);   }
+    <YYINITIAL> "readln"    { return symbol(sym.READLN);   }
+    <YYINITIAL> "break"     { return symbol(sym.BREAK);   }
+    <YYINITIAL> "return"    { return symbol(sym.RETURN);   }
+    <YYINITIAL> "continue"  { return symbol(sym.CONTINUE);   }
+
     /* type of data */
     <YYINITIAL> "integer"   { return symbol(sym.INTEGER);   }
     <YYINITIAL> "real"      { return symbol(sym.REAL);   }
@@ -154,6 +161,7 @@ MultilineComment   = "(*" [^*] ~"*)" | "(*" "*" + ")"
         {Boolean}                      { return symbol(sym.BOOLEAN_LIT, Boolean.valueOf(yytext()));}
         {DecIntegerLiteral}            { return symbol(sym.INTEGER_LIT, Integer.valueOf(yytext())); }
         {DecFloatLiteral}              { return symbol(sym.REAL_LIT, Float.parseFloat(yytext()));}
+        {DecCharLiteral}               { return symbol(sym.CHAR_LIT, CHAR.parseFloat(yytext().charAt(1)));}
 
 
         \"                             { string.setLength(0); yybegin(STRING); }
