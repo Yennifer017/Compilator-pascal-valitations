@@ -96,7 +96,6 @@ precedence left PLUS, MINUS;
 precedence left TIMES, DIV, MOD;
 precedence right UMINUS;
 
-precedence left ELSE;
 precedence right SEMICOLON;
 
 /* --------------------------------------
@@ -291,10 +290,8 @@ block_stmt ::= list_stmts
         | /* empty */
         ;
 
-list_stmts ::= more_stmts SEMICOLON stmt SEMICOLON
-        | more_stmts SEMICOLON stmt
-        | stmt
-        | stmt SEMICOLON
+list_stmts ::= stmt
+        | stmt SEMICOLON more_stmts
         ;
 
 more_stmts ::= more_stmts stmt

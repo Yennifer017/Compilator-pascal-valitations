@@ -37,7 +37,6 @@ SingleComment = "{" [^*] ~"\n" ~"}" | "{" "}"
 MultilineComment   = "(*" [^*] ~"*)" | "(*" "*" + ")"
 
 /* string and character literals */
-StringCharacter = [^\r\n\"\\]
 SingleCharacter = [^\r\n\'\\]
 
 OctDigit          = [0-7]
@@ -67,7 +66,7 @@ OctDigit          = [0-7]
         return new Symbol(type, yyline+1, yycolumn+1, value);
     }
 
-    private void error(String message, Object value) {
+    private void error(String message) {
         errorsList.add("Error en la linea: " + (yyline+1) + ", columna: " + (yycolumn+1) + " : "+message);
     }
 
@@ -196,8 +195,7 @@ OctDigit          = [0-7]
 
         \'                             { yybegin(YYINITIAL); return symbol(sym.STRING_LIT, string.toString()); }
 
-        {StringCharacter}+             { string.append( yytext() ); }
-
+        {SingleCharacter}+             { string.append( yytext() ); }
         /* escape sequences */
         "\\b"                          { string.append( '\b' ); }
         "\\t"                          { string.append( '\t' ); }
@@ -211,8 +209,8 @@ OctDigit          = [0-7]
                                                                    string.append( val ); }
 
         /* error cases */
-        \\.                            { throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
-        {LineTerminator}               { throw new RuntimeException("Unterminated character literal at end of line"); }
+        \\.                            { error("Secuencia ilegal de escape \""+yytext()+"\""); }
+        {LineTerminator}               { error("Literal de carácter sin terminar al final de la línea"); }
     }
 
 
@@ -221,6 +219,6 @@ OctDigit          = [0-7]
     {Comment}        {/* ignoramos */}
 
     /* error fallback */
-    .               { error("Simbolo invalido <"+ yytext()+">", yytext());}
+    .               { error("Simbolo invalido <"+ yytext()+">");}
     <<EOF>>         { return symbol(sym.EOF); }
 
