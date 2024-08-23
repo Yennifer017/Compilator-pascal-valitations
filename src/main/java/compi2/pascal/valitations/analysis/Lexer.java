@@ -1413,12 +1413,12 @@ public class Lexer implements java_cup.runtime.Scanner {
           // fall through
           case 117: break;
           case 20:
-            { return symbol(sym.LLAVE_L);
+            { return symbol(sym.CORCHETE_L);
             }
           // fall through
           case 118: break;
           case 21:
-            { return symbol(sym.LLAVE_R);
+            { return symbol(sym.CORCHETE_R);
             }
           // fall through
           case 119: break;
@@ -1428,12 +1428,12 @@ public class Lexer implements java_cup.runtime.Scanner {
           // fall through
           case 120: break;
           case 23:
-            { return symbol(sym.CORCHETE_L);
+            { return symbol(sym.LLAVE_L);
             }
           // fall through
           case 121: break;
           case 24:
-            { return symbol(sym.CORCHETE_R);
+            { return symbol(sym.LLAVE_R);
             }
           // fall through
           case 122: break;

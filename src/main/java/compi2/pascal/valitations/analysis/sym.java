@@ -14,8 +14,8 @@ public class sym {
   public static final int PACKED = 46;
   public static final int TYPE = 54;
   public static final int CONST = 28;
-  public static final int INTEGER_LIT = 65;
-  public static final int STRING_LIT = 68;
+  public static final int INTEGER_LIT = 64;
+  public static final int STRING_LIT = 67;
   public static final int GRATER = 15;
   public static final int UNTIL = 55;
   public static final int LESS_EQUALS = 18;
@@ -23,8 +23,8 @@ public class sym {
   public static final int ACENT = 12;
   public static final int INTEGER = 59;
   public static final int CORCHETE_L = 10;
-  public static final int BOOLEAN_LIT = 66;
-  public static final int COND = 76;
+  public static final int BOOLEAN_LIT = 65;
+  public static final int COND = 75;
   public static final int NOT = 43;
   public static final int LLAVE_R = 7;
   public static final int NIL = 42;
@@ -46,17 +46,17 @@ public class sym {
   public static final int DO = 30;
   public static final int FOR = 35;
   public static final int DIV = 29;
-  public static final int RETURN = 72;
+  public static final int RETURN = 71;
   public static final int DOWNTO = 31;
   public static final int PARENTESIS_L = 8;
-  public static final int READLN = 71;
+  public static final int READLN = 70;
   public static final int ELSE = 32;
-  public static final int BREAK = 73;
+  public static final int BREAK = 72;
   public static final int DOT = 21;
   public static final int PROCEDURE = 47;
   public static final int EOF = 0;
   public static final int SEMICOLON = 22;
-  public static final int REAL_LIT = 67;
+  public static final int REAL_LIT = 66;
   public static final int FUNCTION = 36;
   public static final int GRATER_EQUALS = 17;
   public static final int REPEAT = 50;
@@ -66,22 +66,22 @@ public class sym {
   public static final int OR = 45;
   public static final int SET = 51;
   public static final int error = 1;
-  public static final int WRITELN = 70;
-  public static final int CONTINUE = 74;
+  public static final int WRITELN = 69;
+  public static final int CONTINUE = 73;
   public static final int IF = 38;
-  public static final int ID = 64;
+  public static final int ID = 76;
   public static final int OF = 44;
   public static final int END = 33;
   public static final int COLON = 23;
   public static final int FILE = 34;
   public static final int BEGIN = 26;
   public static final int CASE = 27;
-  public static final int CHAR_LIT = 69;
+  public static final int CHAR_LIT = 68;
   public static final int STRING = 63;
   public static final int LESS = 16;
   public static final int PROGRAM = 48;
   public static final int AND = 24;
-  public static final int UMINUS = 75;
+  public static final int UMINUS = 74;
   public static final int TO = 53;
   public static final int WITH = 58;
   public static final int EQUALS = 13;
@@ -150,7 +150,6 @@ public class sym {
   "BOOLEAN",
   "CHAR",
   "STRING",
-  "ID",
   "INTEGER_LIT",
   "BOOLEAN_LIT",
   "REAL_LIT",
@@ -162,7 +161,8 @@ public class sym {
   "BREAK",
   "CONTINUE",
   "UMINUS",
-  "COND"
+  "COND",
+  "ID"
   };
 }
 

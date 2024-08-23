@@ -86,12 +86,12 @@ OctDigit          = [0-7]
     "/"             { return symbol(sym.BARRA); }
 
     /*Delimitadores*/
-    "["             { return symbol(sym.LLAVE_L); }
-    "]"             { return symbol(sym.LLAVE_R); }
+    "{"             { return symbol(sym.LLAVE_L); }
+    "}"             { return symbol(sym.LLAVE_R); }
     "("             { return symbol(sym.PARENTESIS_L); }
     ")"             { return symbol(sym.PARENTESIS_R); }
-    "{"             { return symbol(sym.CORCHETE_L); }
-    "}"             { return symbol(sym.CORCHETE_R); }
+    "["             { return symbol(sym.CORCHETE_L); }
+    "]"             { return symbol(sym.CORCHETE_R); }
     "`"             { return symbol(sym.ACENT); }
 
     /*comparators*/

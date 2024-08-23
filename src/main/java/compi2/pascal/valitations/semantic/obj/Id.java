@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package compi2.pascal.valitations.util;
+package compi2.pascal.valitations.semantic.obj;
 
+import compi2.pascal.valitations.util.Position;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,12 +13,14 @@ import lombok.Setter;
  * @author blue-dragon
  */
 @Getter @Setter
-public class Position {
-    private int line, col;
+public class Id {
+    private String id;
+    private Position position;
 
-    public Position(int line, int col) {
-        this.line = line;
-        this.col = col;
+    public Id(String id, Position position) {
+        this.id = id;
+        this.position = position;
     }
+    
     
 }

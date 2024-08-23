@@ -12,11 +12,13 @@ parser code {:
     //fields
     Lexer lex;
     private List<String> syntaxErrors;
+    private Analyzator analyzator;
 
     //conect the parser with the lexer
     public Parser(Lexer lex){
         super(lex);
         syntaxErrors = new LinkedList<>();
+        analyzator = new Analyzator();
     }
 
     //getters
@@ -56,14 +58,15 @@ terminal            PLUS, MINUS, TIMES, BARRA,
                     OR, PACKED, PROCEDURE, PROGRAM, RECORD, REPEAT, SET,
                     THEN, TO, TYPE, UNTIL, VAR, WHILE, WITH,
                     INTEGER, REAL, BOOLEAN, CHAR, STRING,
-                    ID, INTEGER_LIT, BOOLEAN_LIT, REAL_LIT, STRING_LIT, CHAR_LIT,
+                    INTEGER_LIT, BOOLEAN_LIT, REAL_LIT, STRING_LIT, CHAR_LIT,
                     WRITELN, READLN, RETURN, BREAK, CONTINUE,
                     UMINUS, COND
                     ;
+terminal String     ID;
 
 /* Non-terminals */
 non terminal        s, header,
-                    var_type, id_list, range, arr_range, record_b, expression_list,
+                    range, arr_range, record_b, expression_list,
                     type_b, type_dec,
                     const_b, const_dec,
                     var_b, var_dec,
@@ -79,7 +82,13 @@ non terminal        s, header,
                     definite_fun, writefn, readfn,
                     list_stmts, more_stmts,
 
-                    simple_stmt, complex_stmt, single_stmt, list_vardec
+                    simple_stmt, complex_stmt, single_stmt, list_vardec,
+                    def_record,more_records, list_typedec, list_constdec
+                    ;
+
+non terminal List<Id> id_list
+                    ;
+non terminal VarType var_type
                     ;
 
 /*----------------------------------------
@@ -116,16 +125,50 @@ s ::=   header
 header ::= PROGRAM ID SEMICOLON;
 
 /*------------------- UTILITIES --------------------*/
-var_type ::= INTEGER
-            | REAL
-            | BOOLEAN
-            | CHAR
-            | STRING
-            | ID
+var_type ::= INTEGER:s   {: 
+                        RESULT = new VarType(
+                            PrimitiveType.IntegerPT.getIdType(), 
+                            new Position(sright, sleft)); 
+                        :}
+            | REAL:s    {: 
+                        RESULT = new VarType(
+                            PrimitiveType.RealPT.getIdType(), 
+                            new Position(sright, sleft)); 
+                        :}
+            | BOOLEAN:s {: 
+                        RESULT = new VarType(
+                            PrimitiveType.BooleanPT.getIdType(), 
+                            new Position(sright, sleft)); 
+                        :}
+            | CHAR:s    {: 
+                        RESULT = new VarType(
+                            PrimitiveType.CharPT.getIdType(), 
+                            new Position(sright, sleft)); 
+                        :}
+            | STRING:s  {: 
+                        RESULT = new VarType(
+                            PrimitiveType.StringPT.getIdType(), 
+                            new Position(sright, sleft)); 
+                        :}
+            | ID:i      {: 
+                        RESULT = new VarType(
+                            i), 
+                            new Position(iright, ileft)); 
+                        :}
             ;
 
-id_list ::= id_list COMA ID
-            | ID
+id_list ::= id_list:l COMA ID:i
+                    {:
+                        l.add(new Id(i, new Position(iright, ileft)));
+                        RESULT = list;
+                    :}
+
+            | ID:i      
+                    {:
+                        List<Id> list = new ArrayList<>();
+                        list.add(new Id(i, new Position(iright, ileft)));
+                        RESULT = list;
+                    :}
             ;
 
 range ::= expression DOT DOT DOT expression
@@ -134,31 +177,52 @@ range ::= expression DOT DOT DOT expression
 arr_range ::= CORCHETE_L expression DOT DOT expression CORCHETE_R
             ;
 
-record_b ::= ID COLON var_type SEMICOLON
+record_b ::= def_record more_records
+            ;
+
+def_record ::= ID COLON var_type SEMICOLON
             | ID COLON PACKED ARRAY arr_range OF var_type SEMICOLON
             ;
+
+more_records ::= def_record more_records
+            | /* empty */
+            ;
+
 
 expression_list ::= expression_list COMA expression
             | expression
             ;
 
 /*------------------- TYPES BLOCK --------------------*/
-type_b ::= TYPE type_dec
+type_b ::= TYPE list_typedec
             | /* empty */
             ;
-type_dec ::=  id_list EQUALS var_type SEMICOLON
-            | id_list EQUALS range SEMICOLON
-            | id_list EQUALS ARRAY arr_range OF var_type SEMICOLON
-            | id_list EQUALS RECORD record_b END SEMICOLON
+
+list_typedec ::= type_dec list_typedec
+            | type_dec
+            ;
+
+type_dec ::=  id_list:l EQUALS var_type:vt SEMICOLON 
+                    {:
+                        //HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+                    :}
+            | id_list:l EQUALS range SEMICOLON
+            | id_list:l EQUALS ARRAY arr_range OF var_type SEMICOLON
+            | id_list:l EQUALS RECORD record_b END SEMICOLON 
             ;
 
 
 /*------------------- CONST BLOCK --------------------*/
-const_b ::= CONST const_dec
+const_b ::= CONST list_constdec
             | /* empty */
             ;
 
-const_dec ::= const_dec ID EQUALS expression SEMICOLON;
+list_constdec ::= const_dec list_constdec
+            | const_dec
+            ;
+
+const_dec ::= const_dec ID EQUALS expression SEMICOLON
+            ;
 
 
 /*------------------- VARIABLES BLOCK --------------------*/

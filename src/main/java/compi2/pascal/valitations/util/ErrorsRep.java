@@ -10,8 +10,13 @@ package compi2.pascal.valitations.util;
  */
 public class ErrorsRep {
     
-    public String typeError(String type, Position position){
+    public String typeRepeatedError(String type, Position position){
         return "El tipo " + type + " ya se ha declarado anteriormente" + report(position);
+                
+    }
+    
+    public String typeUndefiniteError(String type, Position position){
+        return "El tipo " + type + " no se ha definido aun" + report(position);
                 
     }
     

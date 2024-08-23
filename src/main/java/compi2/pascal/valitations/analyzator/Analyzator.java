@@ -3,6 +3,7 @@ package compi2.pascal.valitations.analyzator;
 
 import compi2.pascal.valitations.analysis.Lexer;
 import compi2.pascal.valitations.analysis.Parser;
+import compi2.pascal.valitations.analysis.typet.TypeTable;
 import java.io.StringReader;
 import java.util.List;
 import lombok.Getter;
@@ -15,15 +16,14 @@ import lombok.Setter;
 @Getter @Setter
 public class Analyzator {
     
-    private List<String> lexErrors;
-    private List<String> syntaxErrors;
     private List<String> semanticErrors;
+    private TypeTable typeTable;    
     
-    public void resetErrors(){
-        lexErrors.clear();
-        syntaxErrors.clear();
+    public Analyzator(){
         semanticErrors.clear();
+        typeTable = new TypeTable();
     }
+    
     
     public String comprobate(String text){
         StringBuilder builder =  new StringBuilder();
@@ -31,10 +31,8 @@ public class Analyzator {
         Parser parser = new Parser(lexer);
         try {
             parser.parse();
-            lexErrors = lexer.getErrors();
-            syntaxErrors = parser.getSyntaxErrors();
-            builder.append(getErrors("ERRORES LEXICOS", lexErrors));
-            builder.append(getErrors("ERRORES SINTACTICOS", syntaxErrors));
+            builder.append(getErrors("ERRORES LEXICOS", lexer.getErrors()));
+            builder.append(getErrors("ERRORES SINTACTICOS", parser.getSyntaxErrors()));
             //TODO: ADD VALITATIONS
             //builder.append(getErrors("ERRORES SEMANTICOS", semanticErrors));
         } catch (Exception e) {
@@ -60,10 +58,5 @@ public class Analyzator {
         return builder.toString();
     }
     
-    public boolean isFreeErrors(){
-        return this.lexErrors.isEmpty() 
-                && this.syntaxErrors.isEmpty() 
-                && this.semanticErrors.isEmpty();
-    }
     
 }
