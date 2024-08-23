@@ -77,7 +77,9 @@ non terminal        s, header,
                     arguments, type_arg,
                     main,
                     definite_fun, writefn, readfn,
-                    list_stmts, more_stmts
+                    list_stmts, more_stmts,
+
+                    simple_stmt, complex_stmt, single_stmt, list_vardec
                     ;
 
 /*----------------------------------------
@@ -160,9 +162,14 @@ const_dec ::= const_dec ID EQUALS expression SEMICOLON;
 
 
 /*------------------- VARIABLES BLOCK --------------------*/
-var_b ::= VAR var_dec
+var_b ::= VAR list_vardec
             | /* emtpy */
             ;
+
+list_vardec ::= list_vardec var_dec
+            | var_dec
+            ;
+
 var_dec ::= id_list COLON var_type SEMICOLON
             | id_list COLON range SEMICOLON
             | id_list COLON ARRAY arr_range OF var_type SEMICOLON
@@ -222,14 +229,11 @@ conditional ::= if_stmt pos_if
 if_stmt ::= IF PARENTESIS_L expression PARENTESIS_R THEN
         ;
 
-pos_if ::= stmt SEMICOLON
-        | stmt elif_stmt
+pos_if ::= simple_stmt elif_stmt
+        | simple_stmt SEMICOLON
+        | complex_stmt
         | BEGIN block_stmt END SEMICOLON
         | BEGIN block_stmt END elif_stmt
-        ;
-
-statements_woutc ::= stmt
-        | BEGIN block_stmt END SEMICOLON
         ;
 
 elif_stmt ::= elif_stmt ELSE IF PARENTESIS_L expression PARENTESIS_R THEN pos_elif
@@ -237,8 +241,8 @@ elif_stmt ::= elif_stmt ELSE IF PARENTESIS_L expression PARENTESIS_R THEN pos_el
         | else_stmt
         ;
 
-pos_elif ::= stmt SEMICOLON
-        | stmt else_stmt
+pos_elif ::= simple_stmt else_stmt
+        | simple_stmt SEMICOLON
         | BEGIN block_stmt END SEMICOLON
         | BEGIN block_stmt END else_stmt
         ;
@@ -247,7 +251,7 @@ else_stmt ::= ELSE statements_wc
         | /* empty */
         ;
 
-statements_wc ::= stmt SEMICOLON
+statements_wc ::= simple_stmt SEMICOLON
         | BEGIN block_stmt END SEMICOLON
         ;
 
@@ -281,8 +285,9 @@ repeat_stmt ::= REPEAT statements UNTIL expression SEMICOLON
         ;
 
 /************************* statements *****************************/
-statements ::= stmt
-        | stmt SEMICOLON
+statements ::= simple_stmt
+        | simple_stmt SEMICOLON
+        | complex_stmt
         | BEGIN block_stmt END SEMICOLON
         ;
 
@@ -290,25 +295,33 @@ block_stmt ::= list_stmts
         | /* empty */
         ;
 
-list_stmts ::= stmt
-        | stmt SEMICOLON more_stmts
+list_stmts ::= simple_stmt
+        | simple_stmt SEMICOLON
+        | complex_stmt
+        | simple_stmt SEMICOLON more_stmts
+        | complex_stmt more_stmts
         ;
 
-more_stmts ::= more_stmts stmt
-        | stmt
+more_stmts ::= simple_stmt
+        | simple_stmt SEMICOLON
+        | simple_stmt SEMICOLON more_stmts
+        | complex_stmt more_stmts
+        | complex_stmt
         ;
 
-stmt ::= conditional
-        | case_stmt
-        | while_stmt
-        | for_stmt
-        | repeat_stmt
-        | BREAK
+simple_stmt ::= BREAK
         | CONTINUE
         | ID ASSIGNATION expression
         | ID PARENTESIS_L expression_list PARENTESIS_R
         | ID DOT ID ASSIGNATION expression
         | definite_fun
+        ; 
+
+complex_stmt ::= conditional
+        | case_stmt
+        | while_stmt
+        | for_stmt
+        | repeat_stmt
         ;
 
 /*-------------------- FUNCTIONS -------------------------*/

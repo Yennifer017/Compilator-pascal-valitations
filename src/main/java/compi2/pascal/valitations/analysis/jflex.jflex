@@ -33,7 +33,7 @@ DecFloatLiteral = {DecIntegerLiteral}\.{DecIntegerLiteral}
 DecCharLiteral = \'[\x00-\x7F]\'
 
 Comment = {SingleComment} | {MultilineComment}
-SingleComment = "{" [^*] ~"\n" ~"}" | "{" "}"
+SingleComment = "{"[^}\n]*"}"
 MultilineComment   = "(*" [^*] ~"*)" | "(*" "*" + ")"
 
 /* string and character literals */
