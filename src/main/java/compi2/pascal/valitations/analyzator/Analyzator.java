@@ -5,6 +5,7 @@ import compi2.pascal.valitations.analysis.Lexer;
 import compi2.pascal.valitations.analysis.Parser;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +21,7 @@ public class Analyzator {
     private TypeTable typeTable;    
     
     public Analyzator(){
-        semanticErrors.clear();
+        semanticErrors = new ArrayList<>();
         typeTable = new TypeTable();
     }
     

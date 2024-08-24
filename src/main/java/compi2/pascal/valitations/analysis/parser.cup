@@ -4,6 +4,13 @@ package compi2.pascal.valitations.analysis;
 import java_cup.runtime.*;
 import java.util.*;
 
+import compi2.pascal.valitations.analysis.typet.PrimitiveType;
+import compi2.pascal.valitations.analysis.typet.TypeTable;
+import compi2.pascal.valitations.analyzator.GenTypeTab;
+import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.semantic.obj.TypeDefinition;
+import compi2.pascal.valitations.util.Position;
+
 
 /*-----------------------------------------------------------
   CUP Specification for the Parser Class
@@ -12,13 +19,13 @@ parser code {:
     //fields
     Lexer lex;
     private List<String> syntaxErrors;
-    private Analyzator analyzator;
+    private GenTypeTab genTypeTab;
 
     //conect the parser with the lexer
     public Parser(Lexer lex){
         super(lex);
         syntaxErrors = new LinkedList<>();
-        analyzator = new Analyzator();
+        genTypeTab = new GenTypeTab();
     }
 
     //getters
@@ -67,7 +74,6 @@ terminal String     ID;
 /* Non-terminals */
 non terminal        s, header,
                     range, arr_range, record_b, expression_list,
-                    type_b, type_dec,
                     const_b, const_dec,
                     var_b, var_dec,
                     expression, bool_exp,  arit_exp, literals,
@@ -83,12 +89,14 @@ non terminal        s, header,
                     list_stmts, more_stmts,
 
                     simple_stmt, complex_stmt, single_stmt, list_vardec,
-                    def_record,more_records, list_typedec, list_constdec
+                    def_record,more_records, list_constdec
                     ;
 
-non terminal List<Id> id_list
+non terminal List<Label> id_list
                     ;
-non terminal VarType var_type
+non terminal Label var_type
+                    ;
+non terminal List<TypeDefinition> type_b, list_typedec, type_dec
                     ;
 
 /*----------------------------------------
@@ -114,59 +122,74 @@ precedence right SEMICOLON;
 -----------------------------------------*/
 start with s;
 s ::=   header 
-        type_b
+        type_b:lt
         const_b 
         var_b
         functions_b
         procedure_b
         main
+        {:
+            TypeTable typeTable = genTypeTab.generateTable(true, lt);
+        :}
         ;
         
 header ::= PROGRAM ID SEMICOLON;
 
 /*------------------- UTILITIES --------------------*/
-var_type ::= INTEGER:s   {: 
-                        RESULT = new VarType(
-                            PrimitiveType.IntegerPT.getIdType(), 
-                            new Position(sright, sleft)); 
-                        :}
-            | REAL:s    {: 
-                        RESULT = new VarType(
-                            PrimitiveType.RealPT.getIdType(), 
-                            new Position(sright, sleft)); 
-                        :}
-            | BOOLEAN:s {: 
-                        RESULT = new VarType(
-                            PrimitiveType.BooleanPT.getIdType(), 
-                            new Position(sright, sleft)); 
-                        :}
-            | CHAR:s    {: 
-                        RESULT = new VarType(
-                            PrimitiveType.CharPT.getIdType(), 
-                            new Position(sright, sleft)); 
-                        :}
-            | STRING:s  {: 
-                        RESULT = new VarType(
-                            PrimitiveType.StringPT.getIdType(), 
-                            new Position(sright, sleft)); 
-                        :}
-            | ID:i      {: 
-                        RESULT = new VarType(
-                            i, 
-                            new Position(iright, ileft)); 
-                        :}
+var_type ::= INTEGER:t  
+                    {: 
+                        RESULT = new Label(
+                            PrimitiveType.IntegerPT.getName(), 
+                            new Position(tright, tleft)
+                        ); 
+                    :}
+            | REAL:t    
+                    {: 
+                        RESULT = new Label(
+                            PrimitiveType.RealPT.getName(), 
+                            new Position(tright, tleft)
+                        ); 
+                    :}
+            | BOOLEAN:t 
+                    {: 
+                        RESULT = new Label(
+                            PrimitiveType.BooleanPT.getName(), 
+                            new Position(tright, tleft)
+                        ); 
+                    :}
+            | CHAR:t    
+                    {: 
+                        RESULT = new Label(
+                            PrimitiveType.CharPT.getName(), 
+                            new Position(tright, tleft)
+                        ); 
+                    :}
+            | STRING:t  
+                    {: 
+                        RESULT = new Label(
+                            PrimitiveType.StringPT.getName(), 
+                            new Position(tright, tleft)
+                        ); 
+                    :}
+            | ID:t  
+                    {: 
+                        RESULT = new Label(
+                            t, 
+                            new Position(tright, tleft)
+                        ); 
+                    :}
             ;
 
 id_list ::= id_list:l COMA ID:i
                     {:
-                        l.add(new Id(i, new Position(iright, ileft)));
-                        RESULT = list;
+                        l.add(new Label(i, new Position(iright, ileft)));
+                        RESULT = l;
                     :}
 
             | ID:i      
                     {:
-                        List<Id> list = new ArrayList<>();
-                        list.add(new Id(i, new Position(iright, ileft)));
+                        List<Label> list = new ArrayList<>();
+                        list.add(new Label(i, new Position(iright, ileft)));
                         RESULT = list;
                     :}
             ;
@@ -194,17 +217,27 @@ expression_list ::= expression_list COMA expression
             ;
 
 /*------------------- TYPES BLOCK --------------------*/
-type_b ::= TYPE list_typedec
+type_b ::= TYPE list_typedec:l
+                    {:
+                        RESULT = l;
+                    :}
             | /* empty */
             ;
 
-list_typedec ::= type_dec list_typedec
-            | type_dec
+list_typedec ::= type_dec:l1 list_typedec:l2
+                    {:
+                        l1.addAll(l2);
+                        RESULT = l1;
+                    :}
+            | type_dec:l
+                    {:
+                        RESULT = l;
+                    :}
             ;
 
-type_dec ::=  id_list:l EQUALS var_type:vt SEMICOLON 
+type_dec ::=  id_list:l EQUALS var_type:t SEMICOLON 
                     {:
-                        genTypeTab.generateSingle(l, vt);
+                        RESULT = genTypeTab.userDef(l, t);
                     :}
             | id_list:l EQUALS range SEMICOLON
             | id_list:l EQUALS ARRAY arr_range OF var_type SEMICOLON

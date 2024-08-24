@@ -13,11 +13,11 @@ import lombok.Setter;
  * @author blue-dragon
  */
 @Getter @Setter
-public class Id {
+public class Label {
     private String name;
     private Position position;
 
-    public Id(String name, Position position) {
+    public Label(String name, Position position) {
         this.name = name;
         this.position = position;
     }

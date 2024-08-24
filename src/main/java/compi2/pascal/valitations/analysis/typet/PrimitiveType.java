@@ -10,7 +10,7 @@ public enum PrimitiveType {
     RealPT("real"),
     BooleanPT("boolean"),
     CharPT("char"),
-    String("string");
+    StringPT("string");
     
     private String name;
     private Type type;
