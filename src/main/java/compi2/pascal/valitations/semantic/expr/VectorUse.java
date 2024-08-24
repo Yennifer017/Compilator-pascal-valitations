@@ -4,10 +4,27 @@
  */
 package compi2.pascal.valitations.semantic.expr;
 
+import compi2.pascal.valitations.semantic.obj.Label;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  *
  * @author blue-dragon
  */
+@Getter @Setter
 public class VectorUse extends Expression{
+    private Label idVector;
+    private Expression expression;
+
+    @Override
+    public boolean isLeaf() {
+        return false;
+    }
+
+    @Override
+    public boolean isComplex() {
+        return true;
+    }
     
 }

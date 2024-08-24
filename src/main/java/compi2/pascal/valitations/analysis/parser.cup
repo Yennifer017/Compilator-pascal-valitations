@@ -64,7 +64,7 @@ terminal            PLUS, MINUS, TIMES, BARRA,
                     IF, IN, LABEL, MOD, NIL, NOT, OF,
                     OR, PACKED, PROCEDURE, PROGRAM, RECORD, REPEAT, SET,
                     THEN, TO, TYPE, UNTIL, VAR, WHILE, WITH,
-                    INTEGER, REAL, BOOLEAN, CHAR, STRING,
+                    INTEGER, REAL, BOOLEAN, CHAR, STRING, LONGINT,
                     INTEGER_LIT, BOOLEAN_LIT, REAL_LIT, STRING_LIT, CHAR_LIT,
                     WRITELN, READLN, RETURN, BREAK, CONTINUE,
                     UMINUS, COND
@@ -76,7 +76,6 @@ non terminal        s, header,
                     range, arr_range, record_b, expression_list,
                     const_b, const_dec,
                     var_b, var_dec,
-                    expression, bool_exp,  arit_exp, literals,
                     conditional, if_stmt, elif_stmt, else_stmt, pos_if, pos_elif, statements_wc,
                     case_stmt, case_block, labels, single_stm,
                     while_stmt, for_stmt, repeat_stmt,
@@ -87,16 +86,17 @@ non terminal        s, header,
                     main,
                     definite_fun, writefn, readfn,
                     list_stmts, more_stmts,
-
                     simple_stmt, complex_stmt, single_stmt, list_vardec,
                     def_record,more_records, list_constdec
                     ;
 
-non terminal List<Label> id_list
+non terminal List<Label> id_list, list_access
                     ;
 non terminal Label var_type
                     ;
 non terminal List<TypeDefinition> type_b, list_typedec, type_dec
+                    ;
+non terminal Expression expression, bool_exp, arit_exp, literals
                     ;
 
 /*----------------------------------------
@@ -112,10 +112,11 @@ precedence left NOT;
 
 /*operaciones*/
 precedence left PLUS, MINUS;
-precedence left TIMES, DIV, MOD;
+precedence left TIMES, DIV, BARRA, MOD;
 precedence right UMINUS;
 
 precedence right SEMICOLON;
+precedence right DOT;
 
 /* --------------------------------------
             The grammar 
@@ -140,56 +141,63 @@ var_type ::= INTEGER:t
                     {: 
                         RESULT = new Label(
                             PrimitiveType.IntegerPT.getName(), 
-                            new Position(tright, tleft)
+                            new Position(tleft, tright)
                         ); 
                     :}
             | REAL:t    
                     {: 
                         RESULT = new Label(
                             PrimitiveType.RealPT.getName(), 
-                            new Position(tright, tleft)
+                            new Position(tleft, tright)
+                        ); 
+                    :}
+            | LONGINT
+                    {:
+                        RESULT = new Label(
+                            PrimitiveType.LongintPT.getName(), 
+                            new Position(tleft, tright)
                         ); 
                     :}
             | BOOLEAN:t 
                     {: 
                         RESULT = new Label(
                             PrimitiveType.BooleanPT.getName(), 
-                            new Position(tright, tleft)
+                            new Position(tleft, tright)
                         ); 
                     :}
             | CHAR:t    
                     {: 
                         RESULT = new Label(
                             PrimitiveType.CharPT.getName(), 
-                            new Position(tright, tleft)
+                            new Position(tleft, tright)
                         ); 
                     :}
             | STRING:t  
                     {: 
                         RESULT = new Label(
                             PrimitiveType.StringPT.getName(), 
-                            new Position(tright, tleft)
+                            new Position(tleft, tright)
                         ); 
                     :}
             | ID:t  
                     {: 
                         RESULT = new Label(
                             t, 
-                            new Position(tright, tleft)
+                            new Position(tleft, tright)
                         ); 
                     :}
             ;
 
 id_list ::= id_list:l COMA ID:i
                     {:
-                        l.add(new Label(i, new Position(iright, ileft)));
+                        l.add(new Label(i, new Position(tleft, tright)));
                         RESULT = l;
                     :}
 
             | ID:i      
                     {:
                         List<Label> list = new ArrayList<>();
-                        list.add(new Label(i, new Position(iright, ileft)));
+                        list.add(new Label(i, new Position(tleft, tright)));
                         RESULT = list;
                     :}
             ;
@@ -276,44 +284,229 @@ var_dec ::= id_list COLON var_type SEMICOLON
 
 /*-------------------- EXPRESSION BLOCK -------------------------*/
 
-expression ::= expression AND expression
-            | expression AND THEN expression
-            | expression OR expression
-            | expression OR ELSE expression
-            | expression NOT expression
-            | bool_exp
+expression ::= expression:e1 AND:o expression:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.And, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | expression:e1 AND:o THEN expression:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.AndThen, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | expression:e1 OR:o expression:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.Or, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | expression:e1 OR:o ELSE expression:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.OrElse, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            %prec UMINUS
+            | NOT:o expression:e
+                    {:
+                        RESULT = new UnaryOperation(
+                            DefiniteOperation.Not,
+                            e,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | bool_exp:e
+                    {:
+                        RESULT = e;
+                    :}
             ;
 
-bool_exp ::= arit_exp EQUALS arit_exp
-            | arit_exp DIFFERENT arit_exp
-            | arit_exp GRATER arit_exp
-            | arit_exp LESS arit_exp
-            | arit_exp GRATER_EQUALS arit_exp
-            | arit_exp LESS_EQUALS arit_exp
-            | arit_exp
+bool_exp ::= arit_exp:e1 EQUALS:o arit_exp:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.EqualsTo, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | arit_exp:e1 DIFFERENT:o arit_exp:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.DifferentTo, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | arit_exp:e1 GRATER:o arit_exp:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.GraterThan, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | arit_exp:e1 LESS:o arit_exp:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.LessThan, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | arit_exp:e1 GRATER_EQUALS:o arit_exp:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.GraterEq, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | arit_exp:e1 LESS_EQUALS:o arit_exp:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.LessEq, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | arit_exp:e
+                    {:
+                        RESULT = e;
+                    :}
             ;
 
 arit_exp ::=
-              arit_exp PLUS arit_exp
-            | arit_exp MINUS arit_exp
-            | arit_exp TIMES arit_exp
-            | arit_exp DIV arit_exp
-            | arit_exp MOD arit_exp
-            | literals
+              arit_exp:e1 PLUS arit_exp:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.Addition, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | arit_exp:e1 MINUS arit_exp:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.Substraction, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | arit_exp:e1 TIMES arit_exp:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.Multiplication, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | arit_exp:e1 DIV arit_exp:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.IntDivision, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | arit_exp:e1 BARRA arit_exp:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.Division, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | arit_exp:e1 MOD arit_exp:e2
+                    {:
+                        RESULT = new Operation(
+                            DefiniteOperation.Module, e1, e2,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            | literals:e
+                    {:
+                        RESULT = e;
+                    :}
             | ID CORCHETE_L arit_exp CORCHETE_R
-            | ID DOT ID
+            | ID DOT list_access:l
+                    {:
+
+                    :}
             | ID PARENTESIS_L id_list PARENTESIS_R
-            | ID
+            | ID:i
+                    {:
+                        RESULT = new Operation(
+                            i, new Position(ileft,iright)
+                        );
+                    :}
             %prec UMINUS
-            | PARENTESIS_L expression PARENTESIS_R
+            | PARENTESIS_L expression:e PARENTESIS_R
+                    {:
+                        RESULT = e;
+                    :}
+            %prec UMINUS
+            | PLUS:o arit_exp:e
+                    {:
+                        RESULT = new UnaryOperation(
+                            DefiniteOperation.Addition,
+                            e,
+                            new Position(oleft, oright)
+                        );
+                    :}
+            %prec UMINUS
+            | MINUS:o arit_exp:e
+                    {:
+                        RESULT = new UnaryOperation(
+                            DefiniteOperation.Substraction,
+                            e,
+                            new Position(oleft, oright)
+                        );
+                    :}
             ;
 
+list_access ::=  list_access:l DOT ID:i 
+                    {:
+                        l.add(new Label(i, ileft, iright));
+                        RESULT = l;
+                    :}
+            | ID:i
+                    {:
+                        ArrayList<Label> access = new ArrayList<>();
+                        access.add(new Label(i, ileft, iright));
+                        RESULT = access;
+                    :}
+            ;
 
-literals ::= BOOLEAN_LIT
-            | INTEGER_LIT
-            | REAL_LIT
-            | CHAR_LIT
-            | STRING_LIT
+literals ::= BOOLEAN_LIT:l
+                    {:
+                        RESULT = new Operation(
+                            PrimitiveType.BooleanPT, 
+                            new Position(lleft, lright)
+                        );
+                    :}
+            | INTEGER_LIT:l
+                    {:
+                        RESULT = new Operation(
+                            PrimitiveType.IntegerPT, 
+                            new Position(lleft, lright)
+                        );
+                    :}
+            | REAL_LIT:l
+                    {:
+                        RESULT = new Operation(
+                            PrimitiveType.RealPT, 
+                            new Position(lleft, lright)
+                        );
+                    :}
+            | CHAR_LIT:l
+                    {:
+                        RESULT = new Operation(
+                            PrimitiveType.CharPT, 
+                            new Position(lleft, lright)
+                        );
+                    :}
+            | STRING_LIT:l
+                    {:
+                        RESULT = new Operation(
+                            PrimitiveType.StringPT, 
+                            new Position(lleft, lright)
+                        );
+                    :}
             ;
 
 

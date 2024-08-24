@@ -160,6 +160,7 @@ OctDigit          = [0-7]
     <YYINITIAL> "boolean"   { return symbol(sym.BOOLEAN);   }
     <YYINITIAL> "char"      { return symbol(sym.CHAR);   }
     <YYINITIAL> "string"    { return symbol(sym.STRING);   }
+    <YYINITIAL> "longint"    { return symbol(sym.LONGINT);   }
 
     <YYINITIAL> {
         /* identifiers */ 

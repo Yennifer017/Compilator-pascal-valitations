@@ -1,6 +1,9 @@
 
 package compi2.pascal.valitations.semantic.expr;
 
+import compi2.pascal.valitations.analysis.typet.PrimitiveType;
+import compi2.pascal.valitations.analysis.typet.Type;
+import compi2.pascal.valitations.util.Position;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,8 +14,8 @@ import lombok.Setter;
 @Getter @Setter
 public abstract class Expression {
     
-    private Expression rightExp;
-    private Expression leftExp;
+    protected Position pos;
+    protected PrimitiveType type;
     
     public abstract boolean isLeaf();
     public abstract boolean isComplex();
