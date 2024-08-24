@@ -152,7 +152,7 @@ var_type ::= INTEGER:s   {:
                         :}
             | ID:i      {: 
                         RESULT = new VarType(
-                            i), 
+                            i, 
                             new Position(iright, ileft)); 
                         :}
             ;
@@ -204,7 +204,7 @@ list_typedec ::= type_dec list_typedec
 
 type_dec ::=  id_list:l EQUALS var_type:vt SEMICOLON 
                     {:
-                        //HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+                        genTypeTab.generateSingle(l, vt);
                     :}
             | id_list:l EQUALS range SEMICOLON
             | id_list:l EQUALS ARRAY arr_range OF var_type SEMICOLON
