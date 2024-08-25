@@ -5,6 +5,7 @@
 package compi2.pascal.valitations.semantic.expr;
 
 import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.util.Position;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,17 +15,13 @@ import lombok.Setter;
  */
 @Getter @Setter
 public class VectorUse extends Expression{
-    private Label idVector;
+    private String idVector;
     private Expression expression;
 
-    @Override
-    public boolean isLeaf() {
-        return false;
-    }
-
-    @Override
-    public boolean isComplex() {
-        return true;
+    public VectorUse(String idVector, Expression expression, Position pos) {
+        this.idVector = idVector;
+        this.expression = expression;
+        super.pos = pos;
     }
     
 }

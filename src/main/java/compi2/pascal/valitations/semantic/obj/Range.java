@@ -13,4 +13,10 @@ import lombok.Setter;
 public class Range {
     Expression init;
     Expression end;
+
+    public Range(Expression init, Expression end) {
+        this.init = init;
+        this.end = end;
+    }
+    
 }

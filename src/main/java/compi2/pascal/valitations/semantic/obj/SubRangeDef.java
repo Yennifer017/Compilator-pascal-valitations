@@ -4,6 +4,7 @@
  */
 package compi2.pascal.valitations.semantic.obj;
 
+import compi2.pascal.valitations.analysis.typet.PrimitiveType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,11 +13,14 @@ import lombok.Setter;
  * @author blue-dragon
  */
 @Getter @Setter
-public class TypeDefinition extends TypeDefAst {
+public class SubRangeDef extends TypeDefAst{
+    private Range range;
 
-    public TypeDefinition(Label newType, Label baseType) {
-        this.newType = newType;
-        this.baseType = baseType;
+    public SubRangeDef(Label newType, Range range) {
+        this.range = range;
+        super.newType = newType;
+        super.baseType = new Label(PrimitiveType.IntegerPT.getName(), null);
     }
- 
+    
+    
 }

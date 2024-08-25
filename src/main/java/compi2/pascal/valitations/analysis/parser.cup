@@ -4,11 +4,12 @@ package compi2.pascal.valitations.analysis;
 import java_cup.runtime.*;
 import java.util.*;
 
-import compi2.pascal.valitations.analysis.typet.PrimitiveType;
-import compi2.pascal.valitations.analysis.typet.TypeTable;
+import java_cup.runtime.*;
+import java.util.*;
+import compi2.pascal.valitations.analysis.typet.*;
 import compi2.pascal.valitations.analyzator.GenTypeTab;
-import compi2.pascal.valitations.semantic.obj.Label;
-import compi2.pascal.valitations.semantic.obj.TypeDefinition;
+import compi2.pascal.valitations.semantic.expr.*;
+import compi2.pascal.valitations.semantic.obj.*;
 import compi2.pascal.valitations.util.Position;
 
 
@@ -73,7 +74,7 @@ terminal String     ID;
 
 /* Non-terminals */
 non terminal        s, header,
-                    range, arr_range, record_b, expression_list,
+                    record_b,
                     const_b, const_dec,
                     var_b, var_dec,
                     conditional, if_stmt, elif_stmt, else_stmt, pos_if, pos_elif, statements_wc,
@@ -94,9 +95,13 @@ non terminal List<Label> id_list, list_access
                     ;
 non terminal Label var_type
                     ;
-non terminal List<TypeDefinition> type_b, list_typedec, type_dec
+non terminal List<TypeDefAst> type_b, list_typedec, type_dec
                     ;
 non terminal Expression expression, bool_exp, arit_exp, literals
+                    ;
+non terminal List<Expression> expression_list
+                    ;
+non terminal Range range, arr_range
                     ;
 
 /*----------------------------------------
@@ -136,7 +141,7 @@ s ::=   header
         
 header ::= PROGRAM ID SEMICOLON;
 
-/*------------------- UTILITIES --------------------*/
+/*-------------------------------------- UTILITIES --------------------------------*/
 var_type ::= INTEGER:t  
                     {: 
                         RESULT = new Label(
@@ -151,7 +156,7 @@ var_type ::= INTEGER:t
                             new Position(tleft, tright)
                         ); 
                     :}
-            | LONGINT
+            | LONGINT:t
                     {:
                         RESULT = new Label(
                             PrimitiveType.LongintPT.getName(), 
@@ -190,22 +195,28 @@ var_type ::= INTEGER:t
 
 id_list ::= id_list:l COMA ID:i
                     {:
-                        l.add(new Label(i, new Position(tleft, tright)));
+                        l.add(new Label(i, new Position(ileft, iright)));
                         RESULT = l;
                     :}
 
             | ID:i      
                     {:
                         List<Label> list = new ArrayList<>();
-                        list.add(new Label(i, new Position(tleft, tright)));
+                        list.add(new Label(i, new Position(ileft, iright)));
                         RESULT = list;
                     :}
             ;
 
-range ::= expression DOT DOT DOT expression
+range ::= expression:e1 DOT DOT DOT expression:e2
+                    {:
+                        RESULT = new Range(e1, e2);
+                    :}
             ;
 
-arr_range ::= CORCHETE_L expression DOT DOT expression CORCHETE_R
+arr_range ::= CORCHETE_L expression:e1 DOT DOT expression:e2 CORCHETE_R
+                    {:
+                         RESULT = new Range(e1, e2);
+                    :}
             ;
 
 record_b ::= def_record more_records
@@ -220,16 +231,28 @@ more_records ::= def_record more_records
             ;
 
 
-expression_list ::= expression_list COMA expression
-            | expression
+expression_list ::= expression_list:l COMA expression:e
+                    {:
+                        l.add(e);
+                        RESULT = l;
+                    :}
+            | expression:e
+                    {:
+                        LinkedList<Expression> list = new LinkedList<Expression>();
+                        list.add(e);
+                        RESULT = list;
+                    :}
             ;
 
-/*------------------- TYPES BLOCK --------------------*/
+/*---------------------------------- TYPES BLOCK -------------------------------------*/
 type_b ::= TYPE list_typedec:l
                     {:
                         RESULT = l;
                     :}
             | /* empty */
+                    {:
+                        RESULT = new ArrayList<TypeDefAst>();
+                    :}
             ;
 
 list_typedec ::= type_dec:l1 list_typedec:l2
@@ -247,13 +270,19 @@ type_dec ::=  id_list:l EQUALS var_type:t SEMICOLON
                     {:
                         RESULT = genTypeTab.userDef(l, t);
                     :}
-            | id_list:l EQUALS range SEMICOLON
-            | id_list:l EQUALS ARRAY arr_range OF var_type SEMICOLON
+            | id_list:l EQUALS range:r SEMICOLON
+                    {:
+                        RESULT = genTypeTab.rangeDef(l, r);
+                    :}
+            | id_list:l EQUALS ARRAY arr_range:r OF var_type:t SEMICOLON
+                    {:
+                        RESULT = genTypeTab.arrayDef(l, r, t);
+                    :}
             | id_list:l EQUALS RECORD record_b END SEMICOLON 
             ;
 
 
-/*------------------- CONST BLOCK --------------------*/
+/*-------------------------------------- CONST BLOCK ---------------------------------*/
 const_b ::= CONST list_constdec
             | /* empty */
             ;
@@ -266,7 +295,7 @@ const_dec ::= const_dec ID EQUALS expression SEMICOLON
             ;
 
 
-/*------------------- VARIABLES BLOCK --------------------*/
+/*-------------------------------------- VARIABLES BLOCK -------------------------------*/
 var_b ::= VAR list_vardec
             | /* emtpy */
             ;
@@ -282,7 +311,7 @@ var_dec ::= id_list COLON var_type SEMICOLON
             ;
 
 
-/*-------------------- EXPRESSION BLOCK -------------------------*/
+/*---------------------------------- EXPRESSION BLOCK -------------------------------------*/
 
 expression ::= expression:e1 AND:o expression:e2
                     {:
@@ -375,43 +404,42 @@ bool_exp ::= arit_exp:e1 EQUALS:o arit_exp:e2
                     :}
             ;
 
-arit_exp ::=
-              arit_exp:e1 PLUS arit_exp:e2
+arit_exp ::= arit_exp:e1 PLUS:o arit_exp:e2
                     {:
                         RESULT = new Operation(
                             DefiniteOperation.Addition, e1, e2,
                             new Position(oleft, oright)
                         );
                     :}
-            | arit_exp:e1 MINUS arit_exp:e2
+            | arit_exp:e1 MINUS:o arit_exp:e2
                     {:
                         RESULT = new Operation(
                             DefiniteOperation.Substraction, e1, e2,
                             new Position(oleft, oright)
                         );
                     :}
-            | arit_exp:e1 TIMES arit_exp:e2
+            | arit_exp:e1 TIMES:o arit_exp:e2
                     {:
                         RESULT = new Operation(
                             DefiniteOperation.Multiplication, e1, e2,
                             new Position(oleft, oright)
                         );
                     :}
-            | arit_exp:e1 DIV arit_exp:e2
+            | arit_exp:e1 DIV:o arit_exp:e2
                     {:
                         RESULT = new Operation(
                             DefiniteOperation.IntDivision, e1, e2,
                             new Position(oleft, oright)
                         );
                     :}
-            | arit_exp:e1 BARRA arit_exp:e2
+            | arit_exp:e1 BARRA:o arit_exp:e2
                     {:
                         RESULT = new Operation(
                             DefiniteOperation.Division, e1, e2,
                             new Position(oleft, oright)
                         );
                     :}
-            | arit_exp:e1 MOD arit_exp:e2
+            | arit_exp:e1 MOD:o arit_exp:e2
                     {:
                         RESULT = new Operation(
                             DefiniteOperation.Module, e1, e2,
@@ -422,15 +450,26 @@ arit_exp ::=
                     {:
                         RESULT = e;
                     :}
-            | ID CORCHETE_L arit_exp CORCHETE_R
-            | ID DOT list_access:l
+            | ID:i CORCHETE_L arit_exp:e CORCHETE_R
                     {:
-
+                        RESULT = new VectorUse(
+                            i, e, new Position(ileft, iright)
+                        );
                     :}
-            | ID PARENTESIS_L id_list PARENTESIS_R
+            | ID:i DOT list_access:l
+                    {:
+                        l.add(0, new Label(i, new Position(ileft, iright)));
+                        RESULT = new RecordUse(l);
+                    :}
+            | ID:i PARENTESIS_L expression_list:l PARENTESIS_R
+                    {:
+                        RESULT = new FunctionUse(
+                            i, l, new Position(ileft, iright)
+                        );
+                    :}
             | ID:i
                     {:
-                        RESULT = new Operation(
+                        RESULT = new SingleExp(
                             i, new Position(ileft,iright)
                         );
                     :}
@@ -461,48 +500,48 @@ arit_exp ::=
 
 list_access ::=  list_access:l DOT ID:i 
                     {:
-                        l.add(new Label(i, ileft, iright));
+                        l.add(new Label(i, new Position(ileft, iright)));
                         RESULT = l;
                     :}
             | ID:i
                     {:
                         ArrayList<Label> access = new ArrayList<>();
-                        access.add(new Label(i, ileft, iright));
+                        access.add(new Label(i, new Position(ileft, iright)));
                         RESULT = access;
                     :}
             ;
 
 literals ::= BOOLEAN_LIT:l
                     {:
-                        RESULT = new Operation(
+                        RESULT = new SingleExp(
                             PrimitiveType.BooleanPT, 
                             new Position(lleft, lright)
                         );
                     :}
             | INTEGER_LIT:l
                     {:
-                        RESULT = new Operation(
+                        RESULT = new SingleExp(
                             PrimitiveType.IntegerPT, 
                             new Position(lleft, lright)
                         );
                     :}
             | REAL_LIT:l
                     {:
-                        RESULT = new Operation(
+                        RESULT = new SingleExp(
                             PrimitiveType.RealPT, 
                             new Position(lleft, lright)
                         );
                     :}
             | CHAR_LIT:l
                     {:
-                        RESULT = new Operation(
+                        RESULT = new SingleExp(
                             PrimitiveType.CharPT, 
                             new Position(lleft, lright)
                         );
                     :}
             | STRING_LIT:l
                     {:
-                        RESULT = new Operation(
+                        RESULT = new SingleExp(
                             PrimitiveType.StringPT, 
                             new Position(lleft, lright)
                         );
@@ -510,7 +549,7 @@ literals ::= BOOLEAN_LIT:l
             ;
 
 
-/*-------------------- STATEMENTS BLOCK -------------------------*/
+/*------------------------------------------- STATEMENTS BLOCK ------------------------------*/
 
 /************************* conditionals *****************************/
 
@@ -628,7 +667,7 @@ function_dec ::= function_dec FUNCTION ID PARENTESIS_L arguments PARENTESIS_R CO
             BEGIN block_stmt END SEMICOLON
         ;
 
-/*-------------------- PROCEDURES -------------------------*/
+/*-------------------------------------- PROCEDURES ----------------------------------*/
 
 procedure_b ::= procedures
         | /* empty */
@@ -643,7 +682,7 @@ procedure_dec ::= PROCEDURE ID PARENTESIS_L arguments PARENTESIS_R SEMICOLON
             BEGIN block_stmt END SEMICOLON
         ;
 
-/*-------------------- PARAMS / ARGUMENTS -------------------------*/
+/*---------------------------------- PARAMS / ARGUMENTS ----------------------------------*/
 arguments ::= arguments COMA type_arg
         | type_arg
         | /* empty */
@@ -653,11 +692,11 @@ type_arg ::= VAR id_list COLON var_type
         | id_list COLON var_type
         ;
 
-/*-------------------- MAIN SECTION -------------------------*/
+/*----------------------------------- MAIN SECTION -------------------------------------*/
 main ::= BEGIN block_stmt END DOT
         ;
 
-/*-------------------- OTHERS -------------------------*/
+/*---------------------------------------- OTHERS ---------------------------------------*/
 definite_fun ::= writefn
         | readfn
         ;

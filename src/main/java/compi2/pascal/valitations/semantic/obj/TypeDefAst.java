@@ -12,11 +12,7 @@ import lombok.Setter;
  * @author blue-dragon
  */
 @Getter @Setter
-public class TypeDefinition extends TypeDefAst {
-
-    public TypeDefinition(Label newType, Label baseType) {
-        this.newType = newType;
-        this.baseType = baseType;
-    }
- 
+public abstract class TypeDefAst {
+    protected Label newType;
+    protected Label baseType;
 }

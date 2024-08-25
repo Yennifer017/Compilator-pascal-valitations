@@ -1,7 +1,7 @@
 
 package compi2.pascal.valitations.semantic.expr;
 
-import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.util.Position;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,16 +12,14 @@ import lombok.Setter;
  */
 @Getter @Setter
 public class FunctionUse extends Expression{
-    private Label function;
+    private String functionName;
     private List<Expression> params;
 
-    @Override
-    public boolean isLeaf() {
-        return false;
+    public FunctionUse(String functionName, List<Expression> params, Position pos) {
+        this.functionName = functionName;
+        this.params = params;
+        super.pos = pos;
     }
-
-    @Override
-    public boolean isComplex() {
-        return true;
-    }
+    
+    
 }

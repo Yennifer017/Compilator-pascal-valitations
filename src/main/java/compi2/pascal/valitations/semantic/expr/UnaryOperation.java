@@ -19,14 +19,5 @@ public class UnaryOperation extends Expression{
         this.expression = expression;
         super.pos = pos;
     }
-    
-    @Override
-    public boolean isLeaf() {
-        return false;
-    }
 
-    @Override
-    public boolean isComplex() {
-        return true;
-    }
 }

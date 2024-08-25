@@ -17,13 +17,8 @@ import lombok.Setter;
 public class RecordUse extends Expression{
     private List<Label> access;
 
-    @Override
-    public boolean isLeaf() {
-        return false;
+    public RecordUse(List<Label> access) {
+        this.access = access;
     }
-
-    @Override
-    public boolean isComplex() {
-        return true;
-    }
+    
 }
