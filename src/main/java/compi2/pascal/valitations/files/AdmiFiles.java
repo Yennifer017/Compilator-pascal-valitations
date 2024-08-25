@@ -1,9 +1,11 @@
 package compi2.pascal.valitations.files;
 
 
+import compi2.pascal.valitations.exceptions.DirectoryException;
 import compi2.pascal.valitations.files.model.OpenFile;
 import compi2.pascal.valitations.exceptions.FileException;
 import compi2.pascal.valitations.exceptions.FileExtensionException;
+import compi2.pascal.valitations.exceptions.FileOpenException;
 import compi2.pascal.valitations.exceptions.ProjectOpenException;
 import compi2.pascal.valitations.files.model.FileProject;
 import compi2.pascal.valitations.util.BinarySearch;
@@ -11,13 +13,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
@@ -29,13 +32,13 @@ public class AdmiFiles {
     private static final String EMPTY_NOTATION = "[none]";
     private static final String FILE_NAME_REGEX = "[A-Za-z][A-Za-z0-9_]*";
 
-    private List<FileProject> currentProject;
+    private boolean isOpenProject;
+    
     private List<OpenFile> openFiles;
     private OpenFile currentFile;
 
     private UtilForFiles filesU;
     private UtilForDirectories directoryU;
-    private CreatorFileIDE creatorFile;
 
     private JTree treeDisplay;
     private JPanel filesBar;
@@ -47,141 +50,119 @@ public class AdmiFiles {
         this.treeDisplay = treeDisplay;
         this.filesU = new UtilForFiles();
         this.directoryU = new UtilForDirectories();
-        currentProject = new LinkedList<>();
         openFiles = new ArrayList<>();
         this.filesBar = filesBar;
         this.displayContent = displayContent;
         this.labelForFileName = labelForFileName;
-        creatorFile = new CreatorFileIDE();
     }
 
-    /*public void openProject() throws IOException, ProjectOpenException, DirectoryException, FileOpenException {
+    public void openProject() throws IOException, ProjectOpenException, DirectoryException, FileOpenException {
         openProject(directoryU.getPathFolder());
-    }*/
+    }
 
     /**
      * Abre un proyecto que el usuario selecionara
      *
      * @param path
-     * @throws compi1.sqlemulator.exceptions.ProjectOpenException
-     * @throws compi1.sqlemulator.exceptions.DirectoryException
+     * @throws compi2.pascal.valitations.exceptions.ProjectOpenException
+     * @throws compi2.pascal.valitations.exceptions.DirectoryException
      * @throws java.io.IOException
-     * @throws compi1.sqlemulator.exceptions.FileOpenException
+     * @throws compi2.pascal.valitations.exceptions.FileOpenException
      */
-    /*public void openProject(String path)
+    public void openProject(String path)
             throws ProjectOpenException, DirectoryException, IOException, FileOpenException {
-        if (!currentProject.isEmpty()) {
-            throw new ProjectOpenException();
+        if (isOpenProject) {
+            this.closeDirectoryView();
         }
-        if (currentFile != null) {
-            throw new FileOpenException();
-        } else {
-            //abrir el proyecto
-            this.currentProject = directoryU.openProject(path);
-            //inicializando el arbol
-            DefaultMutableTreeNode firstNode = new DefaultMutableTreeNode(currentProject.get(0));
-            DefaultTreeModel defaultTreeModel = new DefaultTreeModel(firstNode);
-            treeDisplay.setModel(defaultTreeModel);
-
-            DefaultMutableTreeNode currentParentModel = firstNode;
-            //agregando archivos
-            for (int i = 1; i < currentProject.size(); i++) {
-                FileProject fileProject = currentProject.get(i);
-                DefaultMutableTreeNode currentNode = new DefaultMutableTreeNode(fileProject);
-
-                FileProject parentFileObj = (FileProject) currentParentModel.getUserObject();
-                while (fileProject.getIdentation() <= parentFileObj.getIdentation()) {
-                    currentParentModel = (DefaultMutableTreeNode) currentParentModel.getParent();
-                    parentFileObj = (FileProject) currentParentModel.getUserObject();
-                }
-                defaultTreeModel.insertNodeInto(currentNode, currentParentModel,
-                        currentParentModel.getChildCount());
-
-                if (fileProject.getFile().isDirectory()) {
-                    currentParentModel = currentNode;
-                }
-            }
-            treeDisplay.revalidate();
-            treeDisplay.repaint();
-            filesU.saveFile(creatorFile.generateIDEfile(treeDisplay),
-                    currentProject.get(0).getFile().getAbsolutePath()
-                    + directoryU.getCarpetSeparator() + "settings.ide");
-        }
-    }*/
+        //abrir el proyecto
+        this.isOpenProject = true;
+        directoryU.openProject(path, treeDisplay);
+        treeDisplay.revalidate();
+        treeDisplay.repaint();
+    }
 
     /**
      * Abre un archivo al tener seleccionado un elemento del arbol de trabajo
      *
      * @throws java.io.IOException
-     * @throws compi1.sqlemulator.exceptions.FileOpenException
-     * @throws compi1.sqlemulator.exceptions.FileException
-     * @throws compi1.sqlemulator.exceptions.FileExtensionException
+     * @throws compi2.pascal.valitations.exceptions.FileOpenException
+     * @throws compi2.pascal.valitations.exceptions.FileException
+     * @throws compi2.pascal.valitations.exceptions.FileExtensionException
+
      */
-    /*public void openFileFromProject()
+    public void openFileFromProject()
             throws IOException, FileOpenException, FileException, FileExtensionException {
-        if (currentFile != null) {
-            currentFile.setOpenContent(displayContent.getText());
-        }
         DefaultMutableTreeNode selectedNode
                 = (DefaultMutableTreeNode) treeDisplay.getLastSelectedPathComponent();
         if (selectedNode != null) {
             if (!(selectedNode.getUserObject() instanceof FileProject)) {
                 throw new FileException();
             }
+            
             FileProject selectedFileProject = (FileProject) selectedNode.getUserObject();
-            File file = selectedFileProject.getFile();
-            boolean isAceptedExtension = filesU.hasAceptedPath(aceptedExtensions, file);
-            if (file.isFile() // y el archivo no esta abierto aun
-                    && BinarySearch.search(openFiles, file.getAbsolutePath()) == -1
-                    && isAceptedExtension) {
-                openProjectFile(file);
-            } else if (file.isFile() && isAceptedExtension) { //cuando ya esta abierto
-                throw new FileOpenException();
-            } else if (!isAceptedExtension && !file.isDirectory()) {
-                throw new FileExtensionException();
+            if(selectedFileProject.getFile().isFile()){
+                File file = selectedFileProject.getFile();
+                boolean isAceptedExtension = filesU.hasAceptedPath(aceptedExtensions, file);
+
+                if(!isAceptedExtension){
+                    throw new FileExtensionException();
+                } else {
+                    openFile(file);
+                }
             }
         }
-    }*/
-
+    }
+    
     /**
-        Abre un proyecto con la particularidad de que setea botones en la parte superior
-        y los agrega a la lista de archivos abiertos
+     *   Abre un archivo con la particularidad de que setea botones en la parte superior
+     *   y los agrega a la lista de archivos abiertos
      * @param file
      * @throws java.io.IOException
     */
-    public void openFile(File file) throws IOException {
-        if(currentFile !=  null){
-            currentFile.setOpenContent(displayContent.getText());
+    public void openFile(File file) throws IOException, FileOpenException, FileException {
+        if (file.isFile() // y el archivo no esta abierto aun
+                && BinarySearch.search(openFiles, file.getAbsolutePath()) == -1) {
+            if (currentFile != null) {
+                currentFile.setOpenContent(displayContent.getText());
+            }
+            String content = filesU.readTextFile(file.getAbsolutePath());
+            currentFile = new OpenFile(file, content);
+            openFiles.add(currentFile);
+            Collections.sort(openFiles);
+            displayContent.setText(filesU.readTextFile(file.getAbsolutePath()));
+            labelForFileName.setText(file.getName());
+            //anadir los botones
+            currentFile.init(displayContent, labelForFileName, this);
+            filesBar.add(currentFile);
+        } else if (file.isFile()) { //cuando ya esta abierto
+            throw new FileOpenException();
+        } else {
+            throw new FileException("No se pudo abrir el archivo");
         }
-        String content = filesU.readTextFile(file.getAbsolutePath());
-        currentFile = new OpenFile(file, content);
-        openFiles.add(currentFile);
-        Collections.sort(openFiles);
-        displayContent.setText(filesU.readTextFile(file.getAbsolutePath()));
-        labelForFileName.setText(file.getName());
-        //anadir los botones
-        currentFile.init(displayContent, labelForFileName, this);
-        filesBar.add(currentFile);
     }
 
     /**
-     * Ciera el proyecto actual
+     * Ciera todo lo actual
      *
-     * @throws compi1.sqlemulator.exceptions.DirectoryException cuando no hay un
+     * @throws compi2.pascal.valitations.exceptions.DirectoryException cuando no hay un
      * proyecto abierto
      */
-    /*public void closeProject() throws DirectoryException {
-        if (currentProject.isEmpty()) {
-            throw new DirectoryException();
+    public void closeAll() throws DirectoryException {
+        if (!isOpenProject) {
+            throw new DirectoryException("No hay ningun proyecto abierto");
         } else {
-            currentProject.clear();
             openFiles.clear();
-            treeDisplay.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("root")));
-            treeDisplay.revalidate();
-            treeDisplay.repaint();
+            closeDirectoryView();
             closeOpenFiles();
+            isOpenProject = false;
         }
-    }*/
+    }
+    
+    public void closeDirectoryView(){
+        treeDisplay.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("root")));
+        treeDisplay.revalidate();
+        treeDisplay.repaint();
+    }
 
     public void closeFile() throws FileException {
         int position = BinarySearch.search(openFiles, currentFile.getFile().getAbsolutePath());
@@ -236,7 +217,7 @@ public class AdmiFiles {
         
         String path = JOptionPane.showInputDialog(null, "Ingresa un nombre para guardar el archivo",
                 "Guardando un nuevo archivo", JOptionPane.QUESTION_MESSAGE);
-        if (!path.matches(FILE_NAME_REGEX)) {
+        if (path == null || !path.matches(FILE_NAME_REGEX)) {
             throw new FileException("El nombre del archivo es invalido");
         }
         filesU.saveAs(content, ".pass", root, path);
@@ -261,17 +242,13 @@ public class AdmiFiles {
      * @throws compi2.pascal.valitations.exceptions.FileExtensionException
      */
     public void openFile()
-            throws ProjectOpenException, IOException, FileExtensionException {
-        if (!currentProject.isEmpty()) {
-            throw new ProjectOpenException();
-        } else {
-            File file = new File(filesU.getPath("Archivos pascal",
-                    aceptedExtensions));
-            if (!filesU.hasAceptedPath(aceptedExtensions, file)) {
-                throw new FileExtensionException();
-            }
-            openFile(file);
+            throws ProjectOpenException, IOException, FileExtensionException, FileOpenException, FileException {
+        File file = new File(filesU.getPath("Archivos pascal",
+                aceptedExtensions));
+        if (!filesU.hasAceptedPath(aceptedExtensions, file)) {
+            throw new FileExtensionException();
         }
+        openFile(file);
     }    
     
     /*public String createProject() throws IOException, InvalidDataException {
@@ -308,50 +285,6 @@ public class AdmiFiles {
         } catch (Exception e) {
             return path;
         }
-    }*/
-
-    /**
-     * Este metodo ayuda a trabajar sobre el archivo real del que se quiere
-     * operar
-     *
-     * @param pathWithDots
-     * @throws compi1.sqlemulator.exceptions.DirectoryException
-     * @throws java.io.FileNotFoundException
-     * @throws java.io.IOException
-     */
-    /*public void openFile(String pathWithDots) throws DirectoryException, FileNotFoundException, IOException {
-        String path = pathWithDots.replace(".", directoryU.getCarpetSeparator());
-        path += ".csv";
-        if (!currentProject.isEmpty()) { //si esta abierto un proyecto
-            String realPath = convertToAbsolutePath(pathWithDots);
-            File file = new File(realPath);
-            if (file.exists() && file.isFile()) {
-                int index = BinarySearch.search(openFiles, file.getAbsolutePath());
-                if (index == -1) {
-                    openProjectFile(file);
-                } else if (index >= 0) {
-                    openFiles.get(index).executeAction(displayContent, labelForFileName, this);
-                }
-            } else {
-                throw new FileNotFoundException();
-            }
-        } else if (currentProject.isEmpty() && currentFile != null) { //cuando solo es un archivo y esta abierto
-            if (!currentFile.getFile().getName().equals(path)) {
-                throw new FileNotFoundException();
-            }
-        } else { //cuando no hay un archivo abierto
-            throw new DirectoryException();
-        }
-    }*/
-
-    /*public void appendContent(String content) throws BadLocationException {
-        StyledDocument doc = displayContent.getStyledDocument();
-        SimpleAttributeSet attributeSet = new SimpleAttributeSet();
-        doc.insertString(doc.getLength(), content, attributeSet);
-    }
-
-    public void setNewContent(String content) {
-        displayContent.setText(content);
     }*/
 
     public void setCurrentFile(OpenFile currentFile) {
@@ -403,7 +336,7 @@ public class AdmiFiles {
     }*/
 
     public boolean isOpenProject() {
-        return !currentProject.isEmpty();
+        return this.isOpenProject;
     }
 
     /*public String createFolder() throws InvalidDataException, IOException, DirectoryException {

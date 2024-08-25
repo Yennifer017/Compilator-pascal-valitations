@@ -2,8 +2,10 @@
 package compi2.pascal.valitations.analyzator;
 
 import compi2.pascal.valitations.analysis.typet.TypeTable;
+import compi2.pascal.valitations.semantic.obj.ArrayDef;
 import compi2.pascal.valitations.semantic.obj.Label;
 import compi2.pascal.valitations.semantic.obj.Range;
+import compi2.pascal.valitations.semantic.obj.RecordDef;
 import compi2.pascal.valitations.semantic.obj.SubRangeDef;
 import compi2.pascal.valitations.semantic.obj.TypeDefAst;
 import compi2.pascal.valitations.semantic.obj.TypeDefinition;
@@ -46,5 +48,21 @@ public class GenTypeTab {
         }
         return definitions;
     }
+    
+    public List<TypeDefAst> arrayDef(List<Label> ids, Label type, Range range){
+        List<TypeDefAst> definitions = new LinkedList<>();
+        for (Label id : ids) {
+            definitions.add(new ArrayDef(id, type, range));
+        }
+        return definitions; 
+    }
+    
+    public List<TypeDefAst> recordDef(List<Label> ids, List<TypeDefAst> internalDec){
+        List<TypeDefAst> definitions = new LinkedList<>();
+        for (Label id : ids) {
+            definitions.add(new RecordDef(id, internalDec));
+        }
+        return definitions; 
+    };
     
 }

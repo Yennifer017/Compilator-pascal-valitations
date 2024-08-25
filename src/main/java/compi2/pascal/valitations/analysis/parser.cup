@@ -74,7 +74,6 @@ terminal String     ID;
 
 /* Non-terminals */
 non terminal        s, header,
-                    record_b,
                     const_b, const_dec,
                     var_b, var_dec,
                     conditional, if_stmt, elif_stmt, else_stmt, pos_if, pos_elif, statements_wc,
@@ -88,14 +87,17 @@ non terminal        s, header,
                     definite_fun, writefn, readfn,
                     list_stmts, more_stmts,
                     simple_stmt, complex_stmt, single_stmt, list_vardec,
-                    def_record,more_records, list_constdec
+                    list_constdec
                     ;
 
 non terminal List<Label> id_list, list_access
                     ;
 non terminal Label var_type
                     ;
-non terminal List<TypeDefAst> type_b, list_typedec, type_dec
+non terminal List<TypeDefAst> type_b, list_typedec, type_dec,
+                    more_records, record_b
+                    ;
+non terminal TypeDefAst def_record
                     ;
 non terminal Expression expression, bool_exp, arit_exp, literals
                     ;
@@ -219,15 +221,32 @@ arr_range ::= CORCHETE_L expression:e1 DOT DOT expression:e2 CORCHETE_R
                     :}
             ;
 
-record_b ::= def_record more_records
+record_b ::= def_record:d more_records:l
+                    {:
+                        l.add(0, d);
+                        RESULT = l;
+                    :}
             ;
 
-def_record ::= ID COLON var_type SEMICOLON
-            | ID COLON PACKED ARRAY arr_range OF var_type SEMICOLON
+def_record ::= ID:i COLON var_type:t SEMICOLON
+                    {:
+                        RESULT = new TypeDefinition(new Label(i, new Position(ileft, iright)), t);
+                    :}
+            | ID:i COLON PACKED ARRAY arr_range:r OF var_type:t SEMICOLON
+                    {:
+                        RESULT = new ArrayDef(new Label(i, new Position(ileft, iright)), t, r);
+                    :}
             ;
 
-more_records ::= def_record more_records
+more_records ::= def_record:d more_records:l
+                    {:
+                        l.add(0, d);
+                        RESULT = l;
+                    :}
             | /* empty */
+                    {:
+                        RESULT = new LinkedList<TypeDefAst>();
+                    :}
             ;
 
 
@@ -276,9 +295,12 @@ type_dec ::=  id_list:l EQUALS var_type:t SEMICOLON
                     :}
             | id_list:l EQUALS ARRAY arr_range:r OF var_type:t SEMICOLON
                     {:
-                        RESULT = genTypeTab.arrayDef(l, r, t);
+                        RESULT = genTypeTab.arrayDef(l, t, r);
                     :}
-            | id_list:l EQUALS RECORD record_b END SEMICOLON 
+            | id_list:ids EQUALS RECORD record_b:l END SEMICOLON 
+                    {:
+                        RESULT = genTypeTab.recordDef(ids, l);
+                    :}
             ;
 
 
@@ -341,7 +363,6 @@ expression ::= expression:e1 AND:o expression:e2
                             new Position(oleft, oright)
                         );
                     :}
-            %prec UMINUS
             | NOT:o expression:e
                     {:
                         RESULT = new UnaryOperation(

@@ -16,5 +16,4 @@ import lombok.Setter;
 public class SymbolTable extends HashMap<String, Object>{
     private SymbolTable father;
     
-    
 }

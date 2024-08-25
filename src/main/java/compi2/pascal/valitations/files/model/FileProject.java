@@ -13,7 +13,6 @@ import lombok.Setter;
 @Getter @Setter @AllArgsConstructor
 public class FileProject{
     private File file; 
-    private int identation; 
     
     @Override
     public String toString(){

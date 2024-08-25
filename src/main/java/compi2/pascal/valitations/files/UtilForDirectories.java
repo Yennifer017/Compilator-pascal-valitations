@@ -1,14 +1,16 @@
 package compi2.pascal.valitations.files;
 
 import compi2.pascal.valitations.exceptions.DirectoryException;
-import java.util.List;
+import compi2.pascal.valitations.files.model.FileProject;
 import java.nio.file.Files;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedList;
 import javax.swing.JFileChooser;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
@@ -26,39 +28,44 @@ public class UtilForDirectories {
             throw new IOException();
         }
     }
-
-    /*public List<FileProject> openProject(String superPath) throws DirectoryException {
-        List<FileProject> filesAtProject = new LinkedList<>();
-        File carpet = new File(superPath);
-        if (carpet.exists() && carpet.isDirectory()) {
-            filesAtProject.add(new FileProject(carpet, 0));
-            File[] subFiles = carpet.listFiles();
-            for (File subFile : subFiles) {
-                filesAtProject.add(new FileProject(subFile, 1));
-                if (subFile.isDirectory()) {
-                    openCarpet(filesAtProject, subFile, 2);
-                }
-            }
+    
+    public void openProject(String superPath, JTree treeDisplay) throws DirectoryException{
+        File directory = new File(superPath);
+        if (directory.exists() && directory.isDirectory()) {
+            //inicializando el arbol
+            DefaultMutableTreeNode firstNode = new DefaultMutableTreeNode(new FileProject(directory));
+            DefaultTreeModel defaultTreeModel = new DefaultTreeModel(firstNode);
+            treeDisplay.setModel(defaultTreeModel);
+            
+            //teniendo un nodo con una carpeta padre
+            DefaultMutableTreeNode currentParentModel = firstNode;
+            
+            //Desglosando los archivos internos
+            openCarpet(treeDisplay, directory, defaultTreeModel, currentParentModel);
         } else {
-            throw new DirectoryException();
+            throw new DirectoryException("La carpeta seleccionada es invalida");
         }
-        return filesAtProject;
-    }*/
+    }
+    
+    public void openCarpet(JTree treeDisplay, File directory, 
+            DefaultTreeModel defaultTreeModel,  DefaultMutableTreeNode currentParentModel) throws DirectoryException{
+        File[] subFiles = directory.listFiles();
+        if (subFiles == null) {
+            throw new DirectoryException("Sin acceso a una carpeta");
+        }
+        for (File subFile : subFiles) {
+            DefaultMutableTreeNode currentNode = new DefaultMutableTreeNode(
+                    new FileProject(subFile)
+            );
+            defaultTreeModel.insertNodeInto(currentNode, currentParentModel,
+                    currentParentModel.getChildCount());
 
-    /*private void openCarpet(List<FileProject> list, File carpet, int identation) throws DirectoryException {
-        if (carpet.exists() && carpet.isDirectory()) {
-            File[] subFiles = carpet.listFiles();
-            for (File subFile : subFiles) {
-                list.add(new FileProject(subFile, identation));
-                if (subFile.isDirectory()) {
-                    openCarpet(list, subFile, identation + 1);
-                }
+            if (subFile.isDirectory()) {
+                openCarpet(treeDisplay, subFile, defaultTreeModel, currentNode);
             }
-        } else {
-            throw new DirectoryException();
         }
-    }*/
-
+    }
+    
     public void createDirectory(String rootPath, String name) throws IOException, DirectoryException{
         File directory = new File(rootPath + getCarpetSeparator() + name);
         if (!directory.exists()) {
