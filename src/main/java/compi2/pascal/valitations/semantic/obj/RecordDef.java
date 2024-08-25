@@ -18,7 +18,6 @@ public class RecordDef extends DefAst{
     
     public RecordDef(Label name, List<DefAst> internalTypes){
         super.name = name;
-        super.base = null;
         this.internalTypes = internalTypes;
     }
 }

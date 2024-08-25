@@ -14,5 +14,4 @@ import lombok.Setter;
 @Getter @Setter
 public abstract class DefAst {
     protected Label name;
-    protected Label base;
 }

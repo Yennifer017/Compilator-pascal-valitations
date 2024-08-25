@@ -15,10 +15,11 @@ import lombok.Setter;
 public class ArrayDef extends DefAst{
     
     private Range range;
+    private Label base;
     
     public ArrayDef(Label name, Label base, Range range){
         super.name = name;
-        super.base = base;
+        this.base = base;
         this.range = range;
     }
 }

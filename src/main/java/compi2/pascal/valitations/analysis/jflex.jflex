@@ -121,7 +121,6 @@ OctDigit          = [0-7]
     <YYINITIAL> "downto"    { return symbol(sym.DOWNTO);   }
     <YYINITIAL> "else"      { return symbol(sym.ELSE);   }
     <YYINITIAL> "end"      { return symbol(sym.END);   }
-    <YYINITIAL> "and"       { return symbol(sym.AND);   }
     <YYINITIAL> "file"      { return symbol(sym.FILE);   }
     <YYINITIAL> "for"       { return symbol(sym.FOR);   }
     <YYINITIAL> "function"  { return symbol(sym.FUNCTION);   }

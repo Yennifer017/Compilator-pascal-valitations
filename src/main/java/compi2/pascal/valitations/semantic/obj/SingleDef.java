@@ -10,6 +10,8 @@ import lombok.Setter;
  */
 @Getter @Setter
 public class SingleDef extends DefAst {
+    
+    private Label base;
 
     public SingleDef(Label name, Label base) {
         this.name = name;

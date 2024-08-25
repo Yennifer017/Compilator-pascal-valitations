@@ -12,11 +12,12 @@ import lombok.Setter;
 @Getter @Setter
 public class SubRangeDef extends DefAst{
     private Range range;
+    private Label base;
 
     public SubRangeDef(Label name, Range range) {
         this.range = range;
         super.name = name;
-        super.base = new Label(PrimitiveType.IntegerPT.getName(), null);
+        this.base = new Label(PrimitiveType.IntegerPT.getName(), null);
     }
     
     

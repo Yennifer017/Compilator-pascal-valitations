@@ -7,7 +7,7 @@ import java.util.*;
 import java_cup.runtime.*;
 import java.util.*;
 import compi2.pascal.valitations.analysis.typet.*;
-import compi2.pascal.valitations.analyzator.GenTypeTab;
+import compi2.pascal.valitations.analyzator.*;
 import compi2.pascal.valitations.semantic.expr.*;
 import compi2.pascal.valitations.semantic.obj.*;
 import compi2.pascal.valitations.util.Position;
@@ -21,12 +21,14 @@ parser code {:
     Lexer lex;
     private List<String> syntaxErrors;
     private GenTypeTab genTypeTab;
+    private GenSymbolTab genSymbolTab;
 
     //conect the parser with the lexer
     public Parser(Lexer lex){
         super(lex);
         syntaxErrors = new LinkedList<>();
         genTypeTab = new GenTypeTab();
+        genSymbolTab = new GenSymbolTab();
     }
 
     //getters
@@ -66,16 +68,17 @@ terminal            PLUS, MINUS, TIMES, BARRA,
                     OR, PACKED, PROCEDURE, PROGRAM, RECORD, REPEAT, SET,
                     THEN, TO, TYPE, UNTIL, VAR, WHILE, WITH,
                     INTEGER, REAL, BOOLEAN, CHAR, STRING, LONGINT,
-                    INTEGER_LIT, BOOLEAN_LIT, REAL_LIT, STRING_LIT, CHAR_LIT,
+                    REAL_LIT, STRING_LIT,
                     WRITELN, READLN, RETURN, BREAK, CONTINUE,
                     UMINUS, COND
                     ;
 terminal String     ID;
+terminal Character  CHAR_LIT;
+terminal Integer    INTEGER_LIT;
+terminal boolean    BOOLEAN_LIT;
 
 /* Non-terminals */
 non terminal        s, header,
-                    const_b, const_dec,
-                    var_b, var_dec,
                     conditional, if_stmt, elif_stmt, else_stmt, pos_if, pos_elif, statements_wc,
                     case_stmt, case_block, labels, single_stm,
                     while_stmt, for_stmt, repeat_stmt,
@@ -86,8 +89,7 @@ non terminal        s, header,
                     main,
                     definite_fun, writefn, readfn,
                     list_stmts, more_stmts,
-                    simple_stmt, complex_stmt, single_stmt, list_vardec,
-                    list_constdec
+                    simple_stmt, complex_stmt, single_stmt
                     ;
 
 non terminal List<Label> id_list, list_access
@@ -95,9 +97,12 @@ non terminal List<Label> id_list, list_access
 non terminal Label var_type
                     ;
 non terminal List<DefAst> type_b, list_typedec, type_dec,
-                    more_records, record_b
+                    more_records, record_b,
+                    const_b, list_constdec,
+                    list_vardec, var_b, var_dec
                     ;
-non terminal DefAst def_record
+non terminal DefAst def_record,
+                    const_dec
                     ;
 non terminal Expression expression, bool_exp, arit_exp, literals
                     ;
@@ -131,8 +136,8 @@ precedence right DOT;
 start with s;
 s ::=   header 
         type_b:lt
-        const_b 
-        var_b
+        const_b:lc 
+        var_b:lv
         functions_b
         procedure_b
         main
@@ -266,7 +271,7 @@ expression_list ::= expression_list:l COMA expression:e
 /*---------------------------------- TYPES BLOCK -------------------------------------*/
 type_b ::= TYPE list_typedec:l
                     {:
-                        RESULT = l;
+                        RESULT = l; 
                     :}
             | /* empty */
                     {:
@@ -305,31 +310,75 @@ type_dec ::=  id_list:l EQUALS var_type:t SEMICOLON
 
 
 /*-------------------------------------- CONST BLOCK ---------------------------------*/
-const_b ::= CONST list_constdec
+const_b ::= CONST list_constdec:l
+                    {:
+                        RESULT = l;
+                    :}
             | /* empty */
+                    {:  RESULT = new LinkedList<DefAst>();   :}
             ;
 
-list_constdec ::= const_dec list_constdec
-            | const_dec
+list_constdec ::= list_constdec:l const_dec:d
+                    {:
+                        l.add(d);
+                        RESULT = l;
+                    :}
+            | const_dec:d
+                    {:
+                        LinkedList<DefAst> list = new LinkedList<>();
+                        list.add(d);
+                        RESULT = list;
+                    :}
             ;
 
-const_dec ::= const_dec ID EQUALS expression SEMICOLON
+const_dec ::= ID:i EQUALS expression:e SEMICOLON
+                    {:
+                        RESULT = new ConstDef(
+                            new Label(i, new Position(ileft, iright)),
+                            e
+                        );
+                    :}
             ;
 
 
 /*-------------------------------------- VARIABLES BLOCK -------------------------------*/
-var_b ::= VAR list_vardec
+var_b ::= VAR list_vardec:l
+                    {:
+                        RESULT = l;
+                    :}
             | /* emtpy */
+                    {:
+                        RESULT = new LinkedList<DefAst>();
+                    :}
             ;
 
-list_vardec ::= list_vardec var_dec
-            | var_dec
+list_vardec ::= list_vardec:l var_dec:dl
+                    {:
+                        l.addAll(dl);
+                        RESULT = l;
+                    :}
+            | var_dec:l
+                    {:
+                        RESULT = l;
+                    :}
             ;
 
-var_dec ::= id_list COLON var_type SEMICOLON
-            | id_list COLON range SEMICOLON
-            | id_list COLON ARRAY arr_range OF var_type SEMICOLON
-            | id_list EQUALS RECORD record_b END SEMICOLON
+var_dec ::= id_list:l COLON var_type:t SEMICOLON
+                    {:
+                        RESULT = genTypeTab.userDef(l, t);
+                    :}
+            | id_list:l COLON range:r SEMICOLON
+                    {:
+                        RESULT = genTypeTab.rangeDef(l, r);
+                    :}
+            | id_list:l COLON ARRAY arr_range:r OF var_type:t SEMICOLON
+                    {:
+                        RESULT = genTypeTab.arrayDef(l, t, r);
+                    :}
+            | id_list:ids EQUALS RECORD record_b:l END SEMICOLON
+                    {:
+                        RESULT = genTypeTab.recordDef(ids, l);
+                    :}
             ;
 
 
@@ -536,6 +585,7 @@ literals ::= BOOLEAN_LIT:l
                     {:
                         RESULT = new SingleExp(
                             PrimitiveType.BooleanPT, 
+                            l,
                             new Position(lleft, lright)
                         );
                     :}
@@ -543,6 +593,7 @@ literals ::= BOOLEAN_LIT:l
                     {:
                         RESULT = new SingleExp(
                             PrimitiveType.IntegerPT, 
+                            l,
                             new Position(lleft, lright)
                         );
                     :}
@@ -557,6 +608,7 @@ literals ::= BOOLEAN_LIT:l
                     {:
                         RESULT = new SingleExp(
                             PrimitiveType.CharPT, 
+                            l,
                             new Position(lleft, lright)
                         );
                     :}
