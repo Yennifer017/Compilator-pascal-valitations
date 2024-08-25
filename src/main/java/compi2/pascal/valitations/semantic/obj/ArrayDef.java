@@ -12,13 +12,13 @@ import lombok.Setter;
  * @author blue-dragon
  */
 @Getter @Setter
-public class ArrayDef extends TypeDefAst{
+public class ArrayDef extends DefAst{
     
     private Range range;
     
-    public ArrayDef(Label newTipe, Label baseType, Range range){
-        super.newType = newType;
-        super.baseType = baseType;
+    public ArrayDef(Label name, Label base, Range range){
+        super.name = name;
+        super.base = base;
         this.range = range;
     }
 }

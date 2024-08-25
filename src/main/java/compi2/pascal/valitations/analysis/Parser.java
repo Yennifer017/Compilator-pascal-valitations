@@ -920,7 +920,7 @@ class CUP$Parser$actions {
               Object RESULT =null;
 		int ltleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)).left;
 		int ltright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)).right;
-		List<TypeDefAst> lt = (List<TypeDefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-5)).value;
+		List<DefAst> lt = (List<DefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-5)).value;
 		
             TypeTable typeTable = genTypeTab.generateTable(true, lt);
         
@@ -1127,13 +1127,13 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 14: // record_b ::= def_record more_records 
             {
-              List<TypeDefAst> RESULT =null;
+              List<DefAst> RESULT =null;
 		int dleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int dright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		TypeDefAst d = (TypeDefAst)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		DefAst d = (DefAst)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		int lleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int lright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
-		List<TypeDefAst> l = (List<TypeDefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		List<DefAst> l = (List<DefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
                         l.add(0, d);
                         RESULT = l;
@@ -1145,7 +1145,7 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 15: // def_record ::= ID COLON var_type SEMICOLON 
             {
-              TypeDefAst RESULT =null;
+              DefAst RESULT =null;
 		int ileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
 		int iright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
 		String i = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
@@ -1153,7 +1153,7 @@ class CUP$Parser$actions {
 		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		Label t = (Label)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		
-                        RESULT = new TypeDefinition(new Label(i, new Position(ileft, iright)), t);
+                        RESULT = new SingleDef(new Label(i, new Position(ileft, iright)), t);
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("def_record",50, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1162,7 +1162,7 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 16: // def_record ::= ID COLON PACKED ARRAY arr_range OF var_type SEMICOLON 
             {
-              TypeDefAst RESULT =null;
+              DefAst RESULT =null;
 		int ileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-7)).left;
 		int iright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-7)).right;
 		String i = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-7)).value;
@@ -1182,13 +1182,13 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 17: // more_records ::= def_record more_records 
             {
-              List<TypeDefAst> RESULT =null;
+              List<DefAst> RESULT =null;
 		int dleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int dright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		TypeDefAst d = (TypeDefAst)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		DefAst d = (DefAst)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		int lleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int lright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
-		List<TypeDefAst> l = (List<TypeDefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		List<DefAst> l = (List<DefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
                         l.add(0, d);
                         RESULT = l;
@@ -1200,9 +1200,9 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 18: // more_records ::= 
             {
-              List<TypeDefAst> RESULT =null;
+              List<DefAst> RESULT =null;
 		
-                        RESULT = new LinkedList<TypeDefAst>();
+                        RESULT = new LinkedList<DefAst>();
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("more_records",48, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1245,10 +1245,10 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 21: // type_b ::= TYPE list_typedec 
             {
-              List<TypeDefAst> RESULT =null;
+              List<DefAst> RESULT =null;
 		int lleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int lright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
-		List<TypeDefAst> l = (List<TypeDefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		List<DefAst> l = (List<DefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
                         RESULT = l;
                     
@@ -1259,9 +1259,9 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 22: // type_b ::= 
             {
-              List<TypeDefAst> RESULT =null;
+              List<DefAst> RESULT =null;
 		
-                        RESULT = new ArrayList<TypeDefAst>();
+                        RESULT = new ArrayList<DefAst>();
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("type_b",45, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1270,13 +1270,13 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 23: // list_typedec ::= type_dec list_typedec 
             {
-              List<TypeDefAst> RESULT =null;
+              List<DefAst> RESULT =null;
 		int l1left = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int l1right = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<TypeDefAst> l1 = (List<TypeDefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		List<DefAst> l1 = (List<DefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		int l2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int l2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
-		List<TypeDefAst> l2 = (List<TypeDefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		List<DefAst> l2 = (List<DefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
                         l1.addAll(l2);
                         RESULT = l1;
@@ -1288,10 +1288,10 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 24: // list_typedec ::= type_dec 
             {
-              List<TypeDefAst> RESULT =null;
+              List<DefAst> RESULT =null;
 		int lleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int lright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
-		List<TypeDefAst> l = (List<TypeDefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		List<DefAst> l = (List<DefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
                         RESULT = l;
                     
@@ -1302,7 +1302,7 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 25: // type_dec ::= id_list EQUALS var_type SEMICOLON 
             {
-              List<TypeDefAst> RESULT =null;
+              List<DefAst> RESULT =null;
 		int lleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
 		int lright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
 		List<Label> l = (List<Label>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
@@ -1319,7 +1319,7 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 26: // type_dec ::= id_list EQUALS range SEMICOLON 
             {
-              List<TypeDefAst> RESULT =null;
+              List<DefAst> RESULT =null;
 		int lleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
 		int lright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
 		List<Label> l = (List<Label>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
@@ -1336,7 +1336,7 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 27: // type_dec ::= id_list EQUALS ARRAY arr_range OF var_type SEMICOLON 
             {
-              List<TypeDefAst> RESULT =null;
+              List<DefAst> RESULT =null;
 		int lleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-6)).left;
 		int lright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-6)).right;
 		List<Label> l = (List<Label>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-6)).value;
@@ -1356,13 +1356,13 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 28: // type_dec ::= id_list EQUALS RECORD record_b END SEMICOLON 
             {
-              List<TypeDefAst> RESULT =null;
+              List<DefAst> RESULT =null;
 		int idsleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)).left;
 		int idsright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)).right;
 		List<Label> ids = (List<Label>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-5)).value;
 		int lleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)).left;
 		int lright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)).right;
-		List<TypeDefAst> l = (List<TypeDefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-2)).value;
+		List<DefAst> l = (List<DefAst>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-2)).value;
 		
                         RESULT = genTypeTab.recordDef(ids, l);
                     

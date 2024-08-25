@@ -12,7 +12,7 @@ import lombok.Setter;
  * @author blue-dragon
  */
 @Getter @Setter
-public abstract class TypeDefAst {
-    protected Label newType;
-    protected Label baseType;
+public abstract class DefAst {
+    protected Label name;
+    protected Label base;
 }

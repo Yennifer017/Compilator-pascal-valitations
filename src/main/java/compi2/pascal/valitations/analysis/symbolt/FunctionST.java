@@ -2,9 +2,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package compi2.pascal.valitations.semantic.obj;
+package compi2.pascal.valitations.analysis.symbolt;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,12 +12,12 @@ import lombok.Setter;
  * @author blue-dragon
  */
 @Getter @Setter
-public class RecordDef extends DefAst{
-    List<DefAst> internalTypes;
+public class FunctionST extends RowST{
+    private SymbolTable symbolTable;
+    private int numParams;
     
-    public RecordDef(Label name, List<DefAst> internalTypes){
-        super.name = name;
-        super.base = null;
-        this.internalTypes = internalTypes;
+    public void referenceFather(SymbolTable father){
+        this.symbolTable.setFather(father);
     }
+    
 }

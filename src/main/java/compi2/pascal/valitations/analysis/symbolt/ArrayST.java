@@ -9,8 +9,7 @@ import lombok.Setter;
  * @author blue-dragon
  */
 @Getter @Setter
-public class RowST {
-    private String name;
-    private Category category;
-    private String type;
+public class ArrayST extends RowST {
+    private int totalIndex;
+    private int relativeDir;
 }

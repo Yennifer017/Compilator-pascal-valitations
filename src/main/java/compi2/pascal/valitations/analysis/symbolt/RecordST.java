@@ -12,11 +12,7 @@ import lombok.Setter;
  * @author blue-dragon
  */
 @Getter @Setter
-public class FunctionInST extends RowST{
-    private SymbolTable symbolTable;
-    
-    public void referenceFather(SymbolTable father){
-        this.symbolTable.setFather(father);
-    }
-    
+public class RecordST extends RowST{
+    private int totalElements;
+    private SymbolTable internalST;
 }

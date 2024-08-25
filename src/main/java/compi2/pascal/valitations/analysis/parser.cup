@@ -94,10 +94,10 @@ non terminal List<Label> id_list, list_access
                     ;
 non terminal Label var_type
                     ;
-non terminal List<TypeDefAst> type_b, list_typedec, type_dec,
+non terminal List<DefAst> type_b, list_typedec, type_dec,
                     more_records, record_b
                     ;
-non terminal TypeDefAst def_record
+non terminal DefAst def_record
                     ;
 non terminal Expression expression, bool_exp, arit_exp, literals
                     ;
@@ -230,7 +230,7 @@ record_b ::= def_record:d more_records:l
 
 def_record ::= ID:i COLON var_type:t SEMICOLON
                     {:
-                        RESULT = new TypeDefinition(new Label(i, new Position(ileft, iright)), t);
+                        RESULT = new SingleDef(new Label(i, new Position(ileft, iright)), t);
                     :}
             | ID:i COLON PACKED ARRAY arr_range:r OF var_type:t SEMICOLON
                     {:
@@ -245,7 +245,7 @@ more_records ::= def_record:d more_records:l
                     :}
             | /* empty */
                     {:
-                        RESULT = new LinkedList<TypeDefAst>();
+                        RESULT = new LinkedList<DefAst>();
                     :}
             ;
 
@@ -270,7 +270,7 @@ type_b ::= TYPE list_typedec:l
                     :}
             | /* empty */
                     {:
-                        RESULT = new ArrayList<TypeDefAst>();
+                        RESULT = new ArrayList<DefAst>();
                     :}
             ;
 
