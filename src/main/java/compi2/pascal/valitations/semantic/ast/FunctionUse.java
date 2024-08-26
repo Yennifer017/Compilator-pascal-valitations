@@ -14,4 +14,10 @@ import lombok.Setter;
 public class FunctionUse extends Statement{
     private Label nameFun;
     private List<Argument> arguments;
+
+    public FunctionUse(Label nameFun, List<Argument> arguments) {
+        this.nameFun = nameFun;
+        this.arguments = arguments;
+    }
+    
 }

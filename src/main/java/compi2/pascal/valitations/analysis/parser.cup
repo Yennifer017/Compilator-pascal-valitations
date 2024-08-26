@@ -4,8 +4,6 @@ package compi2.pascal.valitations.analysis;
 import java_cup.runtime.*;
 import java.util.*;
 
-import java_cup.runtime.*;
-import java.util.*;
 import compi2.pascal.valitations.analysis.typet.*;
 import compi2.pascal.valitations.analyzator.*;
 import compi2.pascal.valitations.semantic.expr.*;
@@ -22,13 +20,15 @@ parser code {:
     private List<String> syntaxErrors;
     private GenTypeTab genTypeTab;
     private GenSymbolTab genSymbolTab;
+    private AstGen astGen;
 
     //conect the parser with the lexer
     public Parser(Lexer lex){
         super(lex);
-        syntaxErrors = new LinkedList<>();
+        syntaxError = new LinkedList<>();
         genTypeTab = new GenTypeTab();
         genSymbolTab = new GenSymbolTab();
+        astGen = new AstGen();
     }
 
     //getters
@@ -79,17 +79,14 @@ terminal boolean    BOOLEAN_LIT;
 
 /* Non-terminals */
 non terminal        s, header,
-                    conditional, if_stmt, elif_stmt, else_stmt, pos_if, pos_elif, statements_wc,
+                    conditional, if_stmt, elif_stmt, else_stmt, pos_if, pos_elif,
                     case_stmt, case_block, labels, single_stm,
-                    while_stmt, for_stmt, repeat_stmt,
-                    statements, block_stmt, stmt,
+                    stmt,
                     functions_b, functions, function_dec,
                     procedure_b, procedures, procedure_dec,
                     arguments, type_arg,
-                    main,
                     definite_fun, writefn, readfn,
-                    list_stmts, more_stmts,
-                    simple_stmt, complex_stmt, single_stmt
+                    single_stmt
                     ;
 
 non terminal List<Label> id_list, list_access
@@ -109,6 +106,18 @@ non terminal Expression expression, bool_exp, arit_exp, literals
 non terminal List<Expression> expression_list
                     ;
 non terminal Range range, arr_range
+                    ;
+non terminal Statement simple_stmt, complex_stmt
+                    ;
+non terminal List<Statement> list_stmts, more_stmts, block_stmt, statements
+                    statements_wc,
+                    main
+                    ;
+non terminal WhileAst while_stmt
+                    ;
+non terminal ForAst for_stmt
+                    ;
+non terminal RepeatAst repeat_stmt
                     ;
 
 /*----------------------------------------
@@ -140,7 +149,7 @@ s ::=   header
         var_b:lv
         functions_b
         procedure_b
-        main
+        main:ls
         {:
             TypeTable typeTable = genTypeTab.generateTable(true, lt);
         :}
@@ -653,8 +662,11 @@ else_stmt ::= ELSE statements_wc
         | /* empty */
         ;
 
-statements_wc ::= simple_stmt SEMICOLON
-        | BEGIN block_stmt END SEMICOLON
+statements_wc ::= simple_stmt:s SEMICOLON
+                {:
+                    RESULT = 
+                :}
+        | BEGIN block_stmt:l END SEMICOLON
         ;
 
 /************************* case *****************************/
@@ -669,7 +681,7 @@ labels ::= labels COMA expression
         | expression
         ;
 
-single_stm ::= ID ASSIGNATION expression
+single_stm ::= ID ASSIGNATION expression        /*POSIBLE CHANGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE*/
         | ID PARENTESIS_L expression_list PARENTESIS_R
         | ID DOT ID
         | definite_fun
@@ -677,53 +689,129 @@ single_stm ::= ID ASSIGNATION expression
 
 /************************* ciclos *****************************/
 
-while_stmt ::= WHILE PARENTESIS_L expression PARENTESIS_R DO statements
+while_stmt ::= WHILE PARENTESIS_L expression:e PARENTESIS_R DO statements:l SEMICOLON
+                {:
+                    RESULT = new WhileAst(e, l);
+                :}
         ;
 
-for_stmt ::= FOR ID ASSIGNATION expression TO expression DO statements
+for_stmt ::= FOR ID:i ASSIGNATION expression:e1 TO expression:e2 DO statements:l SEMICOLON
+                {:
+                    Range range = new Range(e1, e2);
+                    Label variable = new Label(i, ileft, iright);
+                    RESULT = new ForAst(variable, range, l);
+                :}
         ;
 
-repeat_stmt ::= REPEAT statements UNTIL expression SEMICOLON
+repeat_stmt ::= REPEAT statements:l UNTIL expression:e SEMICOLON
+                {:
+                    RESULT = new RepeatAst(e, l);
+                :}
         ;
 
 /************************* statements *****************************/
-statements ::= simple_stmt
-        | simple_stmt SEMICOLON
-        | complex_stmt
-        | BEGIN block_stmt END SEMICOLON
+statements ::= simple_stmt:s
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | simple_stmt:s SEMICOLON
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | complex_stmt:s
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | BEGIN block_stmt:l END SEMICOLON
+                {:
+                    RESULT = l;
+                :}
         ;
 
-block_stmt ::= list_stmts
+block_stmt ::= list_stmts:l
+                {:  RESULT = l; :}
         | /* empty */
+                {:
+                    RESULT = new LinkedList<Statement>();
+                :}
         ;
 
-list_stmts ::= simple_stmt
-        | simple_stmt SEMICOLON
-        | complex_stmt
-        | simple_stmt SEMICOLON more_stmts
-        | complex_stmt more_stmts
+list_stmts ::= simple_stmt:s
+                {:
+                    RESULT = genSymbolTab.oneStmtInList(s);
+                :}
+        | simple_stmt:s SEMICOLON
+                {:
+                    RESULT = genSymbolTab.oneStmtInList(s);
+                :}
+        | complex_stmt:s
+                {:
+                    RESULT = genSymbolTab.oneStmtInList(s);
+                :}
+        | simple_stmt:s SEMICOLON more_stmts:l
+                {:
+                    l.add(0, s);
+                    RESULT = l;
+                :}
+        | complex_stmt:s more_stmts:l
+                {:
+                    l.add(0, s);
+                    RESULT = l;
+                :}
         ;
 
-more_stmts ::= simple_stmt
-        | simple_stmt SEMICOLON
-        | simple_stmt SEMICOLON more_stmts
-        | complex_stmt more_stmts
-        | complex_stmt
+more_stmts ::= simple_stmt:s
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | simple_stmt:s SEMICOLON
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | simple_stmt:s SEMICOLON more_stmts:l
+                {:
+                    l.add(0, s);
+                    RESULT = l;
+                :}
+        | complex_stmt:s more_stmts:l
+                {:
+                    l.add(0, s);
+                    RESULT = l;
+                :}
+        | complex_stmt:s
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
         ;
 
 simple_stmt ::= BREAK
+                {:  RESULT = new SimpleStruct(SimpleStruct.BREAK);  :}
         | CONTINUE
-        | ID ASSIGNATION expression
-        | ID PARENTESIS_L expression_list PARENTESIS_R
-        | ID DOT ID ASSIGNATION expression
+                {:  RESULT = new SimpleStruct(SimpleStruct.CONTINUE);  :}
+        | ID:i ASSIGNATION expression:e
+                {:  
+                    RESULT = new Assignation(
+                        new Label(i, new Position(ileft, iright)), e
+                    );
+                :}
+        | ID:i PARENTESIS_L expression_list:l PARENTESIS_R /* HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE IS AN ERROR */
+                {:
+                    RESULT = null; //se tiene que pasar una lista de expresiones?
+                :}
+        | ID DOT ID ASSIGNATION expression /* HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE IS AN ERROR, need to add more dots */
         | definite_fun
         ; 
 
-complex_stmt ::= conditional
-        | case_stmt
-        | while_stmt
-        | for_stmt
-        | repeat_stmt
+complex_stmt ::= conditional:s
+                {:  RESULT = s; :}
+        | case_stmt:s
+                {:  RESULT = s; :}
+        | while_stmt:s
+                {:  RESULT = s; :}
+        | for_stmt:s
+                {:  RESULT = s; :}
+        | repeat_stmt:s
+                {:  RESULT = s; :}
         ;
 
 /*-------------------- FUNCTIONS -------------------------*/
@@ -766,7 +854,8 @@ type_arg ::= VAR id_list COLON var_type
         ;
 
 /*----------------------------------- MAIN SECTION -------------------------------------*/
-main ::= BEGIN block_stmt END DOT
+main ::= BEGIN block_stmt:l END DOT
+                {:  RESULT = l  :}
         ;
 
 /*---------------------------------------- OTHERS ---------------------------------------*/
