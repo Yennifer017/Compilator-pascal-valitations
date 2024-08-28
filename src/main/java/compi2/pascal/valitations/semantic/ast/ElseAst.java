@@ -1,13 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package compi2.pascal.valitations.semantic.ast;
+
+import java.util.List;
 
 /**
  *
  * @author blue-dragon
  */
 public class ElseAst extends ControlStruct{
-    
+    public ElseAst(List<Statement> stmts){
+        super.internalStmts = stmts;
+    }
 }

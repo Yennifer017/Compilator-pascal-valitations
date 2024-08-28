@@ -15,4 +15,11 @@ public class IfAst extends ControlStruct{
     private Expression condition;
     private List<IfAst> elifs;
     private ElseAst elseStmt;
+
+    public IfAst(Expression condition, List<Statement> statements) {
+        this.condition = condition;
+        super.internalStmts = statements;
+    }
+    
+    
 }

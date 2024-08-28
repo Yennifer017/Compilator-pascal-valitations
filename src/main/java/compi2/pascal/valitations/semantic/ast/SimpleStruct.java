@@ -9,7 +9,7 @@ import lombok.Setter;
  * @author blue-dragon
  */
 @Getter @Setter
-public class SimpleStruct {
+public class SimpleStruct extends Statement{
     public final static int CONTINUE = 1;
     public final static int BREAK = 2;
     private int typeStruct;

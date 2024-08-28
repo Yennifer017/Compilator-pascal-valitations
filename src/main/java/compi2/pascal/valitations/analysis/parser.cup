@@ -8,6 +8,7 @@ import compi2.pascal.valitations.analysis.typet.*;
 import compi2.pascal.valitations.analyzator.*;
 import compi2.pascal.valitations.semantic.expr.*;
 import compi2.pascal.valitations.semantic.obj.*;
+import compi2.pascal.valitations.semantic.ast.*;
 import compi2.pascal.valitations.util.Position;
 
 
@@ -25,7 +26,7 @@ parser code {:
     //conect the parser with the lexer
     public Parser(Lexer lex){
         super(lex);
-        syntaxError = new LinkedList<>();
+        syntaxErrors = new LinkedList<>();
         genTypeTab = new GenTypeTab();
         genSymbolTab = new GenSymbolTab();
         astGen = new AstGen();
@@ -79,13 +80,12 @@ terminal boolean    BOOLEAN_LIT;
 
 /* Non-terminals */
 non terminal        s, header,
-                    conditional, if_stmt, elif_stmt, else_stmt, pos_if, pos_elif,
-                    case_stmt, case_block, labels, single_stm,
+                    if_stmt, elif_stmt, pos_if,
+                    case_block, labels, single_stm,
                     stmt,
                     functions_b, functions, function_dec,
                     procedure_b, procedures, procedure_dec,
                     arguments, type_arg,
-                    definite_fun, writefn, readfn,
                     single_stmt
                     ;
 
@@ -109,7 +109,7 @@ non terminal Range range, arr_range
                     ;
 non terminal Statement simple_stmt, complex_stmt
                     ;
-non terminal List<Statement> list_stmts, more_stmts, block_stmt, statements
+non terminal List<Statement> list_stmts, more_stmts, block_stmt, statements,
                     statements_wc,
                     main
                     ;
@@ -118,6 +118,16 @@ non terminal WhileAst while_stmt
 non terminal ForAst for_stmt
                     ;
 non terminal RepeatAst repeat_stmt
+                    ;
+non terminal ElseAst else_stmt
+                    ;
+non terminal CaseAst case_stmt
+                    ;   
+non terminal IfAst conditional
+                    ;
+non terminal FunctionUseStmt definite_fun, writefn, readfn
+                    ;
+non terminal PassIf pos_elif
                     ;
 
 /*----------------------------------------
@@ -136,8 +146,10 @@ precedence left PLUS, MINUS;
 precedence left TIMES, DIV, BARRA, MOD;
 precedence right UMINUS;
 
-precedence right SEMICOLON;
 precedence right DOT;
+
+precedence left IF;
+precedence left ELSE;
 
 /* --------------------------------------
             The grammar 
@@ -232,6 +244,19 @@ range ::= expression:e1 DOT DOT DOT expression:e2
 arr_range ::= CORCHETE_L expression:e1 DOT DOT expression:e2 CORCHETE_R
                     {:
                          RESULT = new Range(e1, e2);
+                    :}
+            ;
+
+list_access ::=  list_access:l DOT ID:i 
+                    {:
+                        l.add(new Label(i, new Position(ileft, iright)));
+                        RESULT = l;
+                    :}
+            | ID:i
+                    {:
+                        ArrayList<Label> access = new ArrayList<>();
+                        access.add(new Label(i, new Position(ileft, iright)));
+                        RESULT = access;
                     :}
             ;
 
@@ -577,19 +602,6 @@ arit_exp ::= arit_exp:e1 PLUS:o arit_exp:e2
                     :}
             ;
 
-list_access ::=  list_access:l DOT ID:i 
-                    {:
-                        l.add(new Label(i, new Position(ileft, iright)));
-                        RESULT = l;
-                    :}
-            | ID:i
-                    {:
-                        ArrayList<Label> access = new ArrayList<>();
-                        access.add(new Label(i, new Position(ileft, iright)));
-                        RESULT = access;
-                    :}
-            ;
-
 literals ::= BOOLEAN_LIT:l
                     {:
                         RESULT = new SingleExp(
@@ -635,38 +647,77 @@ literals ::= BOOLEAN_LIT:l
 
 /************************* conditionals *****************************/
 
-conditional ::= if_stmt pos_if
+conditional ::= if_stmt:e pos_if
+                {:
+                    
+                :}
         ;
-if_stmt ::= IF PARENTESIS_L expression PARENTESIS_R THEN
+if_stmt ::= IF PARENTESIS_L expression:e PARENTESIS_R THEN
+                {: RESULT = e;  :}
         ;
 
 pos_if ::= simple_stmt elif_stmt
         | simple_stmt SEMICOLON
-        | complex_stmt
+        | complex_stmt elif_stmt
         | BEGIN block_stmt END SEMICOLON
         | BEGIN block_stmt END elif_stmt
         ;
 
-elif_stmt ::= elif_stmt ELSE IF PARENTESIS_L expression PARENTESIS_R THEN pos_elif
-        | ELSE IF PARENTESIS_L expression PARENTESIS_R THEN pos_elif
-        | else_stmt
+elif_stmt ::= elif_stmt ELSE IF PARENTESIS_L expression PARENTESIS_R THEN pos_elif:pi /*HERE IS A TERRIBLE ERRORRRRR*/
+        | ELSE IF PARENTESIS_L expression:e PARENTESIS_R THEN pos_elif:pi
+                {:
+                    IfAst ifAst = new IfAst(e, pi.getStatements());
+                    
+                    
+                :}
+        | else_stmt:e
+                {:
+                    RESULT = new PassIf(e);
+                :}
         ;
 
-pos_elif ::= simple_stmt else_stmt
-        | simple_stmt SEMICOLON
-        | BEGIN block_stmt END SEMICOLON
-        | BEGIN block_stmt END else_stmt
+pos_elif ::= simple_stmt:s else_stmt:es
+                {:
+                    RESULT = new PassIf(es, astGen.oneStmtInList(s));
+                :}
+        | simple_stmt:s SEMICOLON
+                {:
+                    RESULT = new PassIf(astGen.oneStmtInList(s));
+                :}
+        | complex_stmt:s else_stmt:es
+                {:
+                    RESULT = new PassIf(es, astGen.oneStmtInList(s));
+                :}
+        | BEGIN block_stmt:l END SEMICOLON
+                {:
+                    RESULT = new PassIf(l);
+                :}
+        | BEGIN block_stmt:ls END else_stmt:es
+                {:
+                    RESULT = new PassIf(es, ls);
+                :}
         ;
 
-else_stmt ::= ELSE statements_wc
+else_stmt ::= ELSE statements_wc:l
+                {:
+                    RESULT = new ElseAst(l);
+                :}
         | /* empty */
+                {:  RESULT = null; :}
         ;
 
 statements_wc ::= simple_stmt:s SEMICOLON
                 {:
-                    RESULT = 
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | complex_stmt:s
+                {:
+                    RESULT = astGen.oneStmtInList(s);
                 :}
         | BEGIN block_stmt:l END SEMICOLON
+                {:
+                    RESULT = l;
+                :}
         ;
 
 /************************* case *****************************/
@@ -689,30 +740,30 @@ single_stm ::= ID ASSIGNATION expression        /*POSIBLE CHANGEEEEEEEEEEEEEEEEE
 
 /************************* ciclos *****************************/
 
-while_stmt ::= WHILE PARENTESIS_L expression:e PARENTESIS_R DO statements:l SEMICOLON
+while_stmt ::= WHILE PARENTESIS_L expression:e PARENTESIS_R DO statements:l
                 {:
                     RESULT = new WhileAst(e, l);
                 :}
         ;
 
-for_stmt ::= FOR ID:i ASSIGNATION expression:e1 TO expression:e2 DO statements:l SEMICOLON
+for_stmt ::= FOR ID:i ASSIGNATION expression:e1 TO expression:e2 DO statements:l
                 {:
                     Range range = new Range(e1, e2);
-                    Label variable = new Label(i, ileft, iright);
+                    Label variable = new Label(i, new Position(ileft, iright));
                     RESULT = new ForAst(variable, range, l);
                 :}
         ;
 
-repeat_stmt ::= REPEAT statements:l UNTIL expression:e SEMICOLON
+repeat_stmt ::= REPEAT statements:l UNTIL expression:e
                 {:
                     RESULT = new RepeatAst(e, l);
                 :}
         ;
 
 /************************* statements *****************************/
-statements ::= simple_stmt:s
+statements ::= /*no statements */ SEMICOLON
                 {:
-                    RESULT = astGen.oneStmtInList(s);
+                    RESULT = null;
                 :}
         | simple_stmt:s SEMICOLON
                 {:
@@ -738,15 +789,15 @@ block_stmt ::= list_stmts:l
 
 list_stmts ::= simple_stmt:s
                 {:
-                    RESULT = genSymbolTab.oneStmtInList(s);
+                    RESULT = astGen.oneStmtInList(s);
                 :}
         | simple_stmt:s SEMICOLON
                 {:
-                    RESULT = genSymbolTab.oneStmtInList(s);
+                    RESULT = astGen.oneStmtInList(s);
                 :}
         | complex_stmt:s
                 {:
-                    RESULT = genSymbolTab.oneStmtInList(s);
+                    RESULT = astGen.oneStmtInList(s);
                 :}
         | simple_stmt:s SEMICOLON more_stmts:l
                 {:
@@ -785,21 +836,33 @@ more_stmts ::= simple_stmt:s
         ;
 
 simple_stmt ::= BREAK
-                {:  RESULT = new SimpleStruct(SimpleStruct.BREAK);  :}
+                {:  
+                    RESULT = new SimpleStruct(SimpleStruct.BREAK);  
+                :}
         | CONTINUE
-                {:  RESULT = new SimpleStruct(SimpleStruct.CONTINUE);  :}
+                {:  
+                    RESULT = new SimpleStruct(SimpleStruct.CONTINUE);  
+                :}
         | ID:i ASSIGNATION expression:e
                 {:  
                     RESULT = new Assignation(
                         new Label(i, new Position(ileft, iright)), e
                     );
                 :}
-        | ID:i PARENTESIS_L expression_list:l PARENTESIS_R /* HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE IS AN ERROR */
+        | ID:i PARENTESIS_L expression_list:el PARENTESIS_R
                 {:
-                    RESULT = null; //se tiene que pasar una lista de expresiones?
+                    RESULT = new FunctionUseStmt(
+                        new Label(i, new Position(ileft, iright)),
+                        el
+                    );
                 :}
-        | ID DOT ID ASSIGNATION expression /* HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE IS AN ERROR, need to add more dots */
-        | definite_fun
+        | ID:i DOT list_access:l ASSIGNATION expression:e 
+                {:
+                    l.add(0, new Label(i, new Position(ileft, iright)));
+                    RESULT = new RecAssignation(l, e);
+                :}
+        | definite_fun:fu
+                {: RESULT = fu; :}
         ; 
 
 complex_stmt ::= conditional:s
@@ -855,15 +918,23 @@ type_arg ::= VAR id_list COLON var_type
 
 /*----------------------------------- MAIN SECTION -------------------------------------*/
 main ::= BEGIN block_stmt:l END DOT
-                {:  RESULT = l  :}
+                {:  RESULT = l;  :}
         ;
+
+
 
 /*---------------------------------------- OTHERS ---------------------------------------*/
-definite_fun ::= writefn
-        | readfn
+definite_fun ::= writefn:fu    {: RESULT = fu;  :}
+        | readfn:fu            {: RESULT = fu;  :}
         ;
 
-writefn ::= WRITELN PARENTESIS_L expression_list PARENTESIS_R
+writefn ::= WRITELN PARENTESIS_L expression_list:el PARENTESIS_R
+                {:
+                    RESULT = new FunctionUseStmt(el);
+                :}
         ;
-readfn ::= READLN PARENTESIS_L expression_list PARENTESIS_R
+readfn ::= READLN PARENTESIS_L expression_list:el PARENTESIS_R
+                {:
+                    RESULT = new FunctionUseStmt(el);
+                :}
         ;
