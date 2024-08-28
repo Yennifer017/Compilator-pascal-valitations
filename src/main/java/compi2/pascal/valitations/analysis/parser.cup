@@ -80,13 +80,13 @@ terminal boolean    BOOLEAN_LIT;
 
 /* Non-terminals */
 non terminal        s, header,
-                    if_stmt, elif_stmt, pos_if,
-                    case_block, labels, single_stm,
-                    stmt,
+                    if_stmt,
+                    case_block, labels,
                     functions_b, functions, function_dec,
                     procedure_b, procedures, procedure_dec,
                     arguments, type_arg,
-                    single_stmt
+                    single_stm, else_block, elif, complex_else,
+                    block_cond
                     ;
 
 non terminal List<Label> id_list, list_access
@@ -110,7 +110,6 @@ non terminal Range range, arr_range
 non terminal Statement simple_stmt, complex_stmt
                     ;
 non terminal List<Statement> list_stmts, more_stmts, block_stmt, statements,
-                    statements_wc,
                     main
                     ;
 non terminal WhileAst while_stmt
@@ -119,15 +118,11 @@ non terminal ForAst for_stmt
                     ;
 non terminal RepeatAst repeat_stmt
                     ;
-non terminal ElseAst else_stmt
-                    ;
 non terminal CaseAst case_stmt
                     ;   
 non terminal IfAst conditional
                     ;
 non terminal FunctionUseStmt definite_fun, writefn, readfn
-                    ;
-non terminal PassIf pos_elif
                     ;
 
 /*----------------------------------------
@@ -146,6 +141,7 @@ precedence left PLUS, MINUS;
 precedence left TIMES, DIV, BARRA, MOD;
 precedence right UMINUS;
 
+precedence right SEMICOLON;
 precedence right DOT;
 
 precedence left IF;
@@ -646,78 +642,35 @@ literals ::= BOOLEAN_LIT:l
 /*------------------------------------------- STATEMENTS BLOCK ------------------------------*/
 
 /************************* conditionals *****************************/
-
-conditional ::= if_stmt:e pos_if
-                {:
-                    
-                :}
-        ;
-if_stmt ::= IF PARENTESIS_L expression:e PARENTESIS_R THEN
-                {: RESULT = e;  :}
+conditional ::=
+          if_stmt block_cond
+        | if_stmt block_cond SEMICOLON
+        | if_stmt block_cond ELSE elif
         ;
 
-pos_if ::= simple_stmt elif_stmt
-        | simple_stmt SEMICOLON
-        | complex_stmt elif_stmt
-        | BEGIN block_stmt END SEMICOLON
-        | BEGIN block_stmt END elif_stmt
+if_stmt ::= IF PARENTESIS_L expression PARENTESIS_R THEN
+        ;
+block_cond ::= simple_stmt
+        | complex_stmt
+        | BEGIN block_stmt END
+        ;
+elif ::= else_block SEMICOLON
+        | conditional
         ;
 
-elif_stmt ::= elif_stmt ELSE IF PARENTESIS_L expression PARENTESIS_R THEN pos_elif:pi /*HERE IS A TERRIBLE ERRORRRRR*/
-        | ELSE IF PARENTESIS_L expression:e PARENTESIS_R THEN pos_elif:pi
-                {:
-                    IfAst ifAst = new IfAst(e, pi.getStatements());
-                    
-                    
-                :}
-        | else_stmt:e
-                {:
-                    RESULT = new PassIf(e);
-                :}
+else_block ::= complex_else
+        | simple_stmt
+        | BEGIN block_stmt END
         ;
 
-pos_elif ::= simple_stmt:s else_stmt:es
-                {:
-                    RESULT = new PassIf(es, astGen.oneStmtInList(s));
-                :}
-        | simple_stmt:s SEMICOLON
-                {:
-                    RESULT = new PassIf(astGen.oneStmtInList(s));
-                :}
-        | complex_stmt:s else_stmt:es
-                {:
-                    RESULT = new PassIf(es, astGen.oneStmtInList(s));
-                :}
-        | BEGIN block_stmt:l END SEMICOLON
-                {:
-                    RESULT = new PassIf(l);
-                :}
-        | BEGIN block_stmt:ls END else_stmt:es
-                {:
-                    RESULT = new PassIf(es, ls);
-                :}
-        ;
-
-else_stmt ::= ELSE statements_wc:l
-                {:
-                    RESULT = new ElseAst(l);
-                :}
-        | /* empty */
-                {:  RESULT = null; :}
-        ;
-
-statements_wc ::= simple_stmt:s SEMICOLON
-                {:
-                    RESULT = astGen.oneStmtInList(s);
-                :}
-        | complex_stmt:s
-                {:
-                    RESULT = astGen.oneStmtInList(s);
-                :}
-        | BEGIN block_stmt:l END SEMICOLON
-                {:
-                    RESULT = l;
-                :}
+complex_else ::= case_stmt:s
+                {:  RESULT = s; :}
+        | while_stmt:s
+                {:  RESULT = s; :}
+        | for_stmt:s
+                {:  RESULT = s; :}
+        | repeat_stmt:s
+                {:  RESULT = s; :}
         ;
 
 /************************* case *****************************/
@@ -761,11 +714,7 @@ repeat_stmt ::= REPEAT statements:l UNTIL expression:e
         ;
 
 /************************* statements *****************************/
-statements ::= /*no statements */ SEMICOLON
-                {:
-                    RESULT = null;
-                :}
-        | simple_stmt:s SEMICOLON
+statements ::= simple_stmt:s SEMICOLON
                 {:
                     RESULT = astGen.oneStmtInList(s);
                 :}
@@ -886,7 +835,7 @@ functions_b ::= functions
 functions ::= functions function_dec
         ;
 
-function_dec ::= function_dec FUNCTION ID PARENTESIS_L arguments PARENTESIS_R COLON var_type SEMICOLON
+function_dec ::= FUNCTION ID PARENTESIS_L arguments PARENTESIS_R COLON var_type SEMICOLON
             var_b
             BEGIN block_stmt END SEMICOLON
         ;

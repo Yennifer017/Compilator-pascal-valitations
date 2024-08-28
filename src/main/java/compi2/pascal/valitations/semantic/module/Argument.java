@@ -1,5 +1,5 @@
 
-package compi2.pascal.valitations.semantic.ast;
+package compi2.pascal.valitations.semantic.module;
 
 /**
  *
