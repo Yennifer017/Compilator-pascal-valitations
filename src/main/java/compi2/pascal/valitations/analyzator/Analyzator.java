@@ -4,6 +4,10 @@ package compi2.pascal.valitations.analyzator;
 import compi2.pascal.valitations.analysis.Lexer;
 import compi2.pascal.valitations.analysis.Parser;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
+import compi2.pascal.valitations.semantic.ast.Statement;
+import compi2.pascal.valitations.semantic.module.FunctionDec;
+import compi2.pascal.valitations.semantic.module.ProcedureDec;
+import compi2.pascal.valitations.semantic.obj.DefAst;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,11 +29,13 @@ public class Analyzator {
         typeTable = new TypeTable();
     }
     
-    
+    /**
+     * Comprueba el codigo generado por el usuario
+     */
     public String comprobate(String text){
         StringBuilder builder =  new StringBuilder();
         Lexer lexer = new Lexer(new StringReader(text));
-        Parser parser = new Parser(lexer);
+        Parser parser = new Parser(lexer, this);
         try {
             parser.parse();
             builder.append(getErrors("ERRORES LEXICOS", lexer.getErrors()));
@@ -57,6 +63,20 @@ public class Analyzator {
             }
         }
         return builder.toString();
+    }
+    
+    /**
+     *  Valida el codigo generado, a partir de los ast
+     * @param types
+     * @param consts
+     * @param variables
+     * @param functions
+     * @param procedures
+     * @param statements
+     */
+    public void semanticAnalysis(List<DefAst> types, List<DefAst> consts, List<DefAst> variables, 
+            List<FunctionDec> functions, List<ProcedureDec> procedures, List<Statement> statements){
+        System.out.println("Realizar el analisis semantico");
     }
     
     

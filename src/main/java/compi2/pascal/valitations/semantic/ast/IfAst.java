@@ -20,6 +20,12 @@ public class IfAst extends ControlStruct{
         this.condition = condition;
         super.internalStmts = statements;
     }
-    
+
+    public IfAst(Expression condition, List<Statement> statements, 
+            List<IfAst> elifs, ElseAst elseStmt) {
+        this.condition = condition;
+        this.elifs = elifs;
+        this.elseStmt = elseStmt;
+    }
     
 }

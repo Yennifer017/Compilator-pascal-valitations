@@ -1,6 +1,7 @@
 
 package compi2.pascal.valitations.semantic.ast;
 
+import java.util.LinkedList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,16 +13,10 @@ import lombok.Setter;
 @Getter @Setter
 public class PassIf {
     private ElseAst elseAst;
-    private List<Statement> statements;
     private List<IfAst> ifs;
 
-    public PassIf(ElseAst elseAst, List<Statement> statements) {
+    public PassIf(ElseAst elseAst){
         this.elseAst = elseAst;
-        this.statements = statements;
-    }
-
-    public PassIf(List<Statement> statements) {
-        this.statements = statements;
     }
     
     public PassIf(List<IfAst> ifs, ElseAst elseAst){
@@ -29,8 +24,12 @@ public class PassIf {
         this.elseAst = elseAst;
     }
     
-    public PassIf(ElseAst elseAst){
-        this.elseAst = elseAst;
+    public PassIf(IfAst ifAst){
+        this.ifs = new LinkedList<>();
+        ifs.add(ifAst);
     }
+    
+    public PassIf(){}
+    
     
 }

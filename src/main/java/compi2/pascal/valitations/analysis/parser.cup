@@ -3,14 +3,13 @@ package compi2.pascal.valitations.analysis;
 
 import java_cup.runtime.*;
 import java.util.*;
-
 import compi2.pascal.valitations.analysis.typet.*;
 import compi2.pascal.valitations.analyzator.*;
 import compi2.pascal.valitations.semantic.expr.*;
 import compi2.pascal.valitations.semantic.obj.*;
 import compi2.pascal.valitations.semantic.ast.*;
+import compi2.pascal.valitations.semantic.module.*;
 import compi2.pascal.valitations.util.Position;
-
 
 /*-----------------------------------------------------------
   CUP Specification for the Parser Class
@@ -20,16 +19,16 @@ parser code {:
     Lexer lex;
     private List<String> syntaxErrors;
     private GenTypeTab genTypeTab;
-    private GenSymbolTab genSymbolTab;
     private AstGen astGen;
+    private Analyzator analyzator;
 
     //conect the parser with the lexer
-    public Parser(Lexer lex){
+    public Parser(Lexer lex, Analyzator analyzator){
         super(lex);
         syntaxErrors = new LinkedList<>();
         genTypeTab = new GenTypeTab();
-        genSymbolTab = new GenSymbolTab();
         astGen = new AstGen();
+        this.analyzator = analyzator;
     }
 
     //getters
@@ -80,13 +79,8 @@ terminal boolean    BOOLEAN_LIT;
 
 /* Non-terminals */
 non terminal        s, header,
-                    if_stmt,
                     case_block, labels,
-                    functions_b, functions, function_dec,
-                    procedure_b, procedures, procedure_dec,
-                    arguments, type_arg,
-                    single_stm, else_block, elif, complex_else,
-                    block_cond
+                    single_stm
                     ;
 
 non terminal List<Label> id_list, list_access
@@ -101,15 +95,18 @@ non terminal List<DefAst> type_b, list_typedec, type_dec,
 non terminal DefAst def_record,
                     const_dec
                     ;
-non terminal Expression expression, bool_exp, arit_exp, literals
+non terminal Expression expression, bool_exp, arit_exp, literals,
+                    if_stmt
                     ;
 non terminal List<Expression> expression_list
                     ;
 non terminal Range range, arr_range
                     ;
-non terminal Statement simple_stmt, complex_stmt
+non terminal Statement simple_stmt, complex_stmt, 
+                    complex_else
                     ;
 non terminal List<Statement> list_stmts, more_stmts, block_stmt, statements,
+                    block_cond,
                     main
                     ;
 non terminal WhileAst while_stmt
@@ -120,9 +117,21 @@ non terminal RepeatAst repeat_stmt
                     ;
 non terminal CaseAst case_stmt
                     ;   
-non terminal IfAst conditional
+non terminal ElseAst else_block
                     ;
 non terminal FunctionUseStmt definite_fun, writefn, readfn
+                    ;
+non terminal FunctionDec function_dec
+                    ;
+non terminal ProcedureDec procedure_dec
+                    ;
+non terminal List<ProcedureDec> procedure_b, procedures
+                    ;
+non terminal List<FunctionDec> functions_b, functions
+                    ;
+non terminal List<Argument> arguments, type_arg
+                    ;
+non terminal PassIf elif, conditional
                     ;
 
 /*----------------------------------------
@@ -155,11 +164,11 @@ s ::=   header
         type_b:lt
         const_b:lc 
         var_b:lv
-        functions_b
-        procedure_b
+        functions_b:lf
+        procedure_b:lp
         main:ls
         {:
-            TypeTable typeTable = genTypeTab.generateTable(true, lt);
+            analyzator.semanticAnalysis(lt, lc, lv, lf, lp, ls);
         :}
         ;
         
@@ -643,24 +652,61 @@ literals ::= BOOLEAN_LIT:l
 
 /************************* conditionals *****************************/
 conditional ::=
-          if_stmt block_cond
-        | if_stmt block_cond SEMICOLON
-        | if_stmt block_cond ELSE elif
+          if_stmt:e block_cond:ls
+                {:
+                    RESULT = new PassIf(new IfAst(e, ls));
+                :}
+        | if_stmt:e block_cond:ls SEMICOLON
+                {:
+                    RESULT = new PassIf(new IfAst(e, ls));
+                :}
+        | if_stmt:e block_cond:ls ELSE elif:pi
+                {:          
+                    RESULT = astGen.genPassIf(
+                        pi, 
+                        new IfAst(e, ls)
+                    );
+                :}
         ;
 
-if_stmt ::= IF PARENTESIS_L expression PARENTESIS_R THEN
+if_stmt ::= IF PARENTESIS_L expression:e PARENTESIS_R THEN
+                {:  RESULT = e;     :}
         ;
-block_cond ::= simple_stmt
-        | complex_stmt
-        | BEGIN block_stmt END
+block_cond ::= simple_stmt:s
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | complex_stmt:s
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | BEGIN block_stmt:ls END
+                {:
+                    RESULT = ls;
+                :}
         ;
-elif ::= else_block SEMICOLON
-        | conditional
+elif ::= else_block:e SEMICOLON
+                {:
+                    RESULT = new PassIf(e);
+                :}
+        | conditional:pi
+                {:
+                    RESULT = pi;
+                :}
         ;
 
-else_block ::= complex_else
-        | simple_stmt
-        | BEGIN block_stmt END
+else_block ::= complex_else:s
+                {:  
+                    RESULT = new ElseAst(astGen.oneStmtInList(s)); 
+                :}
+        | simple_stmt:s
+                {:
+                    RESULT = new ElseAst(astGen.oneStmtInList(s)); 
+                :}
+        | BEGIN block_stmt:ls END
+                {:
+                    RESULT = new ElseAst(ls);
+                :}
         ;
 
 complex_else ::= case_stmt:s
@@ -814,8 +860,10 @@ simple_stmt ::= BREAK
                 {: RESULT = fu; :}
         ; 
 
-complex_stmt ::= conditional:s
-                {:  RESULT = s; :}
+complex_stmt ::= conditional:pi
+                {:  
+                    RESULT =  astGen.transformPassIf(pi); 
+                :}
         | case_stmt:s
                 {:  RESULT = s; :}
         | while_stmt:s
@@ -828,41 +876,100 @@ complex_stmt ::= conditional:s
 
 /*-------------------- FUNCTIONS -------------------------*/
 
-functions_b ::= functions
+functions_b ::= functions:l
+                {:
+                    RESULT = l;
+                :}
         | /* empty */
+                {:
+                    RESULT = new LinkedList<FunctionDec>();
+                :}
         ;
 
-functions ::= functions function_dec
+functions ::= functions:l function_dec:d
+                {:
+                    l.add(d);
+                    RESULT = l;
+                :}
+        | function_dec:d
+                {:
+                    LinkedList<FunctionDec> list = new LinkedList<>();
+                    list.add(d);
+                    RESULT = list;
+                :}
         ;
 
-function_dec ::= FUNCTION ID PARENTESIS_L arguments PARENTESIS_R COLON var_type SEMICOLON
-            var_b
-            BEGIN block_stmt END SEMICOLON
+function_dec ::= FUNCTION ID:i PARENTESIS_L arguments:a PARENTESIS_R COLON var_type:t SEMICOLON
+            var_b:lv
+            BEGIN block_stmt:ls END SEMICOLON
+                {:  
+                    RESULT = new FunctionDec(
+                        new Label(i, new Position(ileft, iright)),
+                        t, a, lv, ls
+                    );
+                :}
         ;
 
 /*-------------------------------------- PROCEDURES ----------------------------------*/
 
-procedure_b ::= procedures
+procedure_b ::= procedures:p
+                {:
+                    RESULT = p;
+                :} 
         | /* empty */
+                {:  
+                    RESULT = new LinkedList<ProcedureDec>();
+                :}
         ;
 
-procedures ::= procedures procedure_dec
-        | procedure_dec
+procedures ::= procedures:l procedure_dec:d
+                {:
+                    l.add(d);
+                    RESULT = l;
+                :}
+        | procedure_dec:d
+                {:
+                    LinkedList<ProcedureDec> list = new LinkedList<>();
+                    list.add(d);
+                    RESULT = list;
+                :}
         ;
 
-procedure_dec ::= PROCEDURE ID PARENTESIS_L arguments PARENTESIS_R SEMICOLON
-            var_b
-            BEGIN block_stmt END SEMICOLON
+procedure_dec ::= PROCEDURE ID:i PARENTESIS_L arguments:a PARENTESIS_R SEMICOLON
+            var_b:lv
+            BEGIN block_stmt:ls END SEMICOLON
+                {:
+                    RESULT = new ProcedureDec(
+                        new Label(i, new Position(ileft, iright)),
+                        a, lv, ls
+                    );
+                :}
         ;
 
 /*---------------------------------- PARAMS / ARGUMENTS ----------------------------------*/
-arguments ::= arguments COMA type_arg
-        | type_arg
+arguments ::= arguments:l COMA type_arg:args
+                {:
+                    l.addAll(args);
+                    RESULT = l;
+                :}
+        | type_arg:args
+                {:
+                    RESULT = args;
+                :}
         | /* empty */
+                {:
+                    RESULT = new LinkedList<Argument>();
+                :}
         ;
 
-type_arg ::= VAR id_list COLON var_type
-        | id_list COLON var_type
+type_arg ::= VAR id_list:l COLON var_type:t
+                {:
+                    RESULT = astGen.generateArgs(l, t, true);
+                :}
+        | id_list:l COLON var_type:t
+                {:
+                    RESULT = astGen.generateArgs(l, t, false);
+                :}
         ;
 
 /*----------------------------------- MAIN SECTION -------------------------------------*/

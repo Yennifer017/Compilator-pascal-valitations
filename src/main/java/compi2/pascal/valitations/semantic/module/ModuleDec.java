@@ -2,6 +2,7 @@
 package compi2.pascal.valitations.semantic.module;
 
 import compi2.pascal.valitations.semantic.ast.Statement;
+import compi2.pascal.valitations.semantic.obj.DefAst;
 import compi2.pascal.valitations.semantic.obj.Label;
 import java.util.List;
 import lombok.Getter;
@@ -13,7 +14,8 @@ import lombok.Setter;
  */
 @Getter @Setter
 public abstract class ModuleDec {
-    private Label name;
-    private List<Argument> args;
-    private List<Statement> statements;
+    protected Label name;
+    protected List<Argument> args;
+    protected List<Statement> statements;
+    protected List<DefAst> varDef;
 }
