@@ -23,7 +23,6 @@ import javax.swing.JTextPane;
 public class AdmiFronted {
     public void rescribeTab(KeyEvent evt, JTextPane display){
         if (evt.getKeyCode() == KeyEvent.VK_TAB) {
-            System.out.println("Se detecto");
             evt.consume(); // Evita que se inserte la tabulación.
             int spacesCount = 4; // Número de espacios que deseas insertar.
             String spaces = " ".repeat(spacesCount); // Crea una cadena con los espacios.

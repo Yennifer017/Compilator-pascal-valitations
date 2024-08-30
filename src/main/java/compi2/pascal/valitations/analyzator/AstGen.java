@@ -3,7 +3,9 @@ package compi2.pascal.valitations.analyzator;
 
 import compi2.pascal.valitations.semantic.ast.IfAst;
 import compi2.pascal.valitations.semantic.ast.PassIf;
+import compi2.pascal.valitations.semantic.ast.SimpleCase;
 import compi2.pascal.valitations.semantic.ast.Statement;
+import compi2.pascal.valitations.semantic.expr.Expression;
 import compi2.pascal.valitations.semantic.module.Argument;
 import compi2.pascal.valitations.semantic.obj.Label;
 import java.util.LinkedList;
@@ -29,7 +31,7 @@ public class AstGen {
     }
     
     public PassIf genPassIf(PassIf pass, IfAst ifAst){
-        if(pass.getIfs() != null){
+        if(pass.getIfs() == null){
             pass.setIfs(new LinkedList<>());
         }
         pass.getIfs().add(0, ifAst);
@@ -48,6 +50,12 @@ public class AstGen {
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    public List<SimpleCase> genSimpleCaseList(List<Expression> labels, List<Statement> stmts){
+        List<SimpleCase> list = new LinkedList<>();
+        list.add(new SimpleCase(labels, stmts));
+        return list;
     }
     
 }

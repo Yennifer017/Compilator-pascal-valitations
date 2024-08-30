@@ -21,12 +21,14 @@ import lombok.Setter;
 @Getter @Setter
 public class Analyzator {
     
-    private List<String> semanticErrors;
-    private TypeTable typeTable;    
+    private List<String> semanticErrors;   
+    private GenTypeTab genTypeTab;
+    private GenSymbolTab genSymbolTab;
     
     public Analyzator(){
         semanticErrors = new ArrayList<>();
-        typeTable = new TypeTable();
+        genTypeTab = new GenTypeTab();
+        genSymbolTab = new GenSymbolTab();
     }
     
     /**
@@ -45,6 +47,7 @@ public class Analyzator {
         } catch (Exception e) {
             builder.append("Error inesperado:\n");
             builder.append(e);
+            e.printStackTrace();
         }
         return builder.toString();
     }
@@ -76,6 +79,7 @@ public class Analyzator {
      */
     public void semanticAnalysis(List<DefAst> types, List<DefAst> consts, List<DefAst> variables, 
             List<FunctionDec> functions, List<ProcedureDec> procedures, List<Statement> statements){
+        TypeTable typeTable = genTypeTab.generateTable(types, semanticErrors);
         System.out.println("Realizar el analisis semantico");
     }
     

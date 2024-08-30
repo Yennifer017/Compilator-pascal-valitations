@@ -1,6 +1,7 @@
 
 package compi2.pascal.valitations.analyzator;
 
+import compi2.pascal.valitations.analysis.typet.Type;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.semantic.obj.DefAst;
 import java.util.List;
@@ -11,13 +12,15 @@ import java.util.List;
  */
 public class GenTypeTab extends Generator {
     
-    public TypeTable generateTable(boolean insertPrimitive, List<DefAst> typeDefinitions){
-        TypeTable typeTable = new TypeTable(insertPrimitive);
-        if(typeDefinitions != null){
+    public TypeTable generateTable(List<DefAst> typeDefinitions, 
+            List<String> semanticErrors){
+        TypeTable typeTable = new TypeTable(true);
+        if(typeDefinitions != null && !typeDefinitions.isEmpty()){
             for (DefAst typeDefinition : typeDefinitions) {
-                System.out.print("id: ");
+                Type typeConverted = typeDefinition.generateType(typeTable, semanticErrors);
+                typeTable.put(typeConverted.getName(), typeConverted);
             }
-        }
+        } 
         return typeTable;
     }
     

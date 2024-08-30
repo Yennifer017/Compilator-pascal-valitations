@@ -26,6 +26,7 @@ public class IfAst extends ControlStruct{
         this.condition = condition;
         this.elifs = elifs;
         this.elseStmt = elseStmt;
+        super.internalStmts = statements;
     }
     
 }

@@ -78,9 +78,7 @@ terminal Integer    INTEGER_LIT;
 terminal boolean    BOOLEAN_LIT;
 
 /* Non-terminals */
-non terminal        s, header,
-                    case_block, labels,
-                    single_stm
+non terminal        s, header
                     ;
 
 non terminal List<Label> id_list, list_access
@@ -98,7 +96,8 @@ non terminal DefAst def_record,
 non terminal Expression expression, bool_exp, arit_exp, literals,
                     if_stmt
                     ;
-non terminal List<Expression> expression_list
+non terminal List<Expression> expression_list,
+                    labels
                     ;
 non terminal Range range, arr_range
                     ;
@@ -106,7 +105,8 @@ non terminal Statement simple_stmt, complex_stmt,
                     complex_else
                     ;
 non terminal List<Statement> list_stmts, more_stmts, block_stmt, statements,
-                    block_cond,
+                    block_cond, 
+                    case_stmts, case_else_stmts,
                     main
                     ;
 non terminal WhileAst while_stmt
@@ -132,6 +132,8 @@ non terminal List<FunctionDec> functions_b, functions
 non terminal List<Argument> arguments, type_arg
                     ;
 non terminal PassIf elif, conditional
+                    ;
+non terminal List<SimpleCase> case_block
                     ;
 
 /*----------------------------------------
@@ -172,7 +174,9 @@ s ::=   header
         :}
         ;
         
-header ::= PROGRAM ID SEMICOLON;
+header ::= PROGRAM ID SEMICOLON
+        | PROGRAM ID
+        ;
 
 /*-------------------------------------- UTILITIES --------------------------------*/
 var_type ::= INTEGER:t  
@@ -721,20 +725,67 @@ complex_else ::= case_stmt:s
 
 /************************* case *****************************/
 
-case_stmt ::= CASE PARENTESIS_L expression PARENTESIS_R OF case_block ELSE single_stm END SEMICOLON
+case_stmt ::= CASE PARENTESIS_L expression:e PARENTESIS_R OF case_block:lsc 
+                    ELSE case_else_stmts:ls END SEMICOLON
+                {:
+                    RESULT = new CaseAst(e, lsc, new ElseAst(ls));
+                :}
         ;
 
-case_block ::= labels COLON single_stm SEMICOLON
+case_block ::= case_block:l labels:labs COLON case_stmts:ls SEMICOLON
+                {:
+                    l.add(new SimpleCase(labs, ls));
+                    RESULT = l;
+                :}
+        | labels:labs COLON case_stmts:ls SEMICOLON
+                {:
+                    RESULT = astGen.genSimpleCaseList(labs, ls);
+                :}
         ;
 
-labels ::= labels COMA expression
-        | expression
+labels ::= labels:l COMA expression:e
+                {:
+                    l.add(e);
+                    RESULT = l;
+                :}
+        | expression:e
+                {:
+                    LinkedList<Expression> list = new LinkedList<>();
+                    list.add(e);
+                    RESULT = list;
+                :}
         ;
 
-single_stm ::= ID ASSIGNATION expression        /*POSIBLE CHANGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE*/
-        | ID PARENTESIS_L expression_list PARENTESIS_R
-        | ID DOT ID
-        | definite_fun
+case_stmts ::= simple_stmt:s SEMICOLON
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | complex_stmt:s
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | BEGIN block_stmt:l END SEMICOLON
+                {:
+                    RESULT = l;
+                :}
+        ;
+
+case_else_stmts ::= simple_stmt:s
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | simple_stmt:s SEMICOLON
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | complex_stmt:s
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | BEGIN block_stmt:l
+                {:
+                    RESULT = l;
+                :}
         ;
 
 /************************* ciclos *****************************/

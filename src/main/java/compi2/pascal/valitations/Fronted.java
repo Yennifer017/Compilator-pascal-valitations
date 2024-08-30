@@ -33,6 +33,7 @@ public class Fronted extends javax.swing.JFrame {
         initNumeracion();
         initVariables();
         analyzator = new Analyzator();
+        admiFronted = new AdmiFronted();
     }
 
     private void initVariables() {
