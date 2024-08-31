@@ -2,7 +2,10 @@
 package compi2.pascal.valitations.semantic.expr;
 
 import compi2.pascal.valitations.analysis.typet.PrimitiveType;
+import compi2.pascal.valitations.analyzator.Analyzator;
+import compi2.pascal.valitations.semantic.obj.Label;
 import compi2.pascal.valitations.util.Position;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,5 +33,33 @@ public class SingleExp extends Expression{
         this.accessId = accessId;
         super.pos = pos;
         
+    }
+
+    @Override
+    public boolean canRecoveryIntValue() {
+        if(accessId == null && object != null && !(object instanceof String)){
+            return true;
+        }
+        return false;
+    }
+    
+    @Override
+    public int recoveryIntegerData(){
+        if(object instanceof Boolean){
+            boolean bool = (boolean) object;
+            return bool == true ? 1 : 0;
+        }
+        return Integer.parseInt(object.toString());
+        
+    }
+
+    @Override
+    public Label validateSimpleData(List<String> semanticErrors) {
+        if(this.type != null){
+            return new Label(this.type.getName(), pos);
+        } else {
+            semanticErrors.add(errorsRep.ilegalUseError(accessId, pos));
+            return new Label(Analyzator.ERROR_TYPE, pos);
+        }
     }
 }

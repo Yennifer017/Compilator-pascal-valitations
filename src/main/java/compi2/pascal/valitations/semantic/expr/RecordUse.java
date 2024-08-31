@@ -1,9 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package compi2.pascal.valitations.semantic.expr;
 
+import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.semantic.obj.Label;
 import java.util.List;
 import lombok.Getter;
@@ -20,5 +18,11 @@ public class RecordUse extends Expression{
     public RecordUse(List<Label> access) {
         this.access = access;
     }
-    
+
+    @Override
+    public Label validateSimpleData(List<String> semanticErrors) {
+        semanticErrors.add(errorsRep.ilegalUseError(access.get(0).getName(), pos));
+        return new Label(Analyzator.ERROR_TYPE, pos);
+    }
+
 }

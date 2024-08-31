@@ -21,6 +21,8 @@ import lombok.Setter;
 @Getter @Setter
 public class Analyzator {
     
+    public static final String ERROR_TYPE = "--error--";
+    
     private List<String> semanticErrors;   
     private GenTypeTab genTypeTab;
     private GenSymbolTab genSymbolTab;

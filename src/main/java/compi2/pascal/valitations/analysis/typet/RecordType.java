@@ -4,8 +4,6 @@
  */
 package compi2.pascal.valitations.analysis.typet;
 
-import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
-
 /**
  *
  * @author blue-dragon

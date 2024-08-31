@@ -1,6 +1,7 @@
 
 package compi2.pascal.valitations.analysis.typet;
 
+import compi2.pascal.valitations.exceptions.SemanticException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,10 +12,15 @@ import lombok.Setter;
 @Getter @Setter
 public class ArrayType extends Type{
     private String typeBase;
-    private int min, max;
+    private Limits limits;
     
-    public ArrayType(String name, int dimention) {
+    public ArrayType(String name, int dimention, String typeBase, Limits limits) throws SemanticException {
         super(name, dimention);
+        this.typeBase = typeBase;
+        this.limits = limits;
+        if(limits.containsNegative()){
+            throw new SemanticException("No se puede iniciar un arreglo");
+        }
     }
     
 }

@@ -18,7 +18,9 @@ public class GenTypeTab extends Generator {
         if(typeDefinitions != null && !typeDefinitions.isEmpty()){
             for (DefAst typeDefinition : typeDefinitions) {
                 Type typeConverted = typeDefinition.generateType(typeTable, semanticErrors);
-                typeTable.put(typeConverted.getName(), typeConverted);
+                if(typeConverted != null){
+                    typeTable.put(typeConverted.getName(), typeConverted);
+                }
             }
         } 
         return typeTable;

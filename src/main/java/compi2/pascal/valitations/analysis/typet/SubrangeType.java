@@ -10,12 +10,12 @@ import lombok.Setter;
  */
 @Getter @Setter
 public class SubrangeType extends Type{
-    private int lowlimit;
-    private int maxlimit;
+    private Limits limits;
     private String fatherType;
     
-    public SubrangeType(String name, int dimention) {
+    public SubrangeType(String name, int dimention, Limits limits) {
         super(name, dimention);
         this.fatherType = PrimitiveType.IntegerPT.getName();
+        this.limits = limits;
     }
 }

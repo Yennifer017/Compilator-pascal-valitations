@@ -13,8 +13,9 @@ public class UserType extends Type{
     
     private String fatherType;
 
-    public UserType(String name, int dimention) {
+    public UserType(String name, String fatherType, int dimention) {
         super(name, dimention);
+        this.fatherType = fatherType;
     }
     
 }
