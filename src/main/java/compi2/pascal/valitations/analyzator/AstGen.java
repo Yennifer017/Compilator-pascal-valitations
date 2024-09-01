@@ -18,23 +18,33 @@ import java.util.List;
 public class AstGen {
     public LinkedList<Statement> oneStmtInList(Statement stmt){
         LinkedList<Statement> list = new LinkedList<>();
-        list.add(stmt);
+        if(stmt != null){
+            list.add(stmt);
+        }
         return list;
     }
     
     public LinkedList<Argument> generateArgs(List<Label> params, Label varType, boolean isForReference){
         LinkedList<Argument> list = new LinkedList<>();
-        for (Label param : params) {
-            list.add(new Argument(isForReference, param, varType));
+        try {
+            for (Label param : params) {
+                list.add(new Argument(isForReference, param, varType));
+            }
+        } catch (NullPointerException e) {
+            
         }
         return list;
     }
     
     public PassIf genPassIf(PassIf pass, IfAst ifAst){
-        if(pass.getIfs() == null){
-            pass.setIfs(new LinkedList<>());
+        try {
+            if (pass.getIfs() == null) {
+                pass.setIfs(new LinkedList<>());
+            }
+            pass.getIfs().add(0, ifAst);
+        } catch (NullPointerException e) {
+            
         }
-        pass.getIfs().add(0, ifAst);
         return pass;
     }
     
@@ -54,7 +64,10 @@ public class AstGen {
     
     public List<SimpleCase> genSimpleCaseList(List<Expression> labels, List<Statement> stmts){
         List<SimpleCase> list = new LinkedList<>();
-        list.add(new SimpleCase(labels, stmts));
+        try {
+            list.add(new SimpleCase(labels, stmts));
+        } catch (NullPointerException e) {
+        }
         return list;
     }
     

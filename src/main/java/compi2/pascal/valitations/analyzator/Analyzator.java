@@ -44,8 +44,7 @@ public class Analyzator {
             parser.parse();
             builder.append(getErrors("ERRORES LEXICOS", lexer.getErrors()));
             builder.append(getErrors("ERRORES SINTACTICOS", parser.getSyntaxErrors()));
-            //TODO: ADD VALITATIONS
-            //builder.append(getErrors("ERRORES SEMANTICOS", semanticErrors));
+            builder.append(getErrors("ERRORES SEMANTICOS", semanticErrors));
         } catch (Exception e) {
             builder.append("Error inesperado:\n");
             builder.append(e);

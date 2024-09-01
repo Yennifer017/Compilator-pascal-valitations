@@ -41,15 +41,19 @@ public abstract class DefAst {
     }
     
     protected boolean existReference(TypeTable typeTable, List<String> semanticErrors, Label type){
-        if(typeTable.containsKey(type.getName())){
-            return true;
-        } else {
-            semanticErrors.add(errorsRep.undefiniteTypeError(
-                    type.getName(), 
-                    type.getPosition())
-            );
-            return false;
+        TypeTable currentTypeTab = typeTable;
+        while (currentTypeTab != null) {            
+            if (typeTable.containsKey(type.getName())) {
+                return true;
+            } else {
+                currentTypeTab = currentTypeTab.getFather();
+            }
         }
+        semanticErrors.add(errorsRep.undefiniteTypeError(
+                type.getName(),
+                type.getPosition())
+        );
+        return false;
     }
     
     protected void validateNumericIntegerType(Expression expression, List<String> semanticErrors){
