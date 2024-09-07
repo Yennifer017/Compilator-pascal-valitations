@@ -14,8 +14,8 @@ public class ArrayType extends Type{
     private String typeBase;
     private Limits limits;
     
-    public ArrayType(String name, int dimention, String typeBase, Limits limits) throws SemanticException {
-        super(name, dimention);
+    public ArrayType(String name, String typeBase, Limits limits) throws SemanticException {
+        super(name, limits.calculateDimension());
         this.typeBase = typeBase;
         this.limits = limits;
         if(limits.containsNegative()){

@@ -1,7 +1,9 @@
 
 package compi2.pascal.valitations.semantic.obj;
 
-import compi2.pascal.valitations.analysis.typet.Limits;
+import compi2.pascal.valitations.analysis.symbolt.RowST;
+import compi2.pascal.valitations.analysis.symbolt.SubrangeST;
+import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.PrimitiveType;
 import compi2.pascal.valitations.analysis.typet.SubrangeType;
 import compi2.pascal.valitations.analysis.typet.Type;
@@ -37,6 +39,20 @@ public class SubRangeDef extends DefAst{
         } else {
             return null;
         }
+    }
+
+    @Override
+    public RowST generateRowST(SymbolTable symbolTable, TypeTable typeTable, List<String> semanticErrors) {
+        if(canInsert(symbolTable, semanticErrors)){
+            int lastDir = symbolTable.getLastDir();
+            symbolTable.incrementLastDir(1);
+            return new SubrangeST(
+                    name.getName(),
+                    range.validate(semanticErrors, this),
+                    lastDir
+            );
+        }
+        return null;
     }
     
     

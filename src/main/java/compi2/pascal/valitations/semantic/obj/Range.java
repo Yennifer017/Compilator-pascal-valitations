@@ -21,8 +21,14 @@ public class Range {
         this.end = end;
     }
     
+    /**
+     * Valida y retorna el rango en forma de limites
+     * @param semanticErrors
+     * @param ast
+     * @return la representacion del rango en limites
+     */
     public Limits validate(List<String> semanticErrors, DefAst ast){
-        int lowLimit = Integer.MIN_VALUE;
+        int lowLimit = 0;
         int maxLimit = Integer.MAX_VALUE;
         if (init.canRecoveryIntValue()) {
             lowLimit = init.recoveryIntegerData();

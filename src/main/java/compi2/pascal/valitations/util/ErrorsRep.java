@@ -12,6 +12,10 @@ public class ErrorsRep {
                 
     }
     
+    public String repeatedDeclarationError(String name, Position position){
+        return "Se esta redefiniendo la variable/constante " + name + report(position);
+    }
+    
     public String undefiniteTypeError(String type, Position position){
         return "El tipo " + type + " no se ha definido aun" + report(position);
                 

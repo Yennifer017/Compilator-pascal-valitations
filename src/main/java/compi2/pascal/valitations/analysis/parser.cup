@@ -41,11 +41,19 @@ parser code {:
     
     /*SOBREESCRIBIR LOS METODOS DE ERROR*/
     public void syntax_error(Symbol cur_token) {
-        String mss = "Simbolo: " + symbl_name_from_id(cur_token.sym)
-                    + ", linea: " + cur_token.left
-                    + ", columna: " + cur_token.right;
+        String mss = "Simbolo: " + symbl_name_from_id(cur_token.sym);
+        if(cur_token.value != null){
+            mss += ", lexema: <" + cur_token.value.toString() + ">";
+        }
+        mss += ", linea: " + cur_token.left
+            + ", columna: " + cur_token.right;
         if (expected_token_ids().isEmpty()) {
             mss += " -- ya no se esperaba ningun simbolo";
+        } else {
+            mss += " -- Se esperaba ";
+            for (Integer expected_token_id : expected_token_ids()) {
+                mss += symbl_name_from_id(expected_token_id);
+            }
         }
         syntaxErrors.add(mss);
     }
@@ -176,6 +184,8 @@ s ::=   header
         
 header ::= PROGRAM ID SEMICOLON
         | PROGRAM ID
+        | error ID
+        | PROGRAM error
         ;
 
 /*-------------------------------------- UTILITIES --------------------------------*/
@@ -232,7 +242,11 @@ var_type ::= INTEGER:t
 
 id_list ::= id_list:l COMA ID:i
                     {:
-                        l.add(new Label(i, new Position(ileft, iright)));
+                        if(l != null){
+                            l.add(new Label(i, new Position(ileft, iright)));
+                        } else {
+                            l = new ArrayList<>();
+                        }
                         RESULT = l;
                     :}
 
@@ -258,7 +272,11 @@ arr_range ::= CORCHETE_L expression:e1 DOT DOT expression:e2 CORCHETE_R
 
 list_access ::=  list_access:l DOT ID:i 
                     {:
-                        l.add(new Label(i, new Position(ileft, iright)));
+                        if(l != null){
+                            l.add(new Label(i, new Position(ileft, iright)));
+                        } else {
+                            l = new LinkedList<>();
+                        }
                         RESULT = l;
                     :}
             | ID:i
@@ -271,7 +289,11 @@ list_access ::=  list_access:l DOT ID:i
 
 record_b ::= def_record:d more_records:l
                     {:
-                        l.add(0, d);
+                        if(l != null){
+                            l.add(0, d);
+                        } else {
+                            l = new LinkedList<>();
+                        }
                         RESULT = l;
                     :}
             ;
@@ -288,7 +310,11 @@ def_record ::= ID:i COLON var_type:t SEMICOLON
 
 more_records ::= def_record:d more_records:l
                     {:
-                        l.add(0, d);
+                        if(l != null){
+                            l.add(0, d);
+                        } else {
+                            l = new LinkedList<>();
+                        }
                         RESULT = l;
                     :}
             | /* empty */
@@ -300,7 +326,11 @@ more_records ::= def_record:d more_records:l
 
 expression_list ::= expression_list:l COMA expression:e
                     {:
-                        l.add(e);
+                        if(l != null){
+                            l.add(e);
+                        } else {
+                            l = new LinkedList<>();
+                        }
                         RESULT = l;
                     :}
             | expression:e
@@ -363,7 +393,11 @@ const_b ::= CONST list_constdec:l
 
 list_constdec ::= list_constdec:l const_dec:d
                     {:
-                        l.add(d);
+                        if(l != null){
+                            l.add(d);
+                        } else {
+                            l = new LinkedList<>();
+                        }  
                         RESULT = l;
                     :}
             | const_dec:d
@@ -397,7 +431,9 @@ var_b ::= VAR list_vardec:l
 
 list_vardec ::= list_vardec:l var_dec:dl
                     {:
-                        l.addAll(dl);
+                        try{
+                            l.addAll(dl);
+                        } catch (NullPointerException e){}    
                         RESULT = l;
                     :}
             | var_dec:l
@@ -419,6 +455,10 @@ var_dec ::= id_list:l COLON var_type:t SEMICOLON
                         RESULT = genTypeTab.arrayDef(l, t, r);
                     :}
             | id_list:ids EQUALS RECORD record_b:l END SEMICOLON
+                    {:
+                        RESULT = genTypeTab.recordDef(ids, l);
+                    :}
+            | id_list:ids COLON RECORD record_b:l END SEMICOLON
                     {:
                         RESULT = genTypeTab.recordDef(ids, l);
                     :}
@@ -571,7 +611,11 @@ arit_exp ::= arit_exp:e1 PLUS:o arit_exp:e2
                     :}
             | ID:i DOT list_access:l
                     {:
-                        l.add(0, new Label(i, new Position(ileft, iright)));
+                        if(l != null){
+                            l.add(0, new Label(i, new Position(ileft, iright)));
+                        } else {
+                            l = new LinkedList<>();
+                        }
                         RESULT = new RecordUse(l);
                     :}
             | ID:i PARENTESIS_L expression_list:l PARENTESIS_R
@@ -734,7 +778,11 @@ case_stmt ::= CASE PARENTESIS_L expression:e PARENTESIS_R OF case_block:lsc
 
 case_block ::= case_block:l labels:labs COLON case_stmts:ls SEMICOLON
                 {:
-                    l.add(new SimpleCase(labs, ls));
+                    if(l != null){
+                        l.add(new SimpleCase(labs, ls));
+                    } else {
+                        l = new LinkedList<>();
+                    }
                     RESULT = l;
                 :}
         | labels:labs COLON case_stmts:ls SEMICOLON
@@ -745,7 +793,11 @@ case_block ::= case_block:l labels:labs COLON case_stmts:ls SEMICOLON
 
 labels ::= labels:l COMA expression:e
                 {:
-                    l.add(e);
+                    if(l != null){
+                        l.add(e);
+                    } else {
+                        l = new LinkedList<>();
+                    }
                     RESULT = l;
                 :}
         | expression:e
@@ -847,12 +899,20 @@ list_stmts ::= simple_stmt:s
                 :}
         | simple_stmt:s SEMICOLON more_stmts:l
                 {:
-                    l.add(0, s);
+                    if(l != null){
+                        l.add(0, s);
+                    } else {
+                        l = new LinkedList<>();
+                    }
                     RESULT = l;
                 :}
         | complex_stmt:s more_stmts:l
                 {:
-                    l.add(0, s);
+                    if(l != null){
+                        l.add(0, s);
+                    } else {
+                        l = new LinkedList<>();
+                    }
                     RESULT = l;
                 :}
         ;
@@ -867,12 +927,20 @@ more_stmts ::= simple_stmt:s
                 :}
         | simple_stmt:s SEMICOLON more_stmts:l
                 {:
-                    l.add(0, s);
+                    if(l != null){
+                        l.add(0, s);
+                    } else {
+                        l = new LinkedList<>();
+                    }
                     RESULT = l;
                 :}
         | complex_stmt:s more_stmts:l
                 {:
-                    l.add(0, s);
+                    if(l != null){
+                        l.add(0, s);
+                    } else {
+                        l = new LinkedList<>();
+                    }
                     RESULT = l;
                 :}
         | complex_stmt:s
@@ -904,7 +972,11 @@ simple_stmt ::= BREAK
                 :}
         | ID:i DOT list_access:l ASSIGNATION expression:e 
                 {:
-                    l.add(0, new Label(i, new Position(ileft, iright)));
+                    if(l != null){
+                        l.add(0, new Label(i, new Position(ileft, iright)));
+                    } else {
+                        l = new LinkedList<>();
+                    }
                     RESULT = new RecAssignation(l, e);
                 :}
         | definite_fun:fu
@@ -939,7 +1011,11 @@ functions_b ::= functions:l
 
 functions ::= functions:l function_dec:d
                 {:
-                    l.add(d);
+                    if(l != null){
+                        l.add(d);
+                    } else {
+                        l = new LinkedList<>();
+                    }
                     RESULT = l;
                 :}
         | function_dec:d
@@ -975,7 +1051,11 @@ procedure_b ::= procedures:p
 
 procedures ::= procedures:l procedure_dec:d
                 {:
-                    l.add(d);
+                    if(l != null){
+                        l.add(d);
+                    } else {
+                        l = new LinkedList<>();
+                    }
                     RESULT = l;
                 :}
         | procedure_dec:d
@@ -1000,7 +1080,12 @@ procedure_dec ::= PROCEDURE ID:i PARENTESIS_L arguments:a PARENTESIS_R SEMICOLON
 /*---------------------------------- PARAMS / ARGUMENTS ----------------------------------*/
 arguments ::= arguments:l COMA type_arg:args
                 {:
-                    l.addAll(args);
+                    try{
+                        l.addAll(args);
+                    } catch (NullPointerException e){
+
+                    }
+                    
                     RESULT = l;
                 :}
         | type_arg:args

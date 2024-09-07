@@ -1,6 +1,8 @@
 
 package compi2.pascal.valitations.semantic.obj;
 
+import compi2.pascal.valitations.analysis.symbolt.RowST;
+import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.PrimitiveType;
 import compi2.pascal.valitations.analysis.typet.Type;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
@@ -28,6 +30,9 @@ public abstract class DefAst {
     
     public abstract Type generateType(TypeTable typeTable, List<String> semanticErrors);
     
+    public abstract RowST generateRowST(SymbolTable symbolTable, TypeTable typeTable, 
+            List<String> semanticErrors);
+    
     protected boolean canInsert(TypeTable typeTable, List<String> semanticErrors){
         if(typeTable.containsKey(this.name.getName())){
             semanticErrors.add(errorsRep.repeatedTypeError(
@@ -40,6 +45,25 @@ public abstract class DefAst {
         }
     }
     
+    protected boolean canInsert(SymbolTable symbolTable, List<String> semanticErrors){
+        if(symbolTable.containsKey(this.name.getName())){
+            semanticErrors.add(errorsRep.repeatedDeclarationError(
+                    this.name.getName(), 
+                    this.name.getPosition())
+            );
+            return false;
+        } else {
+            return true;
+        }
+    }
+    
+    /**
+     * Retorna si en la tabla de tipos existe una referencia de tipos
+     * @param typeTable
+     * @param semanticErrors
+     * @param type
+     * @return verdadero si existe, falso de lo contrario
+     */
     protected boolean existReference(TypeTable typeTable, List<String> semanticErrors, Label type){
         TypeTable currentTypeTab = typeTable;
         while (currentTypeTab != null) {            

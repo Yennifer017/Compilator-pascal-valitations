@@ -12,5 +12,10 @@ import lombok.Setter;
 @Getter @Setter 
 public class SymbolTable extends HashMap<String, RowST>{
     private SymbolTable father;
-    private int lasDir;
+    private int lastDir;
+    
+    public void incrementLastDir(int totalSpaces){
+        lastDir += totalSpaces;
+    }
+    
 }

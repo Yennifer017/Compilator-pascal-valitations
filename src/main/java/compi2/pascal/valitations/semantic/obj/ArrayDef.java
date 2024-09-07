@@ -1,6 +1,9 @@
 
 package compi2.pascal.valitations.semantic.obj;
 
+import compi2.pascal.valitations.analysis.symbolt.ArrayST;
+import compi2.pascal.valitations.analysis.symbolt.RowST;
+import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.ArrayType;
 import compi2.pascal.valitations.analysis.typet.Limits;
 import compi2.pascal.valitations.analysis.typet.Type;
@@ -34,12 +37,35 @@ public class ArrayDef extends DefAst{
                 Limits limit = range.validate(semanticErrors, this);
                 return new ArrayType(
                         name.getName(),
-                        limit.getMaxlimit() - limit.getLowlimit(),
                         base.getName(),
                         limit
                 );
             } catch (SemanticException ex) {
-                semanticErrors.add(super.errorsRep.negativeIndexError(name.getName(), name.getPosition()));
+                semanticErrors.add(super.errorsRep.negativeIndexError(name.getName(), 
+                        name.getPosition()));
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public RowST generateRowST(SymbolTable symbolTable, TypeTable typeTable, List<String> semanticErrors) {
+        if(canInsert(symbolTable, semanticErrors)){
+            Limits limits = range.validate(semanticErrors, this);
+            if(super.existReference(typeTable, semanticErrors, base)){
+                try {
+                    ArrayST arrayST = new ArrayST(
+                            name.getName(), 
+                            base.getName(), 
+                            limits, 
+                            symbolTable.getLastDir()
+                    );
+                    symbolTable.incrementLastDir(arrayST.getTotalIndex());
+                    return arrayST;
+                } catch (SemanticException ex) {
+                    semanticErrors.add(super.errorsRep.negativeIndexError(name.getName(), 
+                            name.getPosition()));
+                }
             }
         }
         return null;

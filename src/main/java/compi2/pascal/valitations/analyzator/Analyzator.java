@@ -3,10 +3,12 @@ package compi2.pascal.valitations.analyzator;
 
 import compi2.pascal.valitations.analysis.Lexer;
 import compi2.pascal.valitations.analysis.Parser;
+import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.semantic.ast.Statement;
 import compi2.pascal.valitations.semantic.module.FunctionDec;
 import compi2.pascal.valitations.semantic.module.ProcedureDec;
+import compi2.pascal.valitations.semantic.obj.ConstDef;
 import compi2.pascal.valitations.semantic.obj.DefAst;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -81,6 +83,9 @@ public class Analyzator {
     public void semanticAnalysis(List<DefAst> types, List<DefAst> consts, List<DefAst> variables, 
             List<FunctionDec> functions, List<ProcedureDec> procedures, List<Statement> statements){
         TypeTable typeTable = genTypeTab.generateTable(types, semanticErrors);
+        SymbolTable symbolTable = new SymbolTable();
+        genSymbolTab.addData(symbolTable, typeTable, consts, semanticErrors);
+        genSymbolTab.addData(symbolTable, typeTable, variables, semanticErrors);
         System.out.println("Realizar el analisis semantico");
     }
     

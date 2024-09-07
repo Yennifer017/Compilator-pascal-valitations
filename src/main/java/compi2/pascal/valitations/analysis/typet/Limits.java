@@ -10,15 +10,20 @@ import lombok.Setter;
  */
 @Getter @Setter
 public class Limits {
-    private int lowlimit;
-    private int maxlimit;
+    private int minLimit;
+    private int maxLimit;
 
-    public Limits(int lowlimit, int maxlimit) {
-        this.lowlimit = lowlimit;
-        this.maxlimit = maxlimit;
+    public Limits(int minLimit, int maxLimit) {
+        this.minLimit = minLimit;
+        this.maxLimit = maxLimit;
     }
     
-    protected boolean containsNegative(){
-        return lowlimit < 0 || maxlimit < 0;
+    public boolean containsNegative(){
+        return minLimit < 0 || maxLimit < 0;
     }
+    
+    public int calculateDimension(){
+        return maxLimit - minLimit;
+    }
+    
 }
