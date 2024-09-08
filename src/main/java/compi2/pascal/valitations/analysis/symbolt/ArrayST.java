@@ -18,7 +18,7 @@ public class ArrayST extends RowST {
 
     public ArrayST(String name, String type, Limits limits, int relativeDir) 
             throws SemanticException {
-        super(name, Category.Vector, type);
+        super(name, Category.Array, type);
         if(limits.containsNegative()){
             throw new SemanticException();
         }

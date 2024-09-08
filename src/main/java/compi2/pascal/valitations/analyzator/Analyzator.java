@@ -8,7 +8,6 @@ import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.semantic.ast.Statement;
 import compi2.pascal.valitations.semantic.module.FunctionDec;
 import compi2.pascal.valitations.semantic.module.ProcedureDec;
-import compi2.pascal.valitations.semantic.obj.ConstDef;
 import compi2.pascal.valitations.semantic.obj.DefAst;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -24,6 +23,7 @@ import lombok.Setter;
 public class Analyzator {
     
     public static final String ERROR_TYPE = "--error--";
+    public static final char FUNCTION_SEPARATOR = '_';
     
     private List<String> semanticErrors;   
     private GenTypeTab genTypeTab;
@@ -86,6 +86,8 @@ public class Analyzator {
         SymbolTable symbolTable = new SymbolTable();
         genSymbolTab.addData(symbolTable, typeTable, consts, semanticErrors);
         genSymbolTab.addData(symbolTable, typeTable, variables, semanticErrors);
+        genSymbolTab.addData(symbolTable, typeTable, functions, semanticErrors);
+        genSymbolTab.addData(symbolTable, typeTable, procedures, semanticErrors);
         System.out.println("Realizar el analisis semantico");
     }
     

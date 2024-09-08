@@ -1,7 +1,10 @@
 
 package compi2.pascal.valitations.semantic.expr;
 
+import compi2.pascal.valitations.analysis.symbolt.RowST;
+import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.PrimitiveType;
+import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.semantic.obj.Label;
 import compi2.pascal.valitations.util.Position;
@@ -37,10 +40,7 @@ public class SingleExp extends Expression{
 
     @Override
     public boolean canRecoveryIntValue() {
-        if(accessId == null && object != null && !(object instanceof String)){
-            return true;
-        }
-        return false;
+        return accessId == null && object != null && !(object instanceof String);
     }
     
     @Override
@@ -48,7 +48,7 @@ public class SingleExp extends Expression{
         if(object instanceof Boolean){
             boolean bool = (boolean) object;
             return bool == true ? 1 : 0;
-        }
+        } 
         return Integer.parseInt(object.toString());
         
     }
@@ -61,5 +61,30 @@ public class SingleExp extends Expression{
             semanticErrors.add(errorsRep.ilegalUseError(accessId, pos));
             return new Label(Analyzator.ERROR_TYPE, pos);
         }
+    }
+
+    @Override
+    public Label validateComplexData(SymbolTable symbolTable, TypeTable typeTable, 
+            List<String> semanticErrors) {
+        if(this.type != null){
+            return new Label(this.type.getName(), pos);
+        } else if(accessId != null 
+                && refAnalyzator.existReference(symbolTable, semanticErrors, accessId, this.pos)){
+            
+            RowST row = refAnalyzator.getFromST(symbolTable, accessId);
+            String typeInST = row.getType();
+            if(typeInST == null){ //no tiene un tipo especifico
+                semanticErrors.add(super.errorsRep.invalidCategoryAccessError(
+                        row.getName(), 
+                        row.getCategory().getName(), 
+                        pos)
+                );
+                typeInST = Analyzator.ERROR_TYPE;
+            }
+            return new Label(typeInST, pos);
+        } else if(accessId != null){
+            semanticErrors.add(errorsRep.undefiniteVarUseError(accessId, pos));
+        }
+        return new Label(Analyzator.ERROR_TYPE, pos);
     }
 }

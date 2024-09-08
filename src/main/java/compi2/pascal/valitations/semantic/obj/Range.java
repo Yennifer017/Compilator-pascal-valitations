@@ -1,4 +1,3 @@
-
 package compi2.pascal.valitations.semantic.obj;
 
 import compi2.pascal.valitations.analysis.typet.Limits;
@@ -11,23 +10,26 @@ import lombok.Setter;
  *
  * @author blue-dragon
  */
-@Getter @Setter
+@Getter
+@Setter
 public class Range {
-    Expression init;
-    Expression end;
+
+    private Expression init;
+    private Expression end;
 
     public Range(Expression init, Expression end) {
         this.init = init;
         this.end = end;
     }
-    
+
     /**
      * Valida y retorna el rango en forma de limites
+     *
      * @param semanticErrors
      * @param ast
      * @return la representacion del rango en limites
      */
-    public Limits validate(List<String> semanticErrors, DefAst ast){
+    public Limits validate(List<String> semanticErrors, DefAst ast) {
         int lowLimit = 0;
         int maxLimit = Integer.MAX_VALUE;
         if (init.canRecoveryIntValue()) {

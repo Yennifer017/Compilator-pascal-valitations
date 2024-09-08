@@ -10,11 +10,18 @@ import lombok.Setter;
  */
 @Getter @Setter
 public class FunctionST extends RowST{
-    private SymbolTable symbolTable;
+    private SymbolTable internalST;
     private int numParams;
+
+    public FunctionST(String name, SymbolTable internalST) {
+        super(name, Category.Procedure, null);
+        this.internalST = internalST;
+        
+    }
     
-    public void referenceFather(SymbolTable father){
-        this.symbolTable.setFather(father);
+    public FunctionST(String name, String type, SymbolTable internalST){
+        super(name, Category.Function, type);
+        this.internalST = internalST;
     }
     
 }

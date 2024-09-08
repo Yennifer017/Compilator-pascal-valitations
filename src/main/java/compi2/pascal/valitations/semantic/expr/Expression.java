@@ -1,8 +1,12 @@
 
 package compi2.pascal.valitations.semantic.expr;
 
+import compi2.pascal.valitations.analysis.symbolt.RowST;
+import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.PrimitiveType;
+import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.analysis.typet.convert.TConvertidor;
+import compi2.pascal.valitations.analyzator.RefAnalyzator;
 import compi2.pascal.valitations.semantic.obj.Label;
 import compi2.pascal.valitations.util.ErrorsRep;
 import compi2.pascal.valitations.util.Position;
@@ -22,10 +26,12 @@ public abstract class Expression {
     
     protected ErrorsRep errorsRep;
     protected TConvertidor tConvert;
+    protected RefAnalyzator refAnalyzator;
     
     public Expression(){
         errorsRep = new ErrorsRep();
         tConvert = new TConvertidor();
+        refAnalyzator = new RefAnalyzator();
     }
     
     public boolean canRecoveryIntValue(){
@@ -44,4 +50,15 @@ public abstract class Expression {
      * @return el nombre del tipo encontrado
      */
     public abstract Label validateSimpleData(List<String> semanticErrors);
+    
+    /**
+     * Valida el tipo de la expresion
+     * @param symbolTable
+     * @param typeTable
+     * @param semanticErrors
+     * @return el nombre del tipo encontrado
+     */
+    public abstract Label validateComplexData(SymbolTable symbolTable, 
+            TypeTable typeTable, List<String> semanticErrors);
+    
 }

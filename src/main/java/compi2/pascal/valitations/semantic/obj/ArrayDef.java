@@ -24,6 +24,7 @@ public class ArrayDef extends DefAst{
     private Label base;
     
     public ArrayDef(Label name, Label base, Range range){
+        super();
         super.name = name;
         this.base = base;
         this.range = range;

@@ -1,6 +1,8 @@
 
 package compi2.pascal.valitations.semantic.ast;
 
+import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
+import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.semantic.expr.Expression;
 import java.util.List;
 import lombok.Getter;
@@ -20,6 +22,11 @@ public class CaseAst extends Statement{
         this.expression = expression;
         this.cases = cases;
         this.elseAst = elseAst;
+    }
+
+    @Override
+    public void validate(SymbolTable symbolTable, TypeTable typeTable, List<String> semanticErrors, SemanticRestrictions restrictions) {
+        
     }
     
 }

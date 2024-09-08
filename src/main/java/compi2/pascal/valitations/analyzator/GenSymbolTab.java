@@ -12,7 +12,7 @@ import java.util.List;
  * @author blue-dragon
  */
 public class GenSymbolTab extends Generator{
-    public void addData(SymbolTable symbolTable, TypeTable typeTable, List<DefAst> listDef, 
+    public void addData(SymbolTable symbolTable, TypeTable typeTable, List<? extends DefAst> listDef, 
             List<String> semanticErrors){
         if(listDef != null && !listDef.isEmpty()){
             for (DefAst constantDef : listDef) {
@@ -33,6 +33,12 @@ public class GenSymbolTab extends Generator{
         SymbolTable internalTable = new SymbolTable();
         internalTable.setFather(symbolTable);
         this.addData(internalTable, typeTable, listDef, semanticErrors);
+        return internalTable;
+    }
+    
+    public SymbolTable generateInternalTable(){
+        SymbolTable internalTable = new SymbolTable();
+        
         return internalTable;
     }
     

@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Enum.java to edit this template
- */
+
 package compi2.pascal.valitations.semantic.expr;
 
 /**
@@ -9,22 +6,31 @@ package compi2.pascal.valitations.semantic.expr;
  * @author blue-dragon
  */
 public enum DefiniteOperation {
-    Addition,
-    Substraction,
-    Multiplication,
-    Division,
-    IntDivision,
-    Module,
-    EqualsTo,
-    DifferentTo,
-    GraterThan,
-    GraterEq,
-    LessThan,
-    LessEq,
-    And,
-    AndThen,
-    Or,
-    OrElse,
-    Not
+    Addition("Suma"),
+    Substraction("Resta"),
+    Multiplication("Multiplicacion"),
+    Division("Division"),
+    IntDivision("Division entera"),
+    Module("Modulo"),
+    EqualsTo("Igual"),
+    DifferentTo("Diferent"),
+    GraterThan("Mayor que"),
+    GraterEq("Mayor o igual que"),
+    LessThan("Menor que"),
+    LessEq("Menor igual que"),
+    And("'y' logico"),
+    AndThen("'and then' logico"),
+    Or("'o' logicp"),
+    OrElse("'or else' logico"),
+    Not("Negacion")
     ;
+    
+    private String name;
+    private DefiniteOperation(String name){
+        this.name = name;
+    }
+    
+    public String getName(){
+        return this.name;
+    }
 }

@@ -21,6 +21,7 @@ public class ConstDef extends DefAst{
     private Expression expression;
     
     public ConstDef(Label name, Expression expression){
+        super();
         super.name = name;
         this.expression = expression;
     }

@@ -1,6 +1,8 @@
 
 package compi2.pascal.valitations.semantic.expr;
 
+import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
+import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.exceptions.ConvPrimitiveException;
 import compi2.pascal.valitations.semantic.obj.Label;
@@ -54,6 +56,22 @@ public class UnaryOperation extends Expression{
                     super.tConvert.simpleConvert(operation, typeLabel, semanticErrors),
                     pos);
         } catch (ConvPrimitiveException ex) {
+            return new Label(Analyzator.ERROR_TYPE, pos);
+        }
+    }
+
+    @Override
+    public Label validateComplexData(SymbolTable symbolTable, TypeTable typeTable, 
+            List<String> semanticErrors) {
+        Label typeLabel = expression.validateComplexData(symbolTable, typeTable, semanticErrors);
+        try {
+            return new Label(
+                    super.tConvert.simpleConvert(operation, typeLabel, semanticErrors),
+                    pos);
+        } catch (ConvPrimitiveException ex) {
+            semanticErrors.add(errorsRep.incorrectTypeError(
+                    typeLabel.getName(), typeLabel.getPosition())
+            );
             return new Label(Analyzator.ERROR_TYPE, pos);
         }
     }

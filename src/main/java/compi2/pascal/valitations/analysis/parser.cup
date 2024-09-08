@@ -949,13 +949,19 @@ more_stmts ::= simple_stmt:s
                 :}
         ;
 
-simple_stmt ::= BREAK
+simple_stmt ::= BREAK:b
                 {:  
-                    RESULT = new SimpleStruct(SimpleStruct.BREAK);  
+                    RESULT = new SimpleStruct(
+                        SimpleStruct.BREAK, 
+                        new Position(bleft, bright)
+                    );  
                 :}
-        | CONTINUE
+        | CONTINUE:c
                 {:  
-                    RESULT = new SimpleStruct(SimpleStruct.CONTINUE);  
+                    RESULT = new SimpleStruct(
+                        SimpleStruct.CONTINUE,
+                        new Position(cleft, cright)
+                    );  
                 :}
         | ID:i ASSIGNATION expression:e
                 {:  
@@ -970,7 +976,7 @@ simple_stmt ::= BREAK
                         el
                     );
                 :}
-        | ID:i DOT list_access:l ASSIGNATION expression:e 
+        | ID:i DOT list_access:l ASSIGNATION expression:e //hereeeeEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
                 {:
                     if(l != null){
                         l.add(0, new Label(i, new Position(ileft, iright)));
@@ -979,8 +985,12 @@ simple_stmt ::= BREAK
                     }
                     RESULT = new RecAssignation(l, e);
                 :}
+        | ID:i CORCHETE_L expression:e1 CORCHETE_R ASSIGNATION expression:e2
+                {:
+                    RESULT = 
+                :}
         | definite_fun:fu
-                {: RESULT = fu; :}
+                {: RESULT = fu; :} 
         ; 
 
 complex_stmt ::= conditional:pi

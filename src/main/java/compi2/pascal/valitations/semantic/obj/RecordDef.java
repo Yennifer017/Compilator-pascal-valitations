@@ -25,6 +25,7 @@ public class RecordDef extends DefAst{
     
     
     public RecordDef(Label name, List<DefAst> internalTypes){
+        super();
         super.name = name;
         this.internalTypes = internalTypes;
         genTypeTab = new GenTypeTab();
@@ -53,7 +54,7 @@ public class RecordDef extends DefAst{
                     internalTypes, 
                     semanticErrors
             );
-            return new RecordST(name.getName());
+            return new RecordST(name.getName(), internalTable);
         }
         return null;
     }

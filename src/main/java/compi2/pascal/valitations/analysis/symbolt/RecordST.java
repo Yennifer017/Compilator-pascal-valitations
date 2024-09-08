@@ -13,7 +13,8 @@ public class RecordST extends RowST{
     private int totalElements;
     private SymbolTable internalST;
 
-    public RecordST(String name) {
+    public RecordST(String name, SymbolTable internalST) {
         super(name, Category.Record, null);
+        this.internalST = internalST;
     }
 }

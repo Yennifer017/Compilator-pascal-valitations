@@ -11,8 +11,8 @@ import java.util.List;
 public class PrimConvert {
     
     private ErrorsRep errorsRep;
-    protected PrimConvert(){
-        errorsRep = new ErrorsRep();
+    protected PrimConvert(ErrorsRep errorsRep){
+        this.errorsRep = errorsRep;
     }
 
     public PrimitiveType mayorType(PrimitiveType leftType, PrimitiveType rightType) {

@@ -67,7 +67,7 @@ public abstract class DefAst {
     protected boolean existReference(TypeTable typeTable, List<String> semanticErrors, Label type){
         TypeTable currentTypeTab = typeTable;
         while (currentTypeTab != null) {            
-            if (typeTable.containsKey(type.getName())) {
+            if (currentTypeTab.containsKey(type.getName())) {
                 return true;
             } else {
                 currentTypeTab = currentTypeTab.getFather();

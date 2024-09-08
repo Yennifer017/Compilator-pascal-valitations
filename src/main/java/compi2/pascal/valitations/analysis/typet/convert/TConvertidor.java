@@ -2,10 +2,12 @@
 package compi2.pascal.valitations.analysis.typet.convert;
 
 import compi2.pascal.valitations.analysis.typet.PrimitiveType;
+import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.exceptions.ConvPrimitiveException;
 import compi2.pascal.valitations.semantic.expr.DefiniteOperation;
 import static compi2.pascal.valitations.semantic.expr.DefiniteOperation.Not;
 import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.util.ErrorsRep;
 import java.util.List;
 
 /**
@@ -14,9 +16,11 @@ import java.util.List;
  */
 public class TConvertidor {
     private PrimConvert primConvert;
+    private ErrorsRep errorsRep;
     
     public TConvertidor(){
-        primConvert = new PrimConvert();
+        errorsRep = new ErrorsRep();
+        primConvert = new PrimConvert(errorsRep);
     }
     
     /**
@@ -39,6 +43,35 @@ public class TConvertidor {
         
         return implicitConvert(operation, left, right, semanticErrors)
                 .getName();
+    }
+    
+    public String complexConvert(DefiniteOperation operation, Label leftType, 
+            Label rightType, List<String> semanticErrors){
+        try {
+            return simpleConvert(operation, leftType, rightType, semanticErrors);
+        } catch (ConvPrimitiveException e) {
+            if(rightType.getName().equals(leftType.getName())){
+                switch (operation) {
+                    case EqualsTo, DifferentTo:
+                        return PrimitiveType.BooleanPT.getName();
+                    default:
+                        semanticErrors.add(errorsRep.incorrectTypeError(
+                                leftType.getName(), 
+                                rightType.getName(),
+                                operation.getName(),
+                                rightType.getPosition()
+                        ));
+                }
+            } else {
+                semanticErrors.add(errorsRep.incorrectTypeError(
+                        leftType.getName(),
+                        rightType.getName(),
+                        operation.getName(),
+                        rightType.getPosition()
+                ));
+            }
+        }
+        return Analyzator.ERROR_TYPE;
     }
     
     public String simpleConvert(DefiniteOperation unaryOperation, Label type, 
@@ -68,7 +101,9 @@ public class TConvertidor {
         }
     }
     
-    
+    /**
+     * Convierte en un dato primitivo un tipo, si no es posible lanza una excepcion
+    */
     private PrimitiveType convertPrimitive(String type) throws ConvPrimitiveException{
         if (type.equals(PrimitiveType.IntegerPT.getName())) {
             return PrimitiveType.IntegerPT;
