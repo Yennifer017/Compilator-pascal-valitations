@@ -45,7 +45,7 @@ public class FunctionDec extends ModuleDec{
                 symbolTable, typeTable, args, semanticErrors
         );
         genSymbolTab.addData(internalST, typeTable, varDef, semanticErrors);
-        refAnalyzator.existReference(symbolTable, semanticErrors, varType);
+        refAnalyzator.existReference(typeTable, semanticErrors, varType);
         ReturnCase returnCase = stmtsAnalizator.validateInternalStmts(
                 internalST, 
                 typeTable, 

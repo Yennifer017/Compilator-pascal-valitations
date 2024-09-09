@@ -24,6 +24,8 @@ public enum PrimitiveType {
         this.name = name;
         this.type = new Type(name, 1);
         this.id = id;
+        this.isIntegerNumeric = isIntegerNumeric;
+        this.isNumeric = isNumeric;
     }
     
     public String getName(){

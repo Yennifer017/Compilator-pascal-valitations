@@ -33,7 +33,7 @@ public class Assignation extends Statement{
         if(restrictions.getNameFunction() != null 
                 && restrictions.getNameFunction().equals(variable.getName())){
             Label type = expToAsign.validateComplexData(symbolTable, typeTable, semanticErrors);
-            if(!type.equals(restrictions.getReturnType())){
+            if(!type.getName().equals(restrictions.getReturnType())){
                 semanticErrors.add(errorsRep.incorrectTypeError(
                         type.getName(),
                         restrictions.getReturnType(),

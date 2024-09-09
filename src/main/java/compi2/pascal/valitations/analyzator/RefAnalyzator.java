@@ -29,10 +29,10 @@ public class RefAnalyzator {
             if (currentTab.containsKey(variable.getName())) {
                 return true;
             } else {
-                currentTab = symbolTable.getFather();
+                currentTab = currentTab.getFather();
             }
         }
-        semanticErrors.add(errorsRep.undefiniteTypeError(
+        semanticErrors.add(errorsRep.undefiniteVarUseError(
                 variable.getName(),
                 variable.getPosition())
         );
@@ -68,7 +68,7 @@ public class RefAnalyzator {
             if (currentTab.containsKey(var)) {
                 return currentTab.get(var);
             } else {
-                currentTab = symbolTable.getFather();
+                currentTab = currentTab.getFather();
             }
         }
         return null;

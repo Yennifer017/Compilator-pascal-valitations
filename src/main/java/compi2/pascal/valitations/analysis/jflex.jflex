@@ -163,7 +163,7 @@ OctDigit          = [0-7]
 
     <YYINITIAL> {
         /* identifiers */ 
-        {Identifier}                   { return symbol(sym.ID, yytext()); }
+        {Identifier}                   { return symbol(sym.ID, yytext().toLowerCase()); }
      
         /* literals */
         {Boolean}                      { return symbol(sym.BOOLEAN_LIT, Boolean.valueOf(yytext()));}

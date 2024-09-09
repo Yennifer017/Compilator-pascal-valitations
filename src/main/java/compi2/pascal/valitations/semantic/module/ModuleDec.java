@@ -37,7 +37,7 @@ public abstract class ModuleDec extends DefAst{
         if(args !=  null && !args.isEmpty()){
             for (Argument arg : args) {
                 typeAddition.append(Analyzator.FUNCTION_SEPARATOR);
-                typeAddition.append(arg.getName());
+                typeAddition.append(arg.getType().getName());
             }
         }
         return this.name.getName() + typeAddition.toString();

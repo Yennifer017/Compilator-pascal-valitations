@@ -5,6 +5,7 @@ import compi2.pascal.valitations.analysis.Lexer;
 import compi2.pascal.valitations.analysis.Parser;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
+import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.semantic.ast.Statement;
 import compi2.pascal.valitations.semantic.module.FunctionDec;
 import compi2.pascal.valitations.semantic.module.ProcedureDec;
@@ -23,7 +24,7 @@ import lombok.Setter;
 public class Analyzator {
     
     public static final String ERROR_TYPE = "--error--";
-    public static final char FUNCTION_SEPARATOR = '_';
+    public static final String FUNCTION_SEPARATOR = "_";
     
     private List<String> semanticErrors;   
     private GenTypeTab genTypeTab;
@@ -82,12 +83,26 @@ public class Analyzator {
      */
     public void semanticAnalysis(List<DefAst> types, List<DefAst> consts, List<DefAst> variables, 
             List<FunctionDec> functions, List<ProcedureDec> procedures, List<Statement> statements){
+        semanticErrors = new ArrayList<>();
         TypeTable typeTable = genTypeTab.generateTable(types, semanticErrors);
         SymbolTable symbolTable = new SymbolTable();
         genSymbolTab.addData(symbolTable, typeTable, consts, semanticErrors);
         genSymbolTab.addData(symbolTable, typeTable, variables, semanticErrors);
         genSymbolTab.addData(symbolTable, typeTable, functions, semanticErrors);
         genSymbolTab.addData(symbolTable, typeTable, procedures, semanticErrors);
+        StmtsAnalizator stmtsAnalizator = new StmtsAnalizator();
+        stmtsAnalizator.validateInternalStmts(
+                symbolTable, 
+                typeTable, 
+                semanticErrors, 
+                new SemanticRestrictions(
+                        false, 
+                        false, 
+                        null, 
+                        null
+                ),
+                statements
+        );
         System.out.println("Realizar el analisis semantico");
     }
     

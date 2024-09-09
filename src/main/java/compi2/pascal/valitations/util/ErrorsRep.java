@@ -89,7 +89,7 @@ public class ErrorsRep {
     }
     
     public String incorrectVarTypeError(String varName, String esperatedType, Position pos){
-        return "La variaable " + varName + " no es del tipo " + esperatedType + report(pos);
+        return "La variable " + varName + " no es del tipo " + esperatedType + report(pos);
     }
     
     public String ilegalStmt(String nameStmt, Position pos){

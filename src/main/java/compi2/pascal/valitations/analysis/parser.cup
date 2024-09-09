@@ -42,22 +42,61 @@ parser code {:
     
     /*SOBREESCRIBIR LOS METODOS DE ERROR*/
     public void syntax_error(Symbol cur_token) {
-        String mss = "Simbolo: " + symbl_name_from_id(cur_token.sym);
+        StringBuilder mssBuilder = new StringBuilder("Simbolo: ");
+        mssBuilder.append(symbl_name_from_id(cur_token.sym));
+        
         if(cur_token.value != null){
-            mss += ", lexema: <" + cur_token.value.toString() + ">";
+            mssBuilder.append(", lexema <");
+            mssBuilder.append(cur_token.value.toString());
+            mssBuilder.append(">");
         }
-        mss += ", linea: " + cur_token.left
-            + ", columna: " + cur_token.right;
+        mssBuilder.append(", linea: ");
+        mssBuilder.append(cur_token.left);
+        mssBuilder.append(", columna: ");
+        mssBuilder.append(cur_token.right);
+        
         if (expected_token_ids().isEmpty()) {
-            mss += " -- ya no se esperaba ningun simbolo";
+            mssBuilder.append(" -- ya no se esperaba ningun simbolo");
         } else {
-            mss += " -- Se esperaba ";
+            mssBuilder.append(" -- Se esperaba [");
             for (Integer expected_token_id : expected_token_ids()) {
-                mss += symbl_name_from_id(expected_token_id);
+                if(!symbl_name_from_id(expected_token_id).equals("error")){
+                    mssBuilder.append(symbl_name_from_id(expected_token_id));
+                    mssBuilder.append(" ");
+                }
+                
             }
+            mssBuilder.append("]");
         }
-        syntaxErrors.add(mss);
+        syntaxErrors.add(mssBuilder.toString());
     }
+    
+    public void report_error(String message, Object info){
+        try{
+            Symbol cur_token = (Symbol) info;
+            StringBuilder mssBuilder = new StringBuilder("Simbolo: ");
+            mssBuilder.append(symbl_name_from_id(cur_token.sym));
+            mssBuilder.append(", linea: ");
+            mssBuilder.append(cur_token.left);
+            mssBuilder.append(", columna: ");
+            mssBuilder.append(cur_token.right);
+            if(cur_token != null){
+                mssBuilder.append(", Lexema: ");
+                mssBuilder.append(cur_token.value);
+            }
+
+            if(message != null){
+                mssBuilder.append(", Info: ");
+                mssBuilder.append(message);
+            }
+            
+            syntaxErrors.add(mssBuilder.toString());
+        } catch (Exception e){
+            syntaxErrors.add(message);
+        }
+    }
+
+
     public void unrecovered_syntax_error(Symbol cur_token) {
         syntaxErrors.add("Errores de sintaxis severos detectados, revisa municiosamente el codigo");
     }
@@ -240,6 +279,7 @@ var_type ::= INTEGER:t
                             new Position(tleft, tright)
                         ); 
                     :}
+            | error
             ;
 
 id_list ::= id_list:l COMA ID:i
@@ -381,6 +421,23 @@ type_dec ::=  id_list:l EQUALS var_type:t SEMICOLON
                     {:
                         RESULT = genTypeTab.recordDef(ids, l);
                     :}
+        /*ERROR MANAGER*/
+            | id_list:l error var_type:t SEMICOLON 
+                    {:
+                        RESULT = genTypeTab.userDef(l, t);
+                    :}
+            | id_list:l error range:r SEMICOLON
+                    {:
+                        RESULT = genTypeTab.rangeDef(l, r);
+                    :}
+            | id_list:l error ARRAY arr_range:r OF var_type:t SEMICOLON
+                    {:
+                        RESULT = genTypeTab.arrayDef(l, t, r);
+                    :}
+            | id_list:ids error RECORD record_b:l END SEMICOLON 
+                    {:
+                        RESULT = genTypeTab.recordDef(ids, l);
+                    :}
             ;
 
 
@@ -417,6 +474,14 @@ const_dec ::= ID:i EQUALS expression:e SEMICOLON
                             e
                         );
                     :}
+        /*ERROR MANAGE*/
+            | ID:i EQUALS expression:e error
+                    {:
+                        RESULT = new ConstDef(
+                            new Label(i, new Position(ileft, iright)),
+                            e
+                        );
+                    :}
             ;
 
 
@@ -431,53 +496,67 @@ var_b ::= VAR list_vardec:l
                     :}
             ;
 
-list_vardec ::= list_vardec:l var_dec:dl
+list_vardec ::= list_vardec:l var_dec:dl SEMICOLON
                     {:
                         try{
                             l.addAll(dl);
                         } catch (NullPointerException e){}    
                         RESULT = l;
                     :}
-            | var_dec:l
+            | var_dec:l SEMICOLON
                     {:
                         RESULT = l;
+                    :}  
+        /*ERROR MANAGE*/
+            | list_vardec:l var_dec:dl error var_dec
+                    {:
+                        try{
+                            l.addAll(dl);
+                        } catch (NullPointerException e){}    
+                        RESULT = l;
                     :}
+            | error var_dec:l
+                    {:
+                        RESULT = l;
+                    :} 
+            | var_dec:l error var_dec
+                    
             ;
 
-var_dec ::= id_list:l COLON var_type:t SEMICOLON
+var_dec ::= id_list:l COLON var_type:t 
                     {:
                         RESULT = genTypeTab.userDef(l, t);
                     :}
-            | id_list:l COLON range:r SEMICOLON
+            | id_list:l COLON range:r 
                     {:
                         RESULT = genTypeTab.rangeDef(l, r);
                     :}
-            | id_list:l COLON ARRAY arr_range:r OF var_type:t SEMICOLON
+            | id_list:l COLON ARRAY arr_range:r OF var_type:t 
                     {:
                         RESULT = genTypeTab.arrayDef(l, t, r);
                     :}
-            | id_list:ids EQUALS RECORD record_b:l END SEMICOLON
+            | id_list:ids EQUALS RECORD record_b:l END 
                     {:
                         RESULT = genTypeTab.recordDef(ids, l);
                     :}
-            | id_list:ids COLON RECORD record_b:l END SEMICOLON
+            | id_list:ids COLON RECORD record_b:l END 
                     {:
                         RESULT = genTypeTab.recordDef(ids, l);
                     :}
         /*MANAGE ERRORS*/
-            | id_list:l error var_type:t SEMICOLON
+            | id_list:l error var_type:t 
                     {:
                         RESULT = genTypeTab.userDef(l, t);
                     :}
-            | id_list:l error range:r SEMICOLON
+            | id_list:l error range:r 
                     {:
                         RESULT = genTypeTab.rangeDef(l, r);
                     :}
-            | id_list:l error ARRAY arr_range:r OF var_type:t SEMICOLON
+            | id_list:l error ARRAY arr_range:r OF var_type:t 
                     {:
                         RESULT = genTypeTab.arrayDef(l, t, r);
                     :}
-            | id_list:ids error RECORD record_b:l END SEMICOLON
+            | id_list:ids error RECORD record_b:l END 
                     {:
                         RESULT = genTypeTab.recordDef(ids, l);
                     :}
@@ -578,7 +657,7 @@ bool_exp ::= arit_exp:e1 EQUALS:o arit_exp:e2
 
 arit_exp ::= 
         /*MANAGE ERRORS*/
-              error PLUS error
+                error PLUS error
             | error MINUS error
             | error TIMES error
             | error DIV error
@@ -681,6 +760,8 @@ arit_exp ::=
                         );
                     :}
         /*MANAGE ERRORS*/
+            %prec UMINUS
+            | PARENTESIS_L error PARENTESIS_R
             %prec UMINUS        
             | MINUS error
             %prec UMINUS
@@ -765,6 +846,10 @@ conditional ::=
 if_stmt ::= IF:i PARENTESIS_L expression:e PARENTESIS_R THEN
                 {:  
                     RESULT = new InitIf(e, new Position(ileft, iright));     
+                :}
+        | IF:i PARENTESIS_L error PARENTESIS_R THEN
+                {:  
+                    RESULT = new InitIf(null, new Position(ileft, iright));     
                 :}
     /*MANAGE ERRORS*/
         | IF:i PARENTESIS_L expression:e error THEN
@@ -895,7 +980,7 @@ case_else_stmts ::= simple_stmt:s
                     RESULT = astGen.oneStmtInList(s);
                 :}
         | BEGIN block_stmt:l
-                {:
+                {:      
                     RESULT = l;
                 :}
         ;
@@ -906,9 +991,25 @@ while_stmt ::= WHILE:w PARENTESIS_L expression:e PARENTESIS_R DO statements:l
                 {:
                     RESULT = new WhileAst(e, l, new Position(wleft, wright));
                 :}
+        | WHILE:w PARENTESIS_L error PARENTESIS_R DO statements:l
+                {:
+                    RESULT = new WhileAst(null, l, new Position(wleft, wright));
+                :}
         ;
 
 for_stmt ::= FOR:f ID:i ASSIGNATION expression:e1 TO expression:e2 DO statements:l
+                {:
+                    Range range = new Range(e1, e2);
+                    Label variable = new Label(i, new Position(ileft, iright));
+                    RESULT = new ForAst(variable, range, l, new Position(fleft, fright));
+                :}
+        | FOR:f ID:i ASSIGNATION error TO expression:e2 DO statements:l
+                {:
+                    Range range = new Range(null, e2);
+                    Label variable = new Label(i, new Position(ileft, iright));
+                    RESULT = new ForAst(variable, range, l, new Position(fleft, fright));
+                :}
+        | FOR:f ID:i error expression:e1 TO expression:e2 DO statements:l
                 {:
                     Range range = new Range(e1, e2);
                     Label variable = new Label(i, new Position(ileft, iright));
@@ -977,7 +1078,12 @@ list_stmts ::= simple_stmt:s
                 :}
         ;
 
-more_stmts ::= simple_stmt:s
+more_stmts ::= 
+          simple_stmt:s error
+                {:
+                    RESULT = astGen.oneStmtInList(s);
+                :}
+        | simple_stmt:s
                 {:
                     RESULT = astGen.oneStmtInList(s);
                 :}
@@ -1055,6 +1161,7 @@ simple_stmt ::= BREAK:b
                 :}
         | definite_fun:fu
                 {: RESULT = fu; :} 
+        | error
         ; 
 
 complex_stmt ::= conditional:pi
@@ -1185,6 +1292,8 @@ type_arg ::= VAR id_list:l COLON var_type:t
 /*----------------------------------- MAIN SECTION -------------------------------------*/
 main ::= BEGIN block_stmt:l END DOT
                 {:  RESULT = l;  :}
+    /*ERROR MANAGE*/
+        | BEGIN block_stmt END error
         ;
 
 
