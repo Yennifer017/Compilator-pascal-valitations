@@ -1,8 +1,8 @@
 
 package compi2.pascal.valitations.analysis.symbolt;
 
-import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.graphs.Graphicator;
+import compi2.pascal.valitations.graphs.Index;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,7 +26,8 @@ public abstract class RowST {
     }
     
     public abstract StringBuilder getGraphRowCode(String codeRelated);
-    public StringBuilder getGraphInternalTab(){
+    
+    public StringBuilder getGraphInternalTab(int fatherId, Index currentIndex){
         throw new RuntimeException();
     };
     

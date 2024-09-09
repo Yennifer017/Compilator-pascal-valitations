@@ -1,6 +1,8 @@
 
 package compi2.pascal.valitations.analysis.symbolt;
 
+import compi2.pascal.valitations.graphs.Graphicator;
+import compi2.pascal.valitations.graphs.Index;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,7 +38,19 @@ public class RecordST extends RowST{
     }
     
     @Override
-    public StringBuilder getGraphInternalTab() {
-        throw new RuntimeException();
+    public StringBuilder getGraphInternalTab(int fatherId, Index currentIndex) {
+        int tableId = currentIndex.getNumber();
+        StringBuilder code = new StringBuilder(
+                graphicator.getCodeST(internalST, currentIndex)
+        );
+        code.append(Graphicator.TABLE_ID)
+                .append(fatherId)
+                .append(":")
+                .append(Graphicator.TABLE_ID)
+                .append(tableId)
+                .append(" -> ")
+                .append(Graphicator.TABLE_ID)
+                .append(tableId);
+        return code;
     }
 }

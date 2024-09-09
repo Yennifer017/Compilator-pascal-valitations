@@ -12,6 +12,7 @@ public class Graphicator {
     
     public static final String OPEN_TD = "<td>";
     public static final String CLOSE_TD = "</td>";
+    public static final String TABLE_ID = "t";
     
     private String getInitCode(){
         return 
@@ -31,11 +32,11 @@ public class Graphicator {
             """;
     }
     
-    private StringBuilder getInitCodeForST(String name){
-        StringBuilder builder = new StringBuilder(name).append(
+    private StringBuilder getHeaderCodeForST(int id){
+        StringBuilder builder = new StringBuilder(TABLE_ID + id).append(
             """
                 [label=<
-                    <table border="1" cellborder="1" cellspacing="0" cellpadding="10">
+                    <table border="1" cellborder="1" cellspacing="0" cellpadding="5">
                         <tr>
                             <td><b>Nombre</b></td>
                             <td><b>Categoria</b></td>
@@ -56,43 +57,62 @@ public class Graphicator {
                                  """);
     }
     
-    private String getFinalCodeForST(){
-        return """
-               </table>
-                   >];
-               """;
-    }
-    
-    private CodeRecolector getInternalCodeForST(SymbolTable symbolTable, Index index, 
-            int fatherTabId){
+    /**
+     * Devuelve el codigo de las filas de una tabla de simbolos,asi como el codigo 
+     * extra que surge de tablas de simbolos internas
+     * @param symbolTable
+     * @param index
+     * @return 
+     */
+    private CodeRecolector getInternalCodeForST(SymbolTable symbolTable, Index index){
         StringBuilder builder = new StringBuilder();
         StringBuilder externalCode = new StringBuilder();
+        
+        int fatherId = index.getNumber();
         if(!symbolTable.isEmpty()){
             for (RowST row : symbolTable.values()) {
-                builder.append("<tr>");
-                builder.append(row.getGraphRowCode("t" + index.getNumber()));
-                builder.append("</tr>");
                 if(row.isLinked()){
-                    externalCode.append(row.getGraphInternalTab());
                     index.increment();
+                    externalCode.append(row.getGraphInternalTab(fatherId, index));
                 }
+                builder.append("<tr>\n");
+                builder.append("    ");
+                builder.append(row.getGraphRowCode(TABLE_ID + index.getNumber()));
+                builder.append("\n");
+                builder.append("</tr>\n");
             }
+            
         }
         return new CodeRecolector(builder, externalCode);
     }
     
-    //generate final code
+    /**
+     * Genera el codigo para graficar una tabla de simbolos
+     * @param symbolTable
+     * @return codigo de graphviz final
+     */
     public String getCodeST(SymbolTable symbolTable){
         Index index = new Index();
         StringBuilder code = new StringBuilder(getInitCode());
-        code.append(getCodeST(symbolTable, "t" + index.getNumber(), index));
+        code.append(getCodeST(symbolTable, index));
         code.append(getFinalCode());
         return code.toString();
     }
     
-    public String getCodeST(SymbolTable symbolTable, String tableName, Index index){
-        StringBuilder code = new StringBuilder(getInitCodeForST(tableName));
-        code.append(getInternalCodeForST(symbolTable, index, 0));
+    /**
+     * Genera el codigo para graficar una tabla de simbolos, permite especificar 
+     * varios parametros
+     * @param symbolTable la tabla de simbolos a graficar
+     * @param index el indice actual de esta tabla
+     * @return el codigo parcial de graphviz para una sola tabla
+     */
+    public String getCodeST(SymbolTable symbolTable, Index index){
+        int actualIndex = index.getNumber();
+        StringBuilder code = new StringBuilder(getHeaderCodeForST(index.getNumber()));
+        CodeRecolector codeRecolector = getInternalCodeForST(symbolTable, index);
+        code.append(codeRecolector.getInternalCode().toString());
+        code.append(getFinalCodeForST());
+        code.append(codeRecolector.getExternalCode().toString());
         return code.toString();
     }
     
