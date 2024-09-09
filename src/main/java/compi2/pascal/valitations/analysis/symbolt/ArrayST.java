@@ -25,4 +25,20 @@ public class ArrayST extends RowST {
         this.totalIndex = limits.calculateDimension();
         this.relativeDir = relativeDir;
     }
+
+    @Override
+    public StringBuilder getGraphRowCode(String codeRelated) {
+        StringBuilder builder = super.getInitialGraphCodeData()
+                .append(graphicator.getDataGraphCode(String.valueOf(relativeDir)));
+        builder.append(graphicator.getDataGraphCode(String.valueOf(totalIndex)));
+        builder.append(graphicator.getNoDataGraphCode());
+        builder.append(graphicator.getDataGraphCode(limits.toString()));
+        return builder;
+    }
+
+    @Override
+    public boolean isLinked() {
+        return false;
+    }
+
 }

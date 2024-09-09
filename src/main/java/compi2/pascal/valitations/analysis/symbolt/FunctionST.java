@@ -23,5 +23,38 @@ public class FunctionST extends RowST{
         super(name, Category.Function, type);
         this.internalST = internalST;
     }
+
+    @Override
+    public StringBuilder getGraphRowCode(String codeRelated) {
+        StringBuilder builder = new StringBuilder(
+                graphicator.getDataGraphCode(super.name));
+        builder.append(graphicator.getDataGraphCode(category.getName()));
+        if(type == null){
+            builder.append(graphicator.getNoDataGraphCode());
+        } else {
+            builder.append(graphicator.getDataGraphCode(type));
+        }
+        builder.append(graphicator.getNoDataGraphCode());
+        builder.append(graphicator.getDataGraphCode(
+            internalST != null ?  String.valueOf(internalST.size()) : "0"
+        ));
+        builder.append(graphicator.getDataGraphCode(String.valueOf(numParams)));
+        
+        builder.append("<td port=\"");
+        builder.append(codeRelated);
+        builder.append("\"></td>");
+        return builder;
+    }
+
+    @Override
+    public boolean isLinked() {
+        return true;
+    }
+    
+    @Override
+    public StringBuilder getGraphInternalTab() {
+        return graphicator.
+    }
+    
     
 }

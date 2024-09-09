@@ -17,4 +17,20 @@ public class SingleData extends RowST {
         this.relativeDir = relativeDir;
     }
 
+    @Override
+    public StringBuilder getGraphRowCode(String codeRelated) {
+        StringBuilder builder = super.getInitialGraphCodeData()
+                .append(graphicator.getDataGraphCode(String.valueOf(relativeDir)));
+        builder.append(graphicator.getNoDataGraphCode());
+        builder.append(graphicator.getNoDataGraphCode());
+        builder.append(graphicator.getNoDataGraphCode());
+        return builder;
+    }
+
+    @Override
+    public boolean isLinked() {
+        return false;
+    }
+    
+
 }

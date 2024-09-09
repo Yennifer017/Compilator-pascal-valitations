@@ -17,4 +17,26 @@ public class RecordST extends RowST{
         super(name, Category.Record, null);
         this.internalST = internalST;
     }
+
+    @Override
+    public StringBuilder getGraphRowCode(String codeRelated) {
+        StringBuilder builder = super.getInitialGraphCodeData();
+        builder.append(graphicator.getNoDataGraphCode());
+        builder.append(graphicator.getDataGraphCode(String.valueOf(totalElements)));
+        builder.append(graphicator.getNoDataGraphCode());
+        builder.append("<td port=\"");
+        builder.append(codeRelated);
+        builder.append("\"></td>");
+        return builder;
+    }
+
+    @Override
+    public boolean isLinked() {
+        return true;
+    }
+    
+    @Override
+    public StringBuilder getGraphInternalTab() {
+        throw new RuntimeException();
+    }
 }

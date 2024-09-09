@@ -5,6 +5,8 @@ import compi2.pascal.valitations.analysis.Lexer;
 import compi2.pascal.valitations.analysis.Parser;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
+import compi2.pascal.valitations.graphs.Graphicator;
+import compi2.pascal.valitations.graphs.ImgGenerator;
 import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.semantic.ast.Statement;
 import compi2.pascal.valitations.semantic.module.FunctionDec;
@@ -30,10 +32,19 @@ public class Analyzator {
     private GenTypeTab genTypeTab;
     private GenSymbolTab genSymbolTab;
     
+    private SymbolTable symbolTable;
+    private TypeTable typeTable;
+    
+    private Graphicator graphicator;
+    private ImgGenerator imgGenerator;
+    
     public Analyzator(){
         semanticErrors = new ArrayList<>();
         genTypeTab = new GenTypeTab();
         genSymbolTab = new GenSymbolTab();
+        
+        graphicator = new Graphicator();
+        imgGenerator = new ImgGenerator();
     }
     
     /**
@@ -48,6 +59,13 @@ public class Analyzator {
             builder.append(getErrors("ERRORES LEXICOS", lexer.getErrors()));
             builder.append(getErrors("ERRORES SINTACTICOS", parser.getSyntaxErrors()));
             builder.append(getErrors("ERRORES SEMANTICOS", semanticErrors));
+            
+            if(lexer.getErrors().isEmpty() 
+                    && parser.getSyntaxErrors().isEmpty() 
+                    && semanticErrors.isEmpty()){
+                String code = graphicator.getCodeST(symbolTable);
+                imgGenerator.generateImg("symbolTab", "st", code);
+            }
         } catch (Exception e) {
             builder.append("Error inesperado:\n");
             builder.append(e);
@@ -84,8 +102,8 @@ public class Analyzator {
     public void semanticAnalysis(List<DefAst> types, List<DefAst> consts, List<DefAst> variables, 
             List<FunctionDec> functions, List<ProcedureDec> procedures, List<Statement> statements){
         semanticErrors = new ArrayList<>();
-        TypeTable typeTable = genTypeTab.generateTable(types, semanticErrors);
-        SymbolTable symbolTable = new SymbolTable();
+        typeTable = genTypeTab.generateTable(types, semanticErrors);
+        symbolTable = new SymbolTable();
         genSymbolTab.addData(symbolTable, typeTable, consts, semanticErrors);
         genSymbolTab.addData(symbolTable, typeTable, variables, semanticErrors);
         genSymbolTab.addData(symbolTable, typeTable, functions, semanticErrors);

@@ -26,4 +26,9 @@ public class Limits {
         return maxLimit - minLimit;
     }
     
+    @Override
+    public String toString(){
+        return this.minLimit + " - " + this.maxLimit;
+    }
+    
 }
