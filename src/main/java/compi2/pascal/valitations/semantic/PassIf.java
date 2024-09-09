@@ -1,6 +1,8 @@
 
-package compi2.pascal.valitations.semantic.ast;
+package compi2.pascal.valitations.semantic;
 
+import compi2.pascal.valitations.semantic.ast.ElseAst;
+import compi2.pascal.valitations.semantic.ast.IfAst;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.Getter;

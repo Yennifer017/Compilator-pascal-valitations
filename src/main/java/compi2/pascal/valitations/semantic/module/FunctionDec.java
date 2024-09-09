@@ -1,10 +1,13 @@
 
 package compi2.pascal.valitations.semantic.module;
 
+import compi2.pascal.valitations.analysis.symbolt.FunctionST;
 import compi2.pascal.valitations.analysis.symbolt.RowST;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.Type;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
+import compi2.pascal.valitations.semantic.ReturnCase;
+import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.semantic.ast.Statement;
 import compi2.pascal.valitations.semantic.obj.DefAst;
 import compi2.pascal.valitations.semantic.obj.Label;
@@ -23,6 +26,7 @@ public class FunctionDec extends ModuleDec{
     
     public FunctionDec(Label name, Label varType, List<Argument> args, 
             List<DefAst> varDef, List<Statement> statements){
+        super();
         super.name = name;
         this.varType = varType;
         super.args = args;
@@ -36,27 +40,37 @@ public class FunctionDec extends ModuleDec{
     }
 
     @Override
-    public RowST generateRowST(SymbolTable symbolTable, TypeTable typeTable, List<String> semanticErrors) {
-        /*
-        TODO: 
-        validar los stmts
-        actualaizar el nombre de la funcion
-        verificar si se puede ingresar en la tabla de simbolos (nombre valido, argumentos validos)
-        si se puede devolver la funcion
-        */
-        
+    public RowST generateRowST(SymbolTable symbolTable, TypeTable typeTable, List<String> semanticErrors) {        
         SymbolTable internalST = genSymbolTab.generateInternalTable(
-                symbolTable, typeTable, varDef, semanticErrors
+                symbolTable, typeTable, args, semanticErrors
         );
         genSymbolTab.addData(internalST, typeTable, varDef, semanticErrors);
-        
-        
-        
-        
-        if(super.canInsert(symbolTable, semanticErrors)){
-            
+        refAnalyzator.existReference(symbolTable, semanticErrors, varType);
+        ReturnCase returnCase = stmtsAnalizator.validateInternalStmts(
+                internalST, 
+                typeTable, 
+                semanticErrors, 
+                new SemanticRestrictions(
+                        false, 
+                        false, 
+                        varType.getName(), 
+                        name.getName()
+                ),
+                statements
+        );
+        if(!returnCase.isAllScenaries()){
+            semanticErrors.add(errorsRep.missingReturnError(
+                    this.name.getName(), 
+                    varType.getName(), 
+                    this.name.getPosition())
+            );
         }
-        
+        String nameForST = super.updateFunctionName();
+        if(refAnalyzator.canInsert(new Label(nameForST, this.name.getPosition()), 
+                symbolTable, semanticErrors)){
+            return new FunctionST(nameForST, varType.getName(), internalST);
+        }
+        return null;
     }
     
     

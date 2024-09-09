@@ -29,7 +29,8 @@ public class SingleDef extends DefAst {
 
     @Override
     public Type generateType(TypeTable typeTable, List<String> semanticErrors) {
-        if(super.canInsert(typeTable, semanticErrors) && existReference(typeTable, semanticErrors, base)){
+        if(super.canInsert(typeTable, semanticErrors) 
+                && refAnalyzator.existReference(typeTable, semanticErrors, base)){
             return new UserType(name.getName(), base.getName(), 1);
         }
         return null;
@@ -38,7 +39,7 @@ public class SingleDef extends DefAst {
     @Override
     public RowST generateRowST(SymbolTable symbolTable, TypeTable typeTable, List<String> semanticErrors) {
         if(canInsert(symbolTable, semanticErrors)){
-            if(existReference(typeTable, semanticErrors, base)){
+            if(refAnalyzator.existReference(typeTable, semanticErrors, base)){
                 int lastDir = symbolTable.getLastDir();
                 symbolTable.incrementLastDir(1);
                 return new SingleData(

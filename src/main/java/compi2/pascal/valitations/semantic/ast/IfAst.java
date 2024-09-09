@@ -1,9 +1,12 @@
 
 package compi2.pascal.valitations.semantic.ast;
 
+import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
+import compi2.pascal.valitations.semantic.ReturnCase;
 import compi2.pascal.valitations.semantic.expr.Expression;
+import compi2.pascal.valitations.util.Position;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,14 +21,15 @@ public class IfAst extends ControlStruct{
     private List<IfAst> elifs;
     private ElseAst elseStmt;
 
-    public IfAst(Expression condition, List<Statement> statements) {
-        super();
+    public IfAst(Expression condition, List<Statement> statements, Position initPos) {
+        super(initPos);
         this.condition = condition;
         super.internalStmts = statements;
     }
 
     public IfAst(Expression condition, List<Statement> statements, 
-            List<IfAst> elifs, ElseAst elseStmt) {
+            List<IfAst> elifs, ElseAst elseStmt, Position initPos) {
+        super(initPos);
         this.condition = condition;
         this.elifs = elifs;
         this.elseStmt = elseStmt;
@@ -33,22 +37,32 @@ public class IfAst extends ControlStruct{
     }
 
     @Override
-    public void validate(SymbolTable symbolTable, TypeTable typeTable, 
+    public ReturnCase validate(SymbolTable symbolTable, TypeTable typeTable, 
             List<String> semanticErrors, SemanticRestrictions restrictions) {
         super.validateCondition(condition, symbolTable, typeTable, semanticErrors);
-        super.validateInternalStmts(symbolTable, typeTable, semanticErrors, 
+        
+        ReturnCase internalRC = super.validateInternalStmts(symbolTable, typeTable, semanticErrors, 
                 restrictions
         );
+        
         if(elifs != null && !elifs.isEmpty()){
             for (IfAst ifAst : elifs) {
-                ifAst.validate(symbolTable, typeTable, semanticErrors, restrictions);
+                ReturnCase pathRC = ifAst.validate(symbolTable, typeTable, semanticErrors, restrictions);
+                if(internalRC.isAllScenaries() && !pathRC.isAllScenaries()){
+                    internalRC.setAllScenaries(false);
+                }
             }
         }
         
         if(elseStmt != null){
-            elseStmt.validate(symbolTable, typeTable, semanticErrors, restrictions);
+            ReturnCase elseRC = elseStmt.validate(symbolTable, typeTable, semanticErrors, restrictions);
+            if(internalRC.isAllScenaries() && !elseRC.isAllScenaries()){
+                internalRC.setAllScenaries(false);
+            }
+        } else {
+            internalRC.setAllScenaries(false);
         }
-        
+        return internalRC;
     }
     
 }

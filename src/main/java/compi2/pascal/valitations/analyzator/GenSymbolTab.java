@@ -29,7 +29,7 @@ public class GenSymbolTab extends Generator{
     }
     
     public SymbolTable generateInternalTable(SymbolTable symbolTable, TypeTable typeTable,
-            List<DefAst> listDef, List<String> semanticErrors){
+            List<? extends DefAst> listDef, List<String> semanticErrors){
         SymbolTable internalTable = new SymbolTable();
         internalTable.setFather(symbolTable);
         this.addData(internalTable, typeTable, listDef, semanticErrors);

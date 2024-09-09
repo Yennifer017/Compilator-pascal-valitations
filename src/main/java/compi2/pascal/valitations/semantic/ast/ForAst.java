@@ -1,13 +1,16 @@
 
 package compi2.pascal.valitations.semantic.ast;
 
+import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.analysis.symbolt.RowST;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.PrimitiveType;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
+import compi2.pascal.valitations.semantic.ReturnCase;
 import compi2.pascal.valitations.semantic.expr.Expression;
 import compi2.pascal.valitations.semantic.obj.Label;
 import compi2.pascal.valitations.semantic.obj.Range;
+import compi2.pascal.valitations.util.Position;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,17 +24,18 @@ public class ForAst extends ControlStruct{
     private Label variable;
     private Range range;
 
-    public ForAst(Label variable, Range range, List<Statement> internalStmts) {
+    public ForAst(Label variable, Range range, List<Statement> internalStmts, Position initPos) {
+        super(initPos);
         this.variable = variable;
         this.range = range;
         this.internalStmts = internalStmts;
     }
 
     @Override
-    public void validate(SymbolTable symbolTable, TypeTable typeTable, 
+    public ReturnCase validate(SymbolTable symbolTable, TypeTable typeTable, 
             List<String> semanticErrors, SemanticRestrictions restrictions) {
         if(refAnalyzator.existReference(symbolTable, semanticErrors, 
-                variable.getName(), variable.getPosition())
+                variable)
                 ){
             RowST row = refAnalyzator.getFromST(symbolTable, variable.getName());
             if(!super.tConvert.isNumericIntegerType(row.getName())){
@@ -44,11 +48,11 @@ public class ForAst extends ControlStruct{
         }
         validateIntData(range.getInit(), symbolTable, typeTable, semanticErrors);
         validateIntData(range.getEnd(), symbolTable, typeTable, semanticErrors);
-        super.validateInternalStmts(symbolTable, typeTable, semanticErrors, 
+        return super.validateInternalStmts(symbolTable, typeTable, semanticErrors, 
                 new SemanticRestrictions(
                         true, 
                         true, 
-                        restrictions.needReturnVal(),
+                        restrictions.getReturnType(),
                         restrictions.getReturnType()
                 )
         );

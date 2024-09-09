@@ -5,6 +5,7 @@ import java_cup.runtime.*;
 import java.util.*;
 import compi2.pascal.valitations.analysis.typet.*;
 import compi2.pascal.valitations.analyzator.*;
+import compi2.pascal.valitations.semantic.*;
 import compi2.pascal.valitations.semantic.expr.*;
 import compi2.pascal.valitations.semantic.obj.*;
 import compi2.pascal.valitations.semantic.ast.*;
@@ -101,8 +102,9 @@ non terminal List<DefAst> type_b, list_typedec, type_dec,
 non terminal DefAst def_record,
                     const_dec
                     ;
-non terminal Expression expression, bool_exp, arit_exp, literals,
-                    if_stmt
+non terminal Expression expression, bool_exp, arit_exp, literals
+                    ;
+non terminal InitIf if_stmt
                     ;
 non terminal List<Expression> expression_list,
                     labels
@@ -462,6 +464,23 @@ var_dec ::= id_list:l COLON var_type:t SEMICOLON
                     {:
                         RESULT = genTypeTab.recordDef(ids, l);
                     :}
+        /*MANAGE ERRORS*/
+            | id_list:l error var_type:t SEMICOLON
+                    {:
+                        RESULT = genTypeTab.userDef(l, t);
+                    :}
+            | id_list:l error range:r SEMICOLON
+                    {:
+                        RESULT = genTypeTab.rangeDef(l, r);
+                    :}
+            | id_list:l error ARRAY arr_range:r OF var_type:t SEMICOLON
+                    {:
+                        RESULT = genTypeTab.arrayDef(l, t, r);
+                    :}
+            | id_list:ids error RECORD record_b:l END SEMICOLON
+                    {:
+                        RESULT = genTypeTab.recordDef(ids, l);
+                    :}
             ;
 
 
@@ -557,7 +576,15 @@ bool_exp ::= arit_exp:e1 EQUALS:o arit_exp:e2
                     :}
             ;
 
-arit_exp ::= arit_exp:e1 PLUS:o arit_exp:e2
+arit_exp ::= 
+        /*MANAGE ERRORS*/
+              error PLUS error
+            | error MINUS error
+            | error TIMES error
+            | error DIV error
+            | error BARRA error
+            | error MOD error
+            | arit_exp:e1 PLUS:o arit_exp:e2
                     {:
                         RESULT = new Operation(
                             DefiniteOperation.Addition, e1, e2,
@@ -653,6 +680,11 @@ arit_exp ::= arit_exp:e1 PLUS:o arit_exp:e2
                             new Position(oleft, oright)
                         );
                     :}
+        /*MANAGE ERRORS*/
+            %prec UMINUS        
+            | MINUS error
+            %prec UMINUS
+            | PLUS error
             ;
 
 literals ::= BOOLEAN_LIT:l
@@ -700,25 +732,53 @@ literals ::= BOOLEAN_LIT:l
 
 /************************* conditionals *****************************/
 conditional ::=
-          if_stmt:e block_cond:ls
+          if_stmt:i block_cond:ls
                 {:
-                    RESULT = new PassIf(new IfAst(e, ls));
+                    RESULT = new PassIf(new IfAst(
+                        i.getExpression(), 
+                        ls, 
+                        i.getPosition()
+                    ));
                 :}
-        | if_stmt:e block_cond:ls SEMICOLON
+        | if_stmt:i block_cond:ls SEMICOLON
                 {:
-                    RESULT = new PassIf(new IfAst(e, ls));
+                    RESULT = new PassIf(new IfAst(
+                        i.getExpression(), 
+                        ls,
+                        i.getPosition()
+                    ));
                 :}
-        | if_stmt:e block_cond:ls ELSE elif:pi
-                {:          
+        | if_stmt:i block_cond:ls ELSE:e elif:pi
+                {:  
+                    if(pi.getElseAst() != null && pi.getElseAst().getInitPos() == null){
+                        pi.getElseAst().setInitPos(
+                            new Position(eleft, eright)
+                        );
+                    }
                     RESULT = astGen.genPassIf(
                         pi, 
-                        new IfAst(e, ls)
+                        new IfAst(i.getExpression(), ls, i.getPosition())
                     );
                 :}
         ;
 
-if_stmt ::= IF PARENTESIS_L expression:e PARENTESIS_R THEN
-                {:  RESULT = e;     :}
+if_stmt ::= IF:i PARENTESIS_L expression:e PARENTESIS_R THEN
+                {:  
+                    RESULT = new InitIf(e, new Position(ileft, iright));     
+                :}
+    /*MANAGE ERRORS*/
+        | IF:i PARENTESIS_L expression:e error THEN
+                {:  
+                    RESULT = new InitIf(e, new Position(ileft, iright));     
+                :}
+        | IF:i error expression:e PARENTESIS_R THEN
+                {:  
+                    RESULT = new InitIf(e, new Position(ileft, iright));     
+                :}
+        | IF:i error expression:e error THEN
+                {:  
+                    RESULT = new InitIf(e, new Position(ileft, iright));     
+                :}
         ;
 block_cond ::= simple_stmt:s
                 {:
@@ -769,10 +829,10 @@ complex_else ::= case_stmt:s
 
 /************************* case *****************************/
 
-case_stmt ::= CASE PARENTESIS_L expression:e PARENTESIS_R OF case_block:lsc 
+case_stmt ::= CASE:c PARENTESIS_L expression:e PARENTESIS_R OF case_block:lsc 
                     ELSE case_else_stmts:ls END SEMICOLON
                 {:
-                    RESULT = new CaseAst(e, lsc, new ElseAst(ls));
+                    RESULT = new CaseAst(e, lsc, new ElseAst(ls), new Position(cleft, cright));
                 :}
         ;
 
@@ -842,23 +902,23 @@ case_else_stmts ::= simple_stmt:s
 
 /************************* ciclos *****************************/
 
-while_stmt ::= WHILE PARENTESIS_L expression:e PARENTESIS_R DO statements:l
+while_stmt ::= WHILE:w PARENTESIS_L expression:e PARENTESIS_R DO statements:l
                 {:
-                    RESULT = new WhileAst(e, l);
+                    RESULT = new WhileAst(e, l, new Position(wleft, wright));
                 :}
         ;
 
-for_stmt ::= FOR ID:i ASSIGNATION expression:e1 TO expression:e2 DO statements:l
+for_stmt ::= FOR:f ID:i ASSIGNATION expression:e1 TO expression:e2 DO statements:l
                 {:
                     Range range = new Range(e1, e2);
                     Label variable = new Label(i, new Position(ileft, iright));
-                    RESULT = new ForAst(variable, range, l);
+                    RESULT = new ForAst(variable, range, l, new Position(fleft, fright));
                 :}
         ;
 
-repeat_stmt ::= REPEAT statements:l UNTIL expression:e
+repeat_stmt ::= REPEAT:r statements:l UNTIL expression:e
                 {:
-                    RESULT = new RepeatAst(e, l);
+                    RESULT = new RepeatAst(e, l, new Position(rleft, rright));
                 :}
         ;
 
@@ -951,15 +1011,15 @@ more_stmts ::= simple_stmt:s
 
 simple_stmt ::= BREAK:b
                 {:  
-                    RESULT = new SimpleStruct(
-                        SimpleStruct.BREAK, 
+                    RESULT = new SimpleStmt(
+                        SimpleStmt.BREAK, 
                         new Position(bleft, bright)
                     );  
                 :}
         | CONTINUE:c
                 {:  
-                    RESULT = new SimpleStruct(
-                        SimpleStruct.CONTINUE,
+                    RESULT = new SimpleStmt(
+                        SimpleStmt.CONTINUE,
                         new Position(cleft, cright)
                     );  
                 :}
@@ -987,7 +1047,11 @@ simple_stmt ::= BREAK:b
                 :}
         | ID:i CORCHETE_L expression:e1 CORCHETE_R ASSIGNATION expression:e2
                 {:
-                    RESULT = 
+                    RESULT = new ArrayAssign(
+                        new Label(i, new Position(ileft, iright)),
+                        e1,
+                        e2
+                    );
                 :}
         | definite_fun:fu
                 {: RESULT = fu; :} 
@@ -1130,13 +1194,13 @@ definite_fun ::= writefn:fu    {: RESULT = fu;  :}
         | readfn:fu            {: RESULT = fu;  :}
         ;
 
-writefn ::= WRITELN PARENTESIS_L expression_list:el PARENTESIS_R
+writefn ::= WRITELN:f PARENTESIS_L expression_list:el PARENTESIS_R
                 {:
-                    RESULT = new FunctionUseStmt(el);
+                    RESULT = new FunctionUseStmt(el, new Position(fleft, fright));
                 :}
         ;
-readfn ::= READLN PARENTESIS_L expression_list:el PARENTESIS_R
+readfn ::= READLN:f PARENTESIS_L expression_list:el PARENTESIS_R
                 {:
-                    RESULT = new FunctionUseStmt(el);
+                    RESULT = new FunctionUseStmt(el, new Position(fleft, fright));
                 :}
         ;

@@ -1,9 +1,11 @@
 
 package compi2.pascal.valitations.semantic.ast;
 
+import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.analysis.symbolt.RowST;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
+import compi2.pascal.valitations.semantic.ReturnCase;
 import compi2.pascal.valitations.semantic.expr.Expression;
 import compi2.pascal.valitations.semantic.obj.Label;
 import java.util.List;
@@ -20,17 +22,31 @@ public class Assignation extends Statement{
     private Expression expToAsign;
     
     public Assignation(Label variable, Expression expToAsign){
-        super();
+        super(variable.getPosition());
         this.variable = variable;
         this.expToAsign = expToAsign;
     }
 
     @Override
-    public void validate(SymbolTable symbolTable, TypeTable typeTable, 
+    public ReturnCase validate(SymbolTable symbolTable, TypeTable typeTable, 
             List<String> semanticErrors, SemanticRestrictions restrictions) {
+        if(restrictions.getNameFunction() != null 
+                && restrictions.getNameFunction().equals(variable.getName())){
+            Label type = expToAsign.validateComplexData(symbolTable, typeTable, semanticErrors);
+            if(!type.equals(restrictions.getReturnType())){
+                semanticErrors.add(errorsRep.incorrectTypeError(
+                        type.getName(),
+                        restrictions.getReturnType(),
+                        type.getPosition())
+                );
+            }
+            return new ReturnCase(true);
+        }
+        
         //validar de que la variable exista 
-        if(symbolTable.containsKey(variable.getName())){ 
-            RowST row = symbolTable.get(variable.getName());
+        if(super.refAnalyzator.existReference(symbolTable, semanticErrors, 
+                variable)){ 
+            RowST row = refAnalyzator.getFromST(symbolTable, variable.getName());
             
             //validar que la variable sea de la categoria adecuada
             switch (row.getCategory()) { 
@@ -54,10 +70,7 @@ public class Assignation extends Statement{
                     ));
                 }
             }
-        } else {
-            semanticErrors.add(errorsRep.undefiniteVarUseError(
-                    variable.getName(), variable.getPosition())
-            );
         }
+        return new ReturnCase(false);
     }
 }

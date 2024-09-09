@@ -47,9 +47,8 @@ public class VectorUse extends Expression{
                     typeIndex.getPosition())
             );
         }
-        
-        if(symbolTable.containsKey(idVector)){
-            RowST row = symbolTable.get(idVector);
+        if(refAnalyzator.existReference(symbolTable, semanticErrors, new Label(idVector, pos))){
+            RowST row = refAnalyzator.getFromST(symbolTable, idVector);
             if(row.getCategory() == Category.Array){
                 return new Label(row.getType(), pos);
             } else {
@@ -60,8 +59,6 @@ public class VectorUse extends Expression{
                         pos
                 ));
             }
-        } else {
-            semanticErrors.add(errorsRep.undefiniteVarUseError(idVector, pos));
         }
         return new Label(Analyzator.ERROR_TYPE, pos);
     }

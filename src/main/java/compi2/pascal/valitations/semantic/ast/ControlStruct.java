@@ -1,12 +1,15 @@
 
 package compi2.pascal.valitations.semantic.ast;
 
+import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.PrimitiveType;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.analyzator.StmtsAnalizator;
+import compi2.pascal.valitations.semantic.ReturnCase;
 import compi2.pascal.valitations.semantic.expr.Expression;
 import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.util.Position;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,14 +23,14 @@ public abstract class ControlStruct extends Statement{
     protected List<Statement> internalStmts;
     protected StmtsAnalizator stmtsAnalizator;
     
-    public ControlStruct(){
-        super();
+    public ControlStruct(Position initPos){
+        super(initPos);
         stmtsAnalizator = new StmtsAnalizator();
     }
     
-    protected void validateInternalStmts(SymbolTable symbolTable, TypeTable typeTable, 
+    protected ReturnCase validateInternalStmts(SymbolTable symbolTable, TypeTable typeTable, 
             List<String> semanticErrors, SemanticRestrictions restrictions){
-        stmtsAnalizator.validateInternalStmts(symbolTable, typeTable, semanticErrors, 
+        return stmtsAnalizator.validateInternalStmts(symbolTable, typeTable, semanticErrors, 
                 restrictions, internalStmts);
     }
     

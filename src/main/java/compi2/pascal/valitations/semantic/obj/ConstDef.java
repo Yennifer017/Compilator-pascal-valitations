@@ -35,7 +35,7 @@ public class ConstDef extends DefAst{
     public RowST generateRowST(SymbolTable symbolTable, TypeTable typeTable, List<String> semanticErrors) {
         if(canInsert(typeTable, semanticErrors)){
             Label nameType = expression.validateSimpleData(semanticErrors);
-            if(super.existReference(typeTable, semanticErrors, nameType)){
+            if(refAnalyzator.existReference(typeTable, semanticErrors, nameType)){
                 int lastDir = symbolTable.getLastDir();
                 symbolTable.incrementLastDir(1);
                 return new SingleData(

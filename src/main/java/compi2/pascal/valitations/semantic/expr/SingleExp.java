@@ -69,7 +69,8 @@ public class SingleExp extends Expression{
         if(this.type != null){
             return new Label(this.type.getName(), pos);
         } else if(accessId != null 
-                && refAnalyzator.existReference(symbolTable, semanticErrors, accessId, this.pos)){
+                && refAnalyzator.existReference(symbolTable, semanticErrors, 
+                        new Label(accessId, this.pos))){
             
             RowST row = refAnalyzator.getFromST(symbolTable, accessId);
             String typeInST = row.getType();

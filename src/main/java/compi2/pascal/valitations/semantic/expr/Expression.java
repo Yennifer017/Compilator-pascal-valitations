@@ -1,7 +1,6 @@
 
 package compi2.pascal.valitations.semantic.expr;
 
-import compi2.pascal.valitations.analysis.symbolt.RowST;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.PrimitiveType;
 import compi2.pascal.valitations.analysis.typet.TypeTable;

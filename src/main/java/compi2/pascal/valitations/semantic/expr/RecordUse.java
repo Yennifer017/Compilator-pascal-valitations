@@ -38,8 +38,7 @@ public class RecordUse extends Expression{
                 && refAnalyzator.existReference(
                         symbolTable, 
                         semanticErrors, 
-                        access.get(0).getName(), 
-                        pos)
+                        new Label(access.get(0).getName(), pos))
                 ){
             RowST rowST = refAnalyzator.getFromST(symbolTable, access.get(0).getName());
             if(rowST instanceof RecordST){

@@ -1,5 +1,5 @@
 
-package compi2.pascal.valitations.semantic.ast;
+package compi2.pascal.valitations.semantic;
 
 import lombok.Setter;
 
@@ -11,15 +11,15 @@ import lombok.Setter;
 public class SemanticRestrictions {
     private boolean allowContinue;
     private boolean allowBreak;
-    private boolean needReturnVal;
     private String returnType;
+    private String nameFunction;
 
     public SemanticRestrictions(boolean allowContinue, boolean allowBreak, 
-            boolean needReturnVal, String returnType) {
+            String returnType, String nameFunction) {
         this.allowContinue = allowContinue;
         this.allowBreak = allowBreak;
-        this.needReturnVal = needReturnVal;
         this.returnType = returnType;
+        this.nameFunction = nameFunction;
     }
 
     public boolean allowContinue() {
@@ -30,8 +30,8 @@ public class SemanticRestrictions {
         return this.allowBreak;
     }
 
-    public boolean needReturnVal() {
-        return needReturnVal;
+    public String getNameFunction() {
+        return this.nameFunction;
     }
 
     public String getReturnType() {

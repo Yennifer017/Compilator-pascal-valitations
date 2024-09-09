@@ -2,7 +2,7 @@
 package compi2.pascal.valitations.analyzator;
 
 import compi2.pascal.valitations.semantic.ast.IfAst;
-import compi2.pascal.valitations.semantic.ast.PassIf;
+import compi2.pascal.valitations.semantic.PassIf;
 import compi2.pascal.valitations.semantic.ast.SimpleCase;
 import compi2.pascal.valitations.semantic.ast.Statement;
 import compi2.pascal.valitations.semantic.expr.Expression;
@@ -55,7 +55,8 @@ public class AstGen {
             return new IfAst(first.getCondition(),
                     first.getInternalStmts(),
                     pass.getIfs(),
-                    pass.getElseAst()
+                    pass.getElseAst(),
+                    first.getInitPos()
             );
         } catch (Exception e) {
             return null;

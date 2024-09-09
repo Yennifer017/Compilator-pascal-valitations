@@ -33,7 +33,7 @@ public class ArrayDef extends DefAst{
     @Override
     public Type generateType(TypeTable typeTable, List<String> semanticErrors) {
         if(super.canInsert(typeTable, semanticErrors)
-                && super.existReference(typeTable, semanticErrors, base)){
+                && refAnalyzator.existReference(typeTable, semanticErrors, base)){
             try {
                 Limits limit = range.validate(semanticErrors, this);
                 return new ArrayType(
@@ -53,7 +53,7 @@ public class ArrayDef extends DefAst{
     public RowST generateRowST(SymbolTable symbolTable, TypeTable typeTable, List<String> semanticErrors) {
         if(canInsert(symbolTable, semanticErrors)){
             Limits limits = range.validate(semanticErrors, this);
-            if(super.existReference(typeTable, semanticErrors, base)){
+            if(refAnalyzator.existReference(typeTable, semanticErrors, base)){
                 try {
                     ArrayST arrayST = new ArrayST(
                             name.getName(), 

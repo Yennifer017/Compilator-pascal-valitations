@@ -94,6 +94,14 @@ public class ErrorsRep {
     
     public String ilegalStmt(String nameStmt, Position pos){
         return "No se esperaba " + nameStmt + report(pos);
-    }   
+    }
+    
+    public String unrachableCodeError(Position pos){
+        return "El codigo no se puede ejecutar " + report(pos);
+    }
+    
+    public String missingReturnError(String functionName, String type, Position pos){
+        return "La function " + functionName + " necesita el retorno de tipo " + type + report(pos);
+    }
     
 }

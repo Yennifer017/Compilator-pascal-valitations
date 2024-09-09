@@ -48,7 +48,7 @@ public class FunctionUse extends Expression{
             }
         }
         String nameFunInST = functionName + typeAddition.toString();
-        if(refAnalyzator.existReference(symbolTable, semanticErrors, nameFunInST, pos)){
+        if(refAnalyzator.existReference(symbolTable, semanticErrors, new Label(nameFunInST, pos))){
             return new Label(
                     refAnalyzator.getFromST(symbolTable, nameFunInST).getName(), 
                     pos
