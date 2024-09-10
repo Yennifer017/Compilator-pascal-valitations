@@ -3,9 +3,11 @@ package compi2.pascal.valitations.semantic.ast;
 
 import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
+import compi2.pascal.valitations.analysis.typet.PrimitiveType;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.semantic.ReturnCase;
 import compi2.pascal.valitations.semantic.expr.Expression;
+import compi2.pascal.valitations.semantic.obj.Label;
 import compi2.pascal.valitations.util.Position;
 import java.util.List;
 import lombok.Getter;
@@ -32,7 +34,35 @@ public class CaseAst extends Statement{
     @Override
     public ReturnCase validate(SymbolTable symbolTable, TypeTable typeTable, 
             List<String> semanticErrors, SemanticRestrictions restrictions) {
-        return null;
+        Label typeCase = expression.validateComplexData(symbolTable, typeTable, semanticErrors);
+        if(!typeCase.getName().equals(PrimitiveType.IntegerPT.getName())
+                && !typeCase.getName().equals(PrimitiveType.CharPT.getName())
+                && !typeCase.getName().equals(PrimitiveType.BooleanPT.getName())
+                ){
+            //AGREGAR ERRRO DE TIPO en el case
+        }
+        ReturnCase returnCase = new ReturnCase(true);
+        if(cases != null && !cases.isEmpty()){
+            for (SimpleCase simpleCase : cases) {
+                ReturnCase currentCase = simpleCase.validate(
+                        symbolTable, typeTable, semanticErrors, restrictions, typeCase.getName()
+                );
+                if(!currentCase.isAllScenaries()){
+                    returnCase.setAllScenaries(false);
+                }
+            }
+        }
+        
+        if(elseAst != null){
+            ReturnCase elseRC = elseAst.validate(symbolTable, typeTable, semanticErrors, restrictions);
+            if(returnCase.isAllScenaries() && !elseRC.isAllScenaries()){
+                returnCase.setAllScenaries(false);
+            }
+        } else {
+            returnCase.setAllScenaries(false);
+        }
+        
+        return returnCase;
     }
     
 }

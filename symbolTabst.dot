@@ -1,0 +1,29 @@
+digraph G {
+    rankdir=LR;
+    node [shape=plaintext];
+t0    [label=<
+        <table border="1" cellborder="1" cellspacing="0" cellpadding="5">
+            <tr>
+                <td><b>Nombre</b></td>
+                <td><b>Categoria</b></td>
+                <td><b>Tipo</b></td>
+                <td><b>Direccion de <BR/> Memoria relativa</b></td>
+                <td><b>Numero de <BR/> total de elementos</b></td>
+                <td><b>Numero de <BR/> parametros</b></td>
+                <td><b>Limites</b></td>
+            </tr>
+<tr>
+    <td>i</td><td>Variable</td><td>integer</td><td>10</td><td></td><td></td><td></td>
+</tr>
+<tr>
+    <td>j</td><td>Variable</td><td>integer</td><td>11</td><td></td><td></td><td></td>
+</tr>
+<tr>
+    <td>n</td><td>arreglo</td><td>integer</td><td>0</td><td>10</td><td></td><td>0 - 10</td>
+</tr>
+</table>
+    >];
+labelloc="t";
+    label="
+Tabla de Simbolos";
+}

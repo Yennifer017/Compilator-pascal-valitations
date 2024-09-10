@@ -22,6 +22,7 @@ public class ArrayST extends RowST {
         if(limits.containsNegative()){
             throw new SemanticException();
         }
+        this.limits = limits;
         this.totalIndex = limits.calculateDimension();
         this.relativeDir = relativeDir;
     }

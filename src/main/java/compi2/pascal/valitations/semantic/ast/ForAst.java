@@ -38,7 +38,7 @@ public class ForAst extends ControlStruct{
                 variable)
                 ){
             RowST row = refAnalyzator.getFromST(symbolTable, variable.getName());
-            if(!super.tConvert.isNumericIntegerType(row.getName())){
+            if(!super.tConvert.isNumericIntegerType(row.getType())){
                 semanticErrors.add(errorsRep.incorrectVarTypeError(
                         variable.getName(), 
                         PrimitiveType.IntegerPT.getName(),
