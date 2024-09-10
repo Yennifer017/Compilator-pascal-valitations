@@ -9,6 +9,7 @@ import compi2.pascal.valitations.semantic.ReturnCase;
 import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.semantic.expr.Expression;
 import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.util.ErrorsRep;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,15 +25,20 @@ public class SimpleCase {
     
     private StmtsAnalizator stmtsAnalizator;
     private TConvertidor tConvertidor;
+    private ErrorsRep errorsRep;
     
     public SimpleCase(){
         stmtsAnalizator = new StmtsAnalizator();
         tConvertidor = new TConvertidor();
+        errorsRep = new ErrorsRep();
     }
 
     public SimpleCase(List<Expression> labels, List<Statement> statements) {
         this.labels = labels;
         this.statements = statements;
+        stmtsAnalizator = new StmtsAnalizator();
+        tConvertidor = new TConvertidor();
+        errorsRep = new ErrorsRep();
     }
     
     public ReturnCase validate(SymbolTable symbolTable, TypeTable typeTable, 
@@ -50,7 +56,11 @@ public class SimpleCase {
                 if(!type.getName().equals(typeLabel)
                         && tConvertidor.canUpgradeType(typeLabel, type.getName())
                         ){
-                    //agregar error
+                    semanticErrors.add(errorsRep.incorrectTypeError(
+                            type.getName(),
+                            typeLabel,
+                            type.getPosition()
+                    ));
                 }
             }
         }

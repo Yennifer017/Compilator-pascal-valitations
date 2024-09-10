@@ -53,40 +53,10 @@ public class Fronted extends javax.swing.JFrame {
         consoleScroll.setRowHeaderView(numConsole);
         numConsole.updateColumna(columnaDisplay);
     }
-
-    private void closeProject() {
-        /*try {
-            admiFiles.closeProject();
-            display.setText("");
-        } catch (DirectoryException ex) {
-            System.out.println("Excepcion de directorio controlada");
-        } catch (Exception ex) {
-            showInesperatedError();
-        }*/
-    }
-
-    private void openProject() {
-        /*try {
-            admiFiles.openProject();
-        } catch (ProjectOpenException ex) {
-            if (JOptionPane.showConfirmDialog(null, "Deseas cerar el proyecto actual?",
-                    "Cerrar proyecto", JOptionPane.YES_NO_OPTION) == 0) {
-                closeProject();
-                this.openProject();
-            }
-        } catch (DirectoryException ex) {
-            JOptionPane.showMessageDialog(null, "No se ha seleccionado un proyecto valido",
-                    "Error", JOptionPane.PLAIN_MESSAGE);
-        } catch (IOException ex) {
-            System.out.println("Excepcion controlada");
-        } catch (FileOpenException ex) {
-            if (JOptionPane.showConfirmDialog(null, "Hay un archivo abierto, deseas cerrarlo?",
-                    "Cerrar archivo", JOptionPane.YES_NO_OPTION) == 0) {
-                closeFile();
-            }
-        } catch (Exception ex) {
-            showInesperatedError();
-        }*/
+    
+    private void showNoFunction(){
+        JOptionPane.showMessageDialog(null, 
+                "Sera proximamente implementado");
     }
 
     /**
@@ -551,7 +521,7 @@ public class Fronted extends javax.swing.JFrame {
     }//GEN-LAST:event_closeAllFilesOpActionPerformed
 
     private void saveAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAllActionPerformed
-        // TODO add your handling code here:
+        showNoFunction();
     }//GEN-LAST:event_saveAllActionPerformed
 
     private void treeDisplayMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeDisplayMouseClicked
@@ -587,7 +557,7 @@ public class Fronted extends javax.swing.JFrame {
     }//GEN-LAST:event_saveCloseAllFilesOpActionPerformed
 
     private void creditsOp4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_creditsOp4ActionPerformed
-        // TODO add your handling code here:
+        showNoFunction();   
     }//GEN-LAST:event_creditsOp4ActionPerformed
 
     private void displayKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_displayKeyPressed

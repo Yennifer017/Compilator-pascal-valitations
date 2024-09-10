@@ -921,7 +921,7 @@ case_stmt ::= CASE:c PARENTESIS_L expression:e PARENTESIS_R OF case_block:lsc
                 :}
         ;
 
-case_block ::= case_block:l labels:labs COLON case_stmts:ls SEMICOLON
+case_block ::= case_block:l labels:labs COLON case_stmts:ls
                 {:
                     if(l != null){
                         l.add(new SimpleCase(labs, ls));
@@ -930,7 +930,7 @@ case_block ::= case_block:l labels:labs COLON case_stmts:ls SEMICOLON
                     }
                     RESULT = l;
                 :}
-        | labels:labs COLON case_stmts:ls SEMICOLON
+        | labels:labs COLON case_stmts:ls
                 {:
                     RESULT = astGen.genSimpleCaseList(labs, ls);
                 :}

@@ -39,7 +39,14 @@ public class CaseAst extends Statement{
                 && !typeCase.getName().equals(PrimitiveType.CharPT.getName())
                 && !typeCase.getName().equals(PrimitiveType.BooleanPT.getName())
                 ){
-            //AGREGAR ERRRO DE TIPO en el case
+            semanticErrors.add(errorsRep.incorrectTypeError(
+                    typeCase.getName(), 
+                    "[" + PrimitiveType.IntegerPT.getName() + ", " 
+                            + PrimitiveType.CharPT.getName() + ", " 
+                            + PrimitiveType.BooleanPT.getName() 
+                            + "]",
+                    typeCase.getPosition())
+            );
         }
         ReturnCase returnCase = new ReturnCase(true);
         if(cases != null && !cases.isEmpty()){
