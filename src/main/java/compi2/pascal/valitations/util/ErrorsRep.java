@@ -1,6 +1,8 @@
 
 package compi2.pascal.valitations.util;
 
+import java.util.List;
+
 /**
  *
  * @author blue-dragon
@@ -80,8 +82,8 @@ public class ErrorsRep {
         return "El acceso a " + variable + " no se pueden completar" + report(pos);
     }
     
-    public String undefiniteFunctionError(){
-        return null;
+    public String undefiniteFunctionError(String name, Position pos){
+        return "La funcion " + name + " no ha sido declarada " + report(pos);
     }
     
     private String report(Position position){
@@ -102,6 +104,43 @@ public class ErrorsRep {
     
     public String missingReturnError(String functionName, String type, Position pos){
         return "La function " + functionName + " necesita el retorno de tipo " + type + report(pos);
+    }
+    
+    public String redeclareFunctionError(String name, List<String> args, Position pos){
+        StringBuilder builder = new StringBuilder("Se esta redeclarando la function ")
+                .append(name)
+                .append(" con los tipos [ ");
+        if(args != null){
+            for (int i = 0; i < args.size(); i++) {
+                String arg = args.get(i);
+                builder.append(arg);
+                if(i != args.size() - 1){
+                    builder.append(", ");
+                }
+            }
+        }
+        builder.append("]");
+        builder.append(report(pos));
+        return builder.toString();
+    }
+    
+    public String noSuitableFunctionError(String name, List<String> args, Position pos){
+        StringBuilder builder = new StringBuilder(
+                "No se pudo encontrar una llamada a la funccion ")
+                .append(name)
+                .append(" con los parametros tipo [");
+        if(args != null){
+            for (int i = 0; i < args.size(); i++) {
+                String arg = args.get(i);
+                builder.append(arg);
+                if(i != args.size() - 1){
+                    builder.append(", ");
+                }
+            }
+        }
+        builder.append("]");
+        builder.append(report(pos));
+        return builder.toString();
     }
     
 }

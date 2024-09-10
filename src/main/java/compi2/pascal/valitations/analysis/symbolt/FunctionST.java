@@ -3,6 +3,7 @@ package compi2.pascal.valitations.analysis.symbolt;
 
 import compi2.pascal.valitations.graphs.Graphicator;
 import compi2.pascal.valitations.graphs.Index;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,19 +14,18 @@ import lombok.Setter;
 @Getter @Setter
 public class FunctionST extends RowST{
     private SymbolTable internalST;
-    private int numParams;
+    private List<String> typesParams; 
 
-    public FunctionST(String name, SymbolTable internalST, int numParams) {
+    public FunctionST(String name, SymbolTable internalST, List<String> typesParams) {
         super(name, Category.Procedure, null);
         this.internalST = internalST;
-        this.numParams = numParams;
-        
+        this.typesParams = typesParams;
     }
     
-    public FunctionST(String name, String type, SymbolTable internalST, int numParams){
+    public FunctionST(String name, String type, SymbolTable internalST, List<String> typesParams){
         super(name, Category.Function, type);
         this.internalST = internalST;
-        this.numParams = numParams;
+        this.typesParams = typesParams;
     }
 
     @Override
@@ -42,8 +42,9 @@ public class FunctionST extends RowST{
         builder.append(stGraphicator.getDataGraphCode(
             internalST != null ?  String.valueOf(internalST.size()) : "0"
         ));
-        builder.append(stGraphicator.getDataGraphCode(String.valueOf(numParams)));
-        
+        builder.append(stGraphicator.getDataGraphCode(
+                String.valueOf(typesParams != null ? typesParams.size() : 0 )
+        ));        
         builder.append("<td port=\"");
         builder.append(codeRelated);
         builder.append("\"></td>");

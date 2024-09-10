@@ -27,7 +27,7 @@ import lombok.Setter;
 public class Analyzator {
     
     public static final String ERROR_TYPE = "--error--";
-    public static final String FUNCTION_SEPARATOR = "_";
+    public static final String FUNCTION_SEPARATOR = "#";
     
     private List<String> semanticErrors;   
     private GenTypeTab genTypeTab;

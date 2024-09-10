@@ -19,6 +19,7 @@ public class TTGrapher extends Graphicator{
                         <tr>
                             <td><b>Nombre</b></td>
                             <td><b>Dimension <BR/> en memoria</b></td>
+                            <td><b>Categoria</b></td>
                             <td><b>Tipo Base</b></td>
                             <td><b>Limites</b></td>
                         </tr>

@@ -25,6 +25,7 @@ public class Type {
     
     public StringBuilder getGraphRowCode(String codeRelated){
         StringBuilder builder = getInitialGraphData();
+        builder.append(ttGrapher.getDataGraphCode("Tipo primitivo"));
         builder.append(ttGrapher.getNoDataGraphCode());
         builder.append(ttGrapher.getNoDataGraphCode());
         return builder;

@@ -21,6 +21,7 @@ public class UserType extends Type{
     @Override
     public StringBuilder getGraphRowCode(String codeRelated){
         StringBuilder builder = getInitialGraphData();
+        builder.append(ttGrapher.getDataGraphCode("Tipo personalizado"));
         builder.append(ttGrapher.getDataGraphCode(fatherType));
         builder.append(ttGrapher.getNoDataGraphCode());
         return builder;

@@ -22,8 +22,12 @@ public class RecordType extends Type {
     @Override
     public StringBuilder getGraphRowCode(String codeRelated){
         StringBuilder builder = getInitialGraphData();
+        builder.append(ttGrapher.getDataGraphCode("Record"));
         builder.append(ttGrapher.getNoDataGraphCode());
         builder.append(ttGrapher.getNoDataGraphCode());
+        builder.append("<td port=\"");
+        builder.append(codeRelated);
+        builder.append("\"></td>");
         return builder;
     }
     

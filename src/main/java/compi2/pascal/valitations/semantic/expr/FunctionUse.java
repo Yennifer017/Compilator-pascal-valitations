@@ -4,6 +4,7 @@ package compi2.pascal.valitations.semantic.expr;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.analyzator.Analyzator;
+import compi2.pascal.valitations.analyzator.FunctionRefAnalyzator;
 import compi2.pascal.valitations.semantic.obj.Label;
 import compi2.pascal.valitations.util.Position;
 import java.util.List;
@@ -18,12 +19,14 @@ import lombok.Setter;
 public class FunctionUse extends Expression{
     private String functionName;
     private List<Expression> params;
+    private FunctionRefAnalyzator refFunc;
 
     public FunctionUse(String functionName, List<Expression> params, Position pos) {
         super();
         this.functionName = functionName;
         this.params = params;
         super.pos = pos;
+        this.refFunc = new FunctionRefAnalyzator();
     }
 
     @Override
@@ -39,18 +42,20 @@ public class FunctionUse extends Expression{
     @Override
     public Label validateComplexData(SymbolTable symbolTable, TypeTable typeTable, 
             List<String> semanticErrors) {
-        StringBuilder typeAddition = new StringBuilder("");
-        if(params !=  null && !params.isEmpty()){
-            for (Expression param : params) {
-                Label paramLabel = param.validateComplexData(symbolTable, typeTable, semanticErrors);
-                typeAddition.append(Analyzator.FUNCTION_SEPARATOR);
-                typeAddition.append(paramLabel.getName());
-            }
-        }
-        String nameFunInST = functionName + typeAddition.toString();
-        if(refAnalyzator.existReference(symbolTable, semanticErrors, new Label(nameFunInST, pos))){
+        List<String> argsStringList = refFunc.validateArgs(
+                params, symbolTable, typeTable, semanticErrors
+        );
+        if(refFunc.existReference(
+                new Label(functionName, pos), 
+                symbolTable, 
+                typeTable, 
+                semanticErrors, argsStringList)
+                ){
             return new Label(
-                    refAnalyzator.getFromST(symbolTable, nameFunInST).getName(), 
+                    refFunc.getTypeReturnFun(
+                            new Label(functionName, pos), 
+                            symbolTable, typeTable, argsStringList
+                    ),
                     pos
             );
         }

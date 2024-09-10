@@ -50,13 +50,19 @@ public class ProcedureDec extends ModuleDec {
                 ),
                 statements
         );
-        String nameForST = super.updateFunctionName();
-        if(refAnalyzator.canInsert(new Label(nameForST, this.name.getPosition()), 
-                symbolTable, semanticErrors)){
+        List<String> argsStringList = super.generateArgsStringList();
+        String nameForST = super.getNameFunctionForST(symbolTable, argsStringList);
+        if(nameForST != null){
             return new FunctionST(
                     nameForST, 
                     internalST, 
-                    args != null ? args.size() : 0
+                    argsStringList
+            );
+        } else {
+            semanticErrors.add(errorsRep.redeclareFunctionError(
+                    name.getName(), 
+                    argsStringList,
+                    name.getPosition())
             );
         }
         return null;
