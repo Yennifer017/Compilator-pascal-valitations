@@ -30,17 +30,9 @@ public class Assignation extends Statement{
     @Override
     public ReturnCase validate(SymbolTable symbolTable, TypeTable typeTable, 
             List<String> semanticErrors, SemanticRestrictions restrictions) {
-        if(restrictions.getNameFunction() != null 
-                && restrictions.getNameFunction().equals(variable.getName())){
-            Label type = expToAsign.validateComplexData(symbolTable, typeTable, semanticErrors);
-            if(!type.getName().equals(restrictions.getReturnType())){
-                semanticErrors.add(errorsRep.incorrectTypeError(
-                        type.getName(),
-                        restrictions.getReturnType(),
-                        type.getPosition())
-                );
-            }
-            return new ReturnCase(true);
+        ReturnCase rCase = validateReturn(symbolTable, typeTable, semanticErrors, restrictions);
+        if(rCase != null){
+            return rCase;
         }
         
         //validar de que la variable exista 
@@ -54,7 +46,11 @@ public class Assignation extends Statement{
                     Label type = expToAsign.validateComplexData(symbolTable, typeTable, semanticErrors);
                     
                     //validar el tipo de la expresion
-                    if(!row.getType().equals(type.getName())){
+                    if(!row.getType().equals(type.getName())
+                            && !tConvert.canUpgradeType(row.getType(), 
+                                    type.getName()) 
+                            ){
+                        
                         semanticErrors.add(errorsRep.incorrectTypeError(
                                 type.getName(), 
                                 row.getType(), 
@@ -72,5 +68,25 @@ public class Assignation extends Statement{
             }
         }
         return new ReturnCase(false);
+    }
+    
+    private ReturnCase validateReturn(SymbolTable symbolTable, TypeTable typeTable, 
+            List<String> semanticErrors, SemanticRestrictions restrictions){
+        //validar si es un retorno
+        if(restrictions.getNameFunction() != null 
+                && restrictions.getNameFunction().equals(variable.getName())){
+            Label type = expToAsign.validateComplexData(symbolTable, typeTable, semanticErrors);
+            if(!type.getName().equals(restrictions.getReturnType())
+                    && !tConvert.canUpgradeType(restrictions.getReturnType(), type.getName()) 
+                    ){
+                semanticErrors.add(errorsRep.incorrectTypeError(
+                        type.getName(),
+                        restrictions.getReturnType(),
+                        type.getPosition())
+                );
+            }
+            return new ReturnCase(true);
+        }
+        return null;
     }
 }

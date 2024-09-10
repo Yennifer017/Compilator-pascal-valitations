@@ -5,8 +5,9 @@ import compi2.pascal.valitations.analysis.Lexer;
 import compi2.pascal.valitations.analysis.Parser;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
-import compi2.pascal.valitations.graphs.Graphicator;
 import compi2.pascal.valitations.graphs.ImgGenerator;
+import compi2.pascal.valitations.graphs.STGrapher;
+import compi2.pascal.valitations.graphs.TTGrapher;
 import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.semantic.ast.Statement;
 import compi2.pascal.valitations.semantic.module.FunctionDec;
@@ -35,7 +36,8 @@ public class Analyzator {
     private SymbolTable symbolTable;
     private TypeTable typeTable;
     
-    private Graphicator graphicator;
+    private STGrapher stGraphicator;
+    private TTGrapher ttGraphicator;
     private ImgGenerator imgGenerator;
     
     public Analyzator(){
@@ -43,12 +45,15 @@ public class Analyzator {
         genTypeTab = new GenTypeTab();
         genSymbolTab = new GenSymbolTab();
         
-        graphicator = new Graphicator();
+        stGraphicator = new STGrapher();
+        ttGraphicator = new TTGrapher();
         imgGenerator = new ImgGenerator();
     }
     
     /**
      * Comprueba el codigo generado por el usuario
+     * @param text
+     * @return 
      */
     public String comprobate(String text){
         StringBuilder builder =  new StringBuilder();
@@ -63,8 +68,19 @@ public class Analyzator {
             if(lexer.getErrors().isEmpty() 
                     && parser.getSyntaxErrors().isEmpty() 
                     && semanticErrors.isEmpty()){
-                String code = graphicator.getCodeST(symbolTable);
-                imgGenerator.generateImg("symbolTab", "st", code);
+                
+                imgGenerator.generateImg(
+                        "symbolTab", 
+                        "st", 
+                        stGraphicator.getCodeST(symbolTable)
+                );
+                
+                imgGenerator.generateImg(
+                        "typeTab", 
+                        "tt", 
+                        ttGraphicator.getCodeTT(typeTable)
+                );
+                builder = new StringBuilder("Se genero la imagen de la tabla de simbolos y de tipos");
             }
         } catch (Exception e) {
             builder.append("Error inesperado:\n");

@@ -101,6 +101,19 @@ public class TConvertidor {
         }
     }
     
+    public boolean canUpgradeType(String neededType, String currentType){
+        try {
+            PrimitiveType primNeededT = convertPrimitive(neededType);
+            PrimitiveType primCurrentT = convertPrimitive(currentType);
+            if(primNeededT.isNumeric() && primCurrentT.isNumeric()){
+                return primNeededT.getId() >= primCurrentT.getId();
+            }
+        } catch (ConvPrimitiveException | NullPointerException ex) {
+            
+        }
+        return false;
+    }
+    
     /**
      * Convierte en un dato primitivo un tipo, si no es posible lanza una excepcion
     */

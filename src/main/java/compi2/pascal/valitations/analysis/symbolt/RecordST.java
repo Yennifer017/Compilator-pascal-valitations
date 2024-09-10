@@ -23,9 +23,9 @@ public class RecordST extends RowST{
     @Override
     public StringBuilder getGraphRowCode(String codeRelated) {
         StringBuilder builder = super.getInitialGraphCodeData();
-        builder.append(graphicator.getNoDataGraphCode());
-        builder.append(graphicator.getDataGraphCode(String.valueOf(totalElements)));
-        builder.append(graphicator.getNoDataGraphCode());
+        builder.append(stGraphicator.getNoDataGraphCode());
+        builder.append(stGraphicator.getDataGraphCode(String.valueOf(totalElements)));
+        builder.append(stGraphicator.getNoDataGraphCode());
         builder.append("<td port=\"");
         builder.append(codeRelated);
         builder.append("\"></td>");
@@ -41,7 +41,7 @@ public class RecordST extends RowST{
     public StringBuilder getGraphInternalTab(int fatherId, Index currentIndex) {
         int tableId = currentIndex.getNumber();
         StringBuilder code = new StringBuilder(
-                graphicator.getCodeST(internalST, currentIndex)
+                stGraphicator.getCodeST(internalST, currentIndex)
         );
         code.append(Graphicator.TABLE_ID)
                 .append(fatherId)

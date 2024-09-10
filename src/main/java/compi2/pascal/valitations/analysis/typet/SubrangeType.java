@@ -18,4 +18,12 @@ public class SubrangeType extends Type{
         this.fatherType = PrimitiveType.IntegerPT.getName();
         this.limits = limits;
     }
+    
+    @Override
+    public StringBuilder getGraphRowCode(String codeRelated){
+        StringBuilder builder = getInitialGraphData();
+        builder.append(ttGrapher.getDataGraphCode(fatherType));
+        builder.append(ttGrapher.getDataGraphCode(limits.toString()));
+        return builder;
+    }
 }

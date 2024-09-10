@@ -53,7 +53,11 @@ public class ProcedureDec extends ModuleDec {
         String nameForST = super.updateFunctionName();
         if(refAnalyzator.canInsert(new Label(nameForST, this.name.getPosition()), 
                 symbolTable, semanticErrors)){
-            return new FunctionST(nameForST, internalST);
+            return new FunctionST(
+                    nameForST, 
+                    internalST, 
+                    args != null ? args.size() : 0
+            );
         }
         return null;
     }

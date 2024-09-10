@@ -24,10 +24,10 @@ public class SubrangeST extends RowST {
     @Override
     public StringBuilder getGraphRowCode(String codeRelated) {
         StringBuilder builder = super.getInitialGraphCodeData()
-                .append(graphicator.getDataGraphCode(String.valueOf(relativeDir)));
-        builder.append(graphicator.getNoDataGraphCode());
-        builder.append(graphicator.getNoDataGraphCode());
-        builder.append(graphicator.getDataGraphCode(limits.toString()));
+                .append(stGraphicator.getDataGraphCode(String.valueOf(relativeDir)));
+        builder.append(stGraphicator.getNoDataGraphCode());
+        builder.append(stGraphicator.getNoDataGraphCode());
+        builder.append(stGraphicator.getDataGraphCode(limits.toString()));
         return builder;
     }
 

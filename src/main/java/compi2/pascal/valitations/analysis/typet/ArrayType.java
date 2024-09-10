@@ -23,4 +23,12 @@ public class ArrayType extends Type{
         }
     }
     
+    @Override
+    public StringBuilder getGraphRowCode(String codeRelated){
+        StringBuilder builder = getInitialGraphData();
+        builder.append(ttGrapher.getDataGraphCode(typeBase));
+        builder.append(ttGrapher.getDataGraphCode(limits.toString()));
+        return builder;
+    }
+    
 }

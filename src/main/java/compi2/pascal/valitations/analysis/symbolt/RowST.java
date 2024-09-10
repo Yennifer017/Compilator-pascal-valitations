@@ -1,8 +1,8 @@
 
 package compi2.pascal.valitations.analysis.symbolt;
 
-import compi2.pascal.valitations.graphs.Graphicator;
 import compi2.pascal.valitations.graphs.Index;
+import compi2.pascal.valitations.graphs.STGrapher;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,13 +16,13 @@ public abstract class RowST {
     protected Category category;
     protected String type;
     
-    protected Graphicator graphicator;
+    protected STGrapher stGraphicator;
 
     public RowST(String name, Category category, String type) {
         this.name = name;
         this.category = category;
         this.type = type;
-        graphicator = new Graphicator();
+        stGraphicator = new STGrapher();
     }
     
     public abstract StringBuilder getGraphRowCode(String codeRelated);
@@ -35,9 +35,9 @@ public abstract class RowST {
     
     protected StringBuilder getInitialGraphCodeData(){
         StringBuilder builder = new StringBuilder(
-                graphicator.getDataGraphCode(name))
-                .append(graphicator.getDataGraphCode(category.getName()))
-                .append(graphicator.getDataGraphCode(type));
+                stGraphicator.getDataGraphCode(name))
+                .append(stGraphicator.getDataGraphCode(category.getName()))
+                .append(stGraphicator.getDataGraphCode(type));
         return builder;
     }
             

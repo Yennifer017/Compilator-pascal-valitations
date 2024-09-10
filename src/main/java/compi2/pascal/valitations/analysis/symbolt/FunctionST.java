@@ -15,32 +15,34 @@ public class FunctionST extends RowST{
     private SymbolTable internalST;
     private int numParams;
 
-    public FunctionST(String name, SymbolTable internalST) {
+    public FunctionST(String name, SymbolTable internalST, int numParams) {
         super(name, Category.Procedure, null);
         this.internalST = internalST;
+        this.numParams = numParams;
         
     }
     
-    public FunctionST(String name, String type, SymbolTable internalST){
+    public FunctionST(String name, String type, SymbolTable internalST, int numParams){
         super(name, Category.Function, type);
         this.internalST = internalST;
+        this.numParams = numParams;
     }
 
     @Override
     public StringBuilder getGraphRowCode(String codeRelated) {
         StringBuilder builder = new StringBuilder(
-                graphicator.getDataGraphCode(super.name));
-        builder.append(graphicator.getDataGraphCode(category.getName()));
+                stGraphicator.getDataGraphCode(super.name));
+        builder.append(stGraphicator.getDataGraphCode(category.getName()));
         if(type == null){
-            builder.append(graphicator.getNoDataGraphCode());
+            builder.append(stGraphicator.getNoDataGraphCode());
         } else {
-            builder.append(graphicator.getDataGraphCode(type));
+            builder.append(stGraphicator.getDataGraphCode(type));
         }
-        builder.append(graphicator.getNoDataGraphCode());
-        builder.append(graphicator.getDataGraphCode(
+        builder.append(stGraphicator.getNoDataGraphCode());
+        builder.append(stGraphicator.getDataGraphCode(
             internalST != null ?  String.valueOf(internalST.size()) : "0"
         ));
-        builder.append(graphicator.getDataGraphCode(String.valueOf(numParams)));
+        builder.append(stGraphicator.getDataGraphCode(String.valueOf(numParams)));
         
         builder.append("<td port=\"");
         builder.append(codeRelated);
@@ -57,7 +59,7 @@ public class FunctionST extends RowST{
     public StringBuilder getGraphInternalTab(int fatherId, Index currentIndex) {
         int tableId = currentIndex.getNumber();
         StringBuilder code = new StringBuilder(
-                graphicator.getCodeST(internalST, currentIndex)
+                stGraphicator.getCodeST(internalST, currentIndex)
         );
         code.append(Graphicator.TABLE_ID)
                 .append(fatherId)

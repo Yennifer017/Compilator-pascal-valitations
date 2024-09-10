@@ -20,10 +20,10 @@ public class SingleData extends RowST {
     @Override
     public StringBuilder getGraphRowCode(String codeRelated) {
         StringBuilder builder = super.getInitialGraphCodeData()
-                .append(graphicator.getDataGraphCode(String.valueOf(relativeDir)));
-        builder.append(graphicator.getNoDataGraphCode());
-        builder.append(graphicator.getNoDataGraphCode());
-        builder.append(graphicator.getNoDataGraphCode());
+                .append(stGraphicator.getDataGraphCode(String.valueOf(relativeDir)));
+        builder.append(stGraphicator.getNoDataGraphCode());
+        builder.append(stGraphicator.getNoDataGraphCode());
+        builder.append(stGraphicator.getNoDataGraphCode());
         return builder;
     }
 

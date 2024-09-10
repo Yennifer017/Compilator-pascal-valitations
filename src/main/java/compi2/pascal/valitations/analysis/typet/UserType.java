@@ -18,4 +18,12 @@ public class UserType extends Type{
         this.fatherType = fatherType;
     }
     
+    @Override
+    public StringBuilder getGraphRowCode(String codeRelated){
+        StringBuilder builder = getInitialGraphData();
+        builder.append(ttGrapher.getDataGraphCode(fatherType));
+        builder.append(ttGrapher.getNoDataGraphCode());
+        return builder;
+    }
+    
 }

@@ -68,7 +68,11 @@ public class FunctionDec extends ModuleDec{
         String nameForST = super.updateFunctionName();
         if(refAnalyzator.canInsert(new Label(nameForST, this.name.getPosition()), 
                 symbolTable, semanticErrors)){
-            return new FunctionST(nameForST, varType.getName(), internalST);
+            return new FunctionST(
+                    nameForST, 
+                    varType.getName(), 
+                    internalST, args != null ? args.size() : 0
+            );
         }
         return null;
     }
