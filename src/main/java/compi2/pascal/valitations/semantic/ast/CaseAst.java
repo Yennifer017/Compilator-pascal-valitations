@@ -78,7 +78,8 @@ public class CaseAst extends Statement{
 
     @Override
     public PassActTree getActivationNodeTree(Index index) {
-        NodeAct finalNode = new NodeAct();
+        NodeAct finalNode = new NodeAct(index.getNumber());
+        index.increment();
         List<NodeAct> finalNodeList = new ArrayList<>();
         finalNodeList.add(finalNode);
         

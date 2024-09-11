@@ -23,6 +23,10 @@ import lombok.Setter;
  */
 @Getter @Setter
 public class FunctionUseStmt extends Statement{
+    
+    private final static FunctionST SPECIAL_FUNTION = new FunctionST(
+            "writeln/readln", null, null);
+    
     private boolean isSpecialFun;
     private Label nameFun;
     private List<Expression> args;
@@ -52,6 +56,7 @@ public class FunctionUseStmt extends Statement{
     public ReturnCase validate(SymbolTable symbolTable, TypeTable typeTable, 
             List<String> semanticErrors, SemanticRestrictions restrictions) {
         if(isSpecialFun){
+            functionST = SPECIAL_FUNTION;
             refFun.validateArgs(this.args, symbolTable, typeTable, semanticErrors);
         } else {
             List<String> argsStringList = refFun.validateArgs(

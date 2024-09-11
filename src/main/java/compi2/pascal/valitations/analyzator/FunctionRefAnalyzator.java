@@ -44,9 +44,24 @@ public class FunctionRefAnalyzator {
         SymbolTable currentTab = symbolTable;
         while (currentTab != null) {            
             if (currentTab.containsKey(name.getName())) {
-                RowST rowST = symbolTable.get(name.getName());
+                RowST rowST = currentTab.get(name.getName());
                 if (rowST instanceof FunctionST) {
                     FunctionST functionST = (FunctionST) rowST;
+                    //exactly match
+                    if (this.hasTheSameArgs(functionST.getTypesParams(), typeArgs)) {
+                        return functionST;
+                    } else {
+                        int index = 1;
+                        while (symbolTable.containsKey(
+                                this.getSTName(name.getName(), index))) {
+                            FunctionST f1 = (FunctionST) symbolTable.get(this.getSTName(name.getName(), index));
+                            if (this.hasTheSameArgs(f1.getTypesParams(), typeArgs)) {
+                                return f1;
+                            }
+                            index++;
+                        }
+                    }
+                    //converted match
                     if (this.hasTheSameConvertArgs(functionST.getTypesParams(), typeArgs)) {
                         return functionST;
                     } else {
@@ -59,12 +74,12 @@ public class FunctionRefAnalyzator {
                             }
                             index++;
                         }
+                        //agregar error de no tiene parametros requeridos
                         semanticErrors.add(errorsRep.noSuitableFunctionError(
                                 name.getName(), 
                                 typeArgs,
                                 name.getPosition())
                         );
-                        //agregar error de no tiene parametros requeridos
                         return null;
                     }
                 } else {
@@ -90,7 +105,7 @@ public class FunctionRefAnalyzator {
         SymbolTable currentTab = symbolTable;
         while (currentTab != null) {            
             if (currentTab.containsKey(name.getName())) {
-                RowST rowST = symbolTable.get(name.getName());
+                RowST rowST = currentTab.get(name.getName());
                 if (rowST instanceof FunctionST) {
                     FunctionST functionST = (FunctionST) rowST;
                     

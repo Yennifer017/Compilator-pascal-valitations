@@ -27,7 +27,8 @@ public class NodeAct {
         this.function = function;
     }
 
-    public NodeAct() {
+    public NodeAct(int id) {
+        this.id = id;
     }
     
     public boolean isCorrectorPath(){

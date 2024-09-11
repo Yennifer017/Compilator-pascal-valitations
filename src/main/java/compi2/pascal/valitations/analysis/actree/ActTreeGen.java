@@ -25,7 +25,7 @@ public class ActTreeGen {
             return leftAct;
         } else {
             NodeAct finalNode = rightAct.getFinalNode();
-            leftAct.getInitNodes().get(0)
+            leftAct.getFinalNode()
                     .setActivations(rightAct.getInitNodes());
             leftAct.setFinalNode(finalNode);
             return leftAct;
@@ -42,7 +42,7 @@ public class ActTreeGen {
             return null;
         } else {
             NodeAct finalNode = rightAct.getFinalNode();
-            left.getInitNodes().get(0)
+            left.getFinalNode()
                     .setActivations(rightAct.getInitNodes());
             left.setFinalNode(finalNode);
             return left;
@@ -58,7 +58,7 @@ public class ActTreeGen {
             return left;
         } 
         NodeAct finalNode = right.getFinalNode();
-        left.getInitNodes().get(0)
+        left.getFinalNode()
                 .setActivations(right.getInitNodes());
         left.setFinalNode(finalNode);
         return left;

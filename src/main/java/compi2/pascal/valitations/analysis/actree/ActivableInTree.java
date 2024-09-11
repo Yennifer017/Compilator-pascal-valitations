@@ -1,7 +1,6 @@
 
 package compi2.pascal.valitations.analysis.actree;
 
-import compi2.pascal.valitations.analysis.actree.PassActTree;
 import compi2.pascal.valitations.util.Index;
 
 /**

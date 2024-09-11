@@ -5,6 +5,7 @@ import compi2.pascal.valitations.analysis.Lexer;
 import compi2.pascal.valitations.analysis.Parser;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
+import compi2.pascal.valitations.graphs.ActTreeGrapher;
 import compi2.pascal.valitations.graphs.ImgGenerator;
 import compi2.pascal.valitations.graphs.STGrapher;
 import compi2.pascal.valitations.graphs.TTGrapher;
@@ -36,9 +37,14 @@ public class Analyzator {
     private SymbolTable symbolTable;
     private TypeTable typeTable;
     
+    private List<FunctionDec> functionsGlobal; 
+    private List<ProcedureDec> proceduresGlobal;
+    private List<Statement> statementsGlobal;
+    
     private STGrapher stGraphicator;
     private TTGrapher ttGraphicator;
     private ImgGenerator imgGenerator;
+    private ActTreeGrapher actTreeGrapher;
     
     public Analyzator(){
         semanticErrors = new ArrayList<>();
@@ -48,6 +54,7 @@ public class Analyzator {
         stGraphicator = new STGrapher();
         ttGraphicator = new TTGrapher();
         imgGenerator = new ImgGenerator();
+        actTreeGrapher = new ActTreeGrapher();
     }
     
     /**
@@ -80,7 +87,18 @@ public class Analyzator {
                         "currentTypeTable", 
                         ttGraphicator.getCodeTT(typeTable)
                 );
-                builder = new StringBuilder("Se genero la imagen de la tabla de simbolos y de tipos");
+                imgGenerator.generateImg(
+                        "", 
+                        "currentActivationTree", 
+                        actTreeGrapher.generateCodeForAll(
+                                functionsGlobal, 
+                                proceduresGlobal, 
+                                statementsGlobal)
+                );
+                builder = new StringBuilder(
+                        "Se genero la imagen de la tabla de simbolos y de tipos");
+            } else {
+                resetGlobalDec();
             }
         } catch (Exception e) {
             builder.append("Error inesperado:\n");
@@ -104,6 +122,12 @@ public class Analyzator {
             }
         }
         return builder.toString();
+    }
+    
+    private void resetGlobalDec(){
+        this.functionsGlobal = null;
+        this.proceduresGlobal = null;
+        this.statementsGlobal = null;
     }
     
     /**
@@ -137,6 +161,9 @@ public class Analyzator {
                 ),
                 statements
         );
+        this.functionsGlobal = functions;
+        this.proceduresGlobal = procedures;
+        this.statementsGlobal = statements;
         System.out.println("Realizar el analisis semantico");
     }
     

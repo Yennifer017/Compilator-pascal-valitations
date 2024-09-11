@@ -15,6 +15,8 @@ import lombok.Setter;
 public class FunctionST extends RowST{
     private SymbolTable internalST;
     private List<String> typesParams; 
+    
+    private String convertedName;
 
     public FunctionST(String name, SymbolTable internalST, List<String> typesParams) {
         super(name, Category.Procedure, null);
@@ -26,6 +28,27 @@ public class FunctionST extends RowST{
         super(name, Category.Function, type);
         this.internalST = internalST;
         this.typesParams = typesParams;
+    }
+    
+    /**
+     *
+     * @return el nombre completo
+     */
+    public String getCompleateName(){
+        if(this.convertedName == null){
+            convertedName = super.name;
+            convertedName += "(";
+            if(typesParams != null){
+                for (int i = 0; i < typesParams.size(); i++) {
+                    convertedName += typesParams.get(i);
+                    if(i != typesParams.size() - 1) {
+                        convertedName += ", ";
+                    }
+                }
+            }
+            convertedName += ")";
+        }
+        return convertedName;
     }
 
     @Override

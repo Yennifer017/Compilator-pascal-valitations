@@ -71,7 +71,8 @@ public class IfAst extends ControlStruct{
 
     @Override
     public PassActTree getActivationNodeTree(Index index) {
-        NodeAct finalNode = new NodeAct();
+        NodeAct finalNode = new NodeAct(index.getNumber());
+        index.increment();
         List<NodeAct> finalNodeList = new ArrayList<>();
         finalNodeList.add(finalNode);
         
@@ -98,10 +99,12 @@ public class IfAst extends ControlStruct{
             }
         }
         //activaciones en el else
-        PassActTree elsePass = elseStmt.getActivationNodeTree(index);
-        if(elsePass != null){
-            elsePass.getFinalNode().setActivations(finalNodeList);
-            listInitNodes.addAll(elsePass.getInitNodes());
+        if(elseStmt != null){
+            PassActTree elsePass = elseStmt.getActivationNodeTree(index);
+            if(elsePass != null){
+                elsePass.getFinalNode().setActivations(finalNodeList);
+                listInitNodes.addAll(elsePass.getInitNodes());
+            }
         }
         
         return listInitNodes.isEmpty() ? 

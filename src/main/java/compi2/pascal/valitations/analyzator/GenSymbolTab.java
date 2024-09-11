@@ -27,6 +27,7 @@ public class GenSymbolTab extends Generator{
                     }
                 } catch (NullPointerException e) {
                     System.out.println(e);
+                    e.printStackTrace();
                 }
             }
         }
