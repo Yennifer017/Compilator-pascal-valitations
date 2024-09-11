@@ -52,9 +52,9 @@ public class FunctionRefAnalyzator {
                         return functionST;
                     } else {
                         int index = 1;
-                        while (symbolTable.containsKey(
+                        while (currentTab.containsKey(
                                 this.getSTName(name.getName(), index))) {
-                            FunctionST f1 = (FunctionST) symbolTable.get(this.getSTName(name.getName(), index));
+                            FunctionST f1 = (FunctionST) currentTab.get(this.getSTName(name.getName(), index));
                             if (this.hasTheSameArgs(f1.getTypesParams(), typeArgs)) {
                                 return f1;
                             }
@@ -66,9 +66,9 @@ public class FunctionRefAnalyzator {
                         return functionST;
                     } else {
                         int index = 1;
-                        while (symbolTable.containsKey(
+                        while (currentTab.containsKey(
                                 this.getSTName(name.getName(), index))) {
-                            FunctionST f1 = (FunctionST) symbolTable.get(this.getSTName(name.getName(), index));
+                            FunctionST f1 = (FunctionST) currentTab.get(this.getSTName(name.getName(), index));
                             if (this.hasTheSameConvertArgs(f1.getTypesParams(), typeArgs)) {
                                 return f1;
                             }
@@ -114,9 +114,9 @@ public class FunctionRefAnalyzator {
                         return functionST.getType();
                     } else {
                         int index = 1;
-                        while (symbolTable.containsKey(
+                        while (currentTab.containsKey(
                                 this.getSTName(name.getName(), index))) {
-                            FunctionST f1 = (FunctionST) symbolTable.get(this.getSTName(name.getName(), index));
+                            FunctionST f1 = (FunctionST) currentTab.get(this.getSTName(name.getName(), index));
                             if (this.hasTheSameArgs(f1.getTypesParams(), typeArgs)) {
                                 return f1.getType();
                             }
@@ -128,9 +128,9 @@ public class FunctionRefAnalyzator {
                         return functionST.getType();
                     } else {
                         int index = 1;
-                        while (symbolTable.containsKey(
+                        while (currentTab.containsKey(
                                 this.getSTName(name.getName(), index))) {
-                            FunctionST f1 = (FunctionST) symbolTable.get(this.getSTName(name.getName(), index));
+                            FunctionST f1 = (FunctionST) currentTab.get(this.getSTName(name.getName(), index));
                             if (this.hasTheSameConvertArgs(f1.getTypesParams(), typeArgs)) {
                                 return f1.getType();
                             }
