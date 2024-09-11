@@ -56,7 +56,8 @@ public class RecordUse extends Expression{
                         RowST internalRow = currentST.get(currentAccess.getName());
                         if(internalRow instanceof RecordST){
                             currentST = ((RecordST) internalRow).getInternalST();
-                        } else if(i == access.size() && internalRow.getType() != null){
+                        } else if(i == access.size() -1
+                                && internalRow.getType() != null){
                             return new Label(internalRow.getName(), pos);
                         } else {
                             break;
@@ -65,7 +66,7 @@ public class RecordUse extends Expression{
                         Type internalType = currentTT.get(currentAccess.getName());
                         if(internalType instanceof RecordType){
                             currentTT = ((RecordType) internalType).getInternalTypeTable();
-                        } else if(i == access.size()){
+                        } else if(i == access.size() - 1){
                             return new Label(internalType.getName(), pos);
                         } else {
                             break;

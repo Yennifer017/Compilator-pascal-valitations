@@ -94,7 +94,8 @@ public class RecAssignation extends Statement{
                 RowST internalRow = currentST.get(currentAccess.getName());
                 if (internalRow instanceof RecordST) {
                     currentST = ((RecordST) internalRow).getInternalST();
-                } else if (i == variable.size() && internalRow.getType() != null) {
+                } else if (i == variable.size() -1 
+                        && internalRow.getType() != null) {
                     typeRecovery = internalRow.getType();
                     break;
                 } else {
@@ -104,7 +105,7 @@ public class RecAssignation extends Statement{
                 Type internalType = currentTT.get(currentAccess.getName());
                 if (internalType instanceof RecordType) {
                     currentTT = ((RecordType) internalType).getInternalTypeTable();
-                } else if (i == variable.size()) {
+                } else if (i == variable.size() - 1) {
                     typeRecovery = internalType.getName();
                 } else {
                     break;
