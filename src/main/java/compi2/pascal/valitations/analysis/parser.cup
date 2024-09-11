@@ -1148,14 +1148,21 @@ simple_stmt ::= BREAK:b
                         el
                     );
                 :}
-        | ID:i DOT list_access:l ASSIGNATION expression:e //hereeeeEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+        | ID:i PARENTESIS_L PARENTESIS_R
+                {:
+                    RESULT = new FunctionUseStmt(
+                        new Label(i, new Position(ileft, iright)),
+                        new LinkedList<>()
+                    );
+                :}
+        | ID:i DOT list_access:l ASSIGNATION expression:e
                 {:
                     if(l != null){
                         l.add(0, new Label(i, new Position(ileft, iright)));
                     } else {
                         l = new LinkedList<>();
                     }
-                    RESULT = new RecAssignation(l, e);
+                    RESULT = new RecAssignation(l, e, new Position(ileft, iright));
                 :}
         | ID:i CORCHETE_L expression:e1 CORCHETE_R ASSIGNATION expression:e2
                 {:

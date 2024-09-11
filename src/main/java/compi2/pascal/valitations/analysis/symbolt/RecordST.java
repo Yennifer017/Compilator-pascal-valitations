@@ -50,7 +50,8 @@ public class RecordST extends RowST{
                 .append(tableId)
                 .append(" -> ")
                 .append(Graphicator.TABLE_ID)
-                .append(tableId);
+                .append(tableId)
+                .append(";\n");
         return code;
     }
 }
