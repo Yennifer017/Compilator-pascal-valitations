@@ -26,18 +26,22 @@ public class StmtsAnalizator {
         boolean allCovered = false;
         if(internalStmts !=  null){
             for (int i = 0; i < internalStmts.size(); i++) {
-                Statement stmt = internalStmts.get(i);
-                ReturnCase retCase = stmt.validate(
-                        symbolTable, typeTable, semanticErrors, 
-                        restrictions
-                );
-                if(allCovered){
-                    semanticErrors.add(errorsRep.unrachableCodeError(stmt.getInitPos()));
-                }
-                if(retCase.isAllScenaries() && i != internalStmts.size() && !allCovered){
-                    allCovered = true;
-                } else if(retCase.isAllScenaries() && i == internalStmts.size()){
-                    return new ReturnCase(true);
+                try {
+                    Statement stmt = internalStmts.get(i);
+                    ReturnCase retCase = stmt.validate(
+                            symbolTable, typeTable, semanticErrors, 
+                            restrictions
+                    );
+                    if(allCovered){
+                        semanticErrors.add(errorsRep.unrachableCodeError(stmt.getInitPos()));
+                    }
+                    if(retCase.isAllScenaries() && i != internalStmts.size() && !allCovered){
+                        allCovered = true;
+                    } else if(retCase.isAllScenaries() && i == internalStmts.size()){
+                        return new ReturnCase(true);
+                    }
+                } catch (NullPointerException e) {
+                    semanticErrors.add("Ocurrio un error inesperado al intentar recuperar una instruccion");
                 }
             }
         }

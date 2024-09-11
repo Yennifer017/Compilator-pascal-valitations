@@ -4,6 +4,7 @@ package compi2.pascal.valitations.files;
 import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.exceptions.DirectoryException;
 import compi2.pascal.valitations.files.model.OpenFile;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
@@ -34,31 +35,39 @@ public class MultipleFileAnalyzator extends Thread{
     @Override
     public void run() {
         if(openFiles != null && !openFiles.isEmpty()){
-            String rootFolder = "./analysis";
-            
-            for (OpenFile openFile : openFiles) {
-                try {
-                    String directoryPath = dirU.createDirectory(
-                            rootFolder, openFile.getFile().getName());
-                    StringBuilder builder = new StringBuilder(SEPARATOR);
-                    builder.append("Analisis del archivo: ");
-                    builder.append(openFile.getFile().getAbsolutePath());
-                    builder.append("\n");
-                    builder.append(SEPARATOR);
-                    builder.append(analyzator.comprobate(
-                            rootFolder + UtilForDirectories.getCarpetSeparatorStatic() + directoryPath, 
-                            openFile.getOpenContent()
-                    ));
-                    filesU.saveAs(
-                            builder.toString(), 
-                            ".txt", rootFolder, directoryPath
-                    );
-                } catch (IOException | DirectoryException ex) {
-                    Logger.getLogger(MultipleFileAnalyzator.class.getName()).log(Level.SEVERE, null, ex);
-                } 
-                index++;
+            String mss = "Se termino el analisis";
+            try {
+                String rootFolder = dirU.createDirectory(".", "analysis");       
+                for (OpenFile openFile : openFiles) {
+                    try {
+                        String directoryPath = dirU.createDirectory(
+                                rootFolder, index + openFile.getFile().getName());
+                        
+                        StringBuilder builder = new StringBuilder(SEPARATOR);
+                        builder.append("\n");
+                        builder.append("Analisis del archivo: ");
+                        builder.append(openFile.getFile().getAbsolutePath());
+                        builder.append("\n");
+                        builder.append(SEPARATOR);
+                        builder.append("\n\n");
+                        builder.append(analyzator.comprobate(
+                                directoryPath + UtilForDirectories.getCarpetSeparatorStatic(), 
+                                openFile.getOpenContent()
+                        ));
+                        File file = new File(rootFolder);
+                        filesU.saveAs(
+                                builder.toString(), 
+                                ".txt", directoryPath, "analysis"
+                        );
+                    } catch (IOException | DirectoryException ex) {
+                        System.out.println(ex);
+                    } 
+                    index++;
+                }
+            } catch (Exception e) {
+                mss = e.toString();
             }
-            JOptionPane.showConfirmDialog(null, "Se termino el analisis");
+            JOptionPane.showMessageDialog(null, mss);
         } else {
             JOptionPane.showConfirmDialog(null, "No hay archivo abiertos");
         }
