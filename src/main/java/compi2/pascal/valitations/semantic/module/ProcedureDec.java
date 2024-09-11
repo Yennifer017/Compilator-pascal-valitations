@@ -37,6 +37,33 @@ public class ProcedureDec extends ModuleDec {
         SymbolTable internalST = genSymbolTab.generateInternalTable(
                 symbolTable, typeTable, args, semanticErrors
         );
+        List<String> argsStringList = super.generateArgsStringList();
+        String nameForST = super.getNameFunctionForST(symbolTable, argsStringList);
+        if(nameForST != null){
+            functionST = new FunctionST(
+                    nameForST, 
+                    internalST, 
+                    argsStringList
+            );
+            return functionST;
+        } else {
+            semanticErrors.add(errorsRep.redeclareFunctionError(
+                    name.getName(), 
+                    argsStringList,
+                    name.getPosition())
+            );
+        }
+        return null;
+    }
+
+    @Override
+    public void validate(TypeTable typeTable, List<String> semanticErrors) {
+        SymbolTable internalST;
+        if(functionST != null && functionST.getInternalST() != null){
+            internalST = functionST.getInternalST();
+        } else {
+            internalST = new SymbolTable();
+        }
         genSymbolTab.addData(internalST, typeTable, varDef, semanticErrors);
         stmtsAnalizator.validateInternalStmts(
                 internalST, 
@@ -50,22 +77,6 @@ public class ProcedureDec extends ModuleDec {
                 ),
                 statements
         );
-        List<String> argsStringList = super.generateArgsStringList();
-        String nameForST = super.getNameFunctionForST(symbolTable, argsStringList);
-        if(nameForST != null){
-            return new FunctionST(
-                    nameForST, 
-                    internalST, 
-                    argsStringList
-            );
-        } else {
-            semanticErrors.add(errorsRep.redeclareFunctionError(
-                    name.getName(), 
-                    argsStringList,
-                    name.getPosition())
-            );
-        }
-        return null;
     }
     
 }

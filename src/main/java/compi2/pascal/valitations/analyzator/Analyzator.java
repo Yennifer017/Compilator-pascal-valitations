@@ -70,14 +70,14 @@ public class Analyzator {
                     && semanticErrors.isEmpty()){
                 
                 imgGenerator.generateImg(
-                        "symbolTab", 
-                        "st", 
+                        "", 
+                        "currentSymbolTable", 
                         stGraphicator.getCodeST(symbolTable)
                 );
                 
                 imgGenerator.generateImg(
-                        "typeTab", 
-                        "tt", 
+                        "", 
+                        "currentTypeTable", 
                         ttGraphicator.getCodeTT(typeTable)
                 );
                 builder = new StringBuilder("Se genero la imagen de la tabla de simbolos y de tipos");

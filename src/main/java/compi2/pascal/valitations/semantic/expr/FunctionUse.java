@@ -7,6 +7,7 @@ import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.analyzator.FunctionRefAnalyzator;
 import compi2.pascal.valitations.semantic.obj.Label;
 import compi2.pascal.valitations.util.Position;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,13 @@ public class FunctionUse extends Expression{
         super();
         this.functionName = functionName;
         this.params = params;
+        super.pos = pos;
+        this.refFunc = new FunctionRefAnalyzator();
+    }
+    
+    public FunctionUse(String functionName, Position pos){
+        this.functionName = functionName;
+        this.params = new ArrayList<>();
         super.pos = pos;
         this.refFunc = new FunctionRefAnalyzator();
     }

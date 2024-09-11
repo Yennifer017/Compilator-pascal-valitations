@@ -4,6 +4,7 @@ package compi2.pascal.valitations.semantic.module;
 import compi2.pascal.valitations.analysis.symbolt.FunctionST;
 import compi2.pascal.valitations.analysis.symbolt.RowST;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
+import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.analyzator.FunctionRefAnalyzator;
 import compi2.pascal.valitations.analyzator.GenSymbolTab;
 import compi2.pascal.valitations.analyzator.RefAnalyzator;
@@ -29,6 +30,8 @@ public abstract class ModuleDec extends DefAst{
     protected StmtsAnalizator stmtsAnalizator;
     protected RefAnalyzator refAnalyzator;
     private FunctionRefAnalyzator refFun;
+    
+    protected FunctionST functionST;
     
     public ModuleDec(){
         super();
@@ -84,5 +87,7 @@ public abstract class ModuleDec extends DefAst{
         return list;
     }
     
+    public abstract void validate(TypeTable typeTable, 
+            List<String> semanticErrors);
     
 }
