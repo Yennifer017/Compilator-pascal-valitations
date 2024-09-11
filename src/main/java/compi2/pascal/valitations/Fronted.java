@@ -8,6 +8,7 @@ package compi2.pascal.valitations;
 import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.exceptions.FileException;
 import compi2.pascal.valitations.files.AdmiFiles;
+import compi2.pascal.valitations.files.MultipleFileAnalyzator;
 import compi2.pascal.valitations.util.AdmiFronted;
 import compi2.pascal.valitations.util.NumberLine;
 import java.awt.Dimension;
@@ -513,7 +514,8 @@ public class Fronted extends javax.swing.JFrame {
     }//GEN-LAST:event_showTreeOpActionPerformed
 
     private void analyzeAllOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analyzeAllOpActionPerformed
-        // TODO add your handling code here:
+        MultipleFileAnalyzator multipleAnalyzator = new MultipleFileAnalyzator(admiFiles.getOpenFiles());
+        multipleAnalyzator.start();
     }//GEN-LAST:event_analyzeAllOpActionPerformed
 
     private void closeAllFilesOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeAllFilesOpActionPerformed

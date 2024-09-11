@@ -29,6 +29,7 @@ public class Analyzator {
     
     public static final String ERROR_TYPE = "--error--";
     public static final String FUNCTION_SEPARATOR = "#";
+    public static final String VOID_METHOD = "__no return__";
     
     private List<String> semanticErrors;   
     private GenTypeTab genTypeTab;
@@ -59,10 +60,11 @@ public class Analyzator {
     
     /**
      * Comprueba el codigo generado por el usuario
+     * @param pathToSaveImg
      * @param text
      * @return 
      */
-    public String comprobate(String text){
+    public String comprobate(String pathToSaveImg, String text){
         StringBuilder builder =  new StringBuilder();
         Lexer lexer = new Lexer(new StringReader(text));
         Parser parser = new Parser(lexer, this);
@@ -77,19 +79,19 @@ public class Analyzator {
                     && semanticErrors.isEmpty()){
                 
                 imgGenerator.generateImg(
-                        "", 
-                        "currentSymbolTable", 
+                        pathToSaveImg, 
+                        "Symbol_Table", 
                         stGraphicator.getCodeST(symbolTable)
                 );
                 
                 imgGenerator.generateImg(
-                        "", 
-                        "currentTypeTable", 
+                        pathToSaveImg, 
+                        "Type_Table", 
                         ttGraphicator.getCodeTT(typeTable)
                 );
                 imgGenerator.generateImg(
-                        "", 
-                        "currentActivationTree", 
+                        pathToSaveImg, 
+                        "Activation_Tree", 
                         actTreeGrapher.generateCodeForAll(
                                 functionsGlobal, 
                                 proceduresGlobal, 
@@ -106,6 +108,15 @@ public class Analyzator {
             e.printStackTrace();
         }
         return builder.toString();
+    }
+    
+    /**
+     * Comprueba el codigo generado por el usuario
+     * @param text
+     * @return 
+     */
+    public String comprobate(String text){
+        return comprobate("", text);
     }
     
     private String getErrors(String title, List<String> errorsList){

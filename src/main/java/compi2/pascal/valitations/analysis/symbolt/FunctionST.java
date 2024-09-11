@@ -1,6 +1,7 @@
 
 package compi2.pascal.valitations.analysis.symbolt;
 
+import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.graphs.Graphicator;
 import compi2.pascal.valitations.util.Index;
 import java.util.List;
@@ -19,7 +20,7 @@ public class FunctionST extends RowST{
     private String convertedName;
 
     public FunctionST(String name, SymbolTable internalST, List<String> typesParams) {
-        super(name, Category.Procedure, null);
+        super(name, Category.Procedure, Analyzator.VOID_METHOD);
         this.internalST = internalST;
         this.typesParams = typesParams;
     }

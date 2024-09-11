@@ -66,13 +66,21 @@ public class UtilForDirectories {
         }
     }
     
-    public void createDirectory(String rootPath, String name) throws IOException, DirectoryException{
-        File directory = new File(rootPath + getCarpetSeparator() + name);
+    /**
+     * Crea una carpeta
+     * @param rootPath
+     * @param name
+     * @return el path de la carpeta creada
+     */
+    public String createDirectory(String rootPath, String name) throws IOException, DirectoryException{
+        String path = rootPath + getCarpetSeparator() + name;
+        File directory = new File(path);
         if (!directory.exists()) {
             directory.mkdir();
         } else {
             throw new DirectoryException("El nombre del proyecto ya existe");
         }
+        return path;
     }
 
     public String copyFilesToPath(String rootPath, File[] files) {

@@ -59,6 +59,10 @@ public class AdmiFiles {
     public void openProject() throws IOException, ProjectOpenException, DirectoryException, FileOpenException {
         openProject(directoryU.getPathFolder());
     }
+    
+    public List<OpenFile> getOpenFiles(){
+        return this.openFiles;
+    }
 
     /**
      * Abre un proyecto que el usuario selecionara
