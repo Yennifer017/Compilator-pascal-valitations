@@ -1,6 +1,7 @@
 
 package compi2.pascal.valitations.graphs;
 
+import compi2.pascal.valitations.util.Index;
 import compi2.pascal.valitations.analysis.typet.RecordType;
 import compi2.pascal.valitations.analysis.typet.Type;
 import compi2.pascal.valitations.analysis.typet.TypeTable;

@@ -1,16 +1,18 @@
 
 package compi2.pascal.valitations.semantic.ast;
 
+import compi2.pascal.valitations.analysis.actree.ActTreeGen;
+import compi2.pascal.valitations.analysis.actree.PassActTree;
+import compi2.pascal.valitations.analysis.symbolt.FunctionST;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
-import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.analyzator.FunctionRefAnalyzator;
 import compi2.pascal.valitations.semantic.ReturnCase;
 import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.semantic.expr.Expression;
 import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.util.Index;
 import compi2.pascal.valitations.util.Position;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +27,9 @@ public class FunctionUseStmt extends Statement{
     private Label nameFun;
     private List<Expression> args;
     private FunctionRefAnalyzator refFun;
+    
+    private FunctionST functionST;
+    private ActTreeGen actTreeGen;
 
     public FunctionUseStmt(Label nameFun, List<Expression> arguments) {
         super(nameFun.getPosition());
@@ -32,6 +37,7 @@ public class FunctionUseStmt extends Statement{
         this.args = arguments;
         isSpecialFun = false;
         refFun = new FunctionRefAnalyzator();
+        actTreeGen = new ActTreeGen();
     }
     
     public FunctionUseStmt(List<Expression> arguments, Position initPos){
@@ -39,6 +45,7 @@ public class FunctionUseStmt extends Statement{
         this.args = arguments;
         this.isSpecialFun = true;
         refFun = new FunctionRefAnalyzator();
+        actTreeGen = new ActTreeGen();
     }
 
     @Override
@@ -50,9 +57,16 @@ public class FunctionUseStmt extends Statement{
             List<String> argsStringList = refFun.validateArgs(
                     this.args, symbolTable, typeTable, semanticErrors
             );
-            refFun.existReference(nameFun, symbolTable, typeTable, semanticErrors, argsStringList);
+            functionST = refFun.existReference(
+                    nameFun, symbolTable, typeTable, semanticErrors, argsStringList
+            );
         }
         return new ReturnCase(false);
+    }
+
+    @Override
+    public PassActTree getActivationNodeTree(Index index) {
+        return actTreeGen.generatePass(args, index, functionST);
     }
     
 }

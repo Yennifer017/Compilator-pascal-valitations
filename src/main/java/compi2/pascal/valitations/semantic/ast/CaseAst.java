@@ -1,6 +1,8 @@
 
 package compi2.pascal.valitations.semantic.ast;
 
+import compi2.pascal.valitations.analysis.actree.NodeAct;
+import compi2.pascal.valitations.analysis.actree.PassActTree;
 import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.PrimitiveType;
@@ -8,7 +10,9 @@ import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.semantic.ReturnCase;
 import compi2.pascal.valitations.semantic.expr.Expression;
 import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.util.Index;
 import compi2.pascal.valitations.util.Position;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -70,6 +74,44 @@ public class CaseAst extends Statement{
         }
         
         return returnCase;
+    }
+
+    @Override
+    public PassActTree getActivationNodeTree(Index index) {
+        NodeAct finalNode = new NodeAct();
+        List<NodeAct> finalNodeList = new ArrayList<>();
+        finalNodeList.add(finalNode);
+        
+        List<NodeAct> listInitNodes = new ArrayList<>();
+        PassActTree passExp = expression.getActivationNodeTree(index);
+        
+        //validate cases
+        if (cases != null && !cases.isEmpty()) {
+            for (SimpleCase simpleCase : cases) {
+                PassActTree currentPass = simpleCase.getActivationNodeTree(index);
+                if (currentPass != null) {
+                    currentPass.getFinalNode().setActivations(finalNodeList);
+                    listInitNodes.addAll(currentPass.getInitNodes());
+                }
+            }
+        }
+        
+        //validate else
+        PassActTree elsePass = elseAst.getActivationNodeTree(index);
+        if(elsePass != null){
+            elsePass.getFinalNode().setActivations(finalNodeList);
+            listInitNodes.addAll(elsePass.getInitNodes());
+        }
+        
+        //maquetar
+        if(passExp == null){
+            return listInitNodes.isEmpty()
+                    ? null : new PassActTree(listInitNodes, finalNode);
+        } else {
+            passExp.getInitNodes().get(0).setActivations(listInitNodes);
+            passExp.setFinalNode(finalNode);
+            return passExp;
+        }
     }
     
 }

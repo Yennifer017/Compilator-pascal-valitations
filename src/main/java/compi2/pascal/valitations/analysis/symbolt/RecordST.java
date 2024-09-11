@@ -2,7 +2,7 @@
 package compi2.pascal.valitations.analysis.symbolt;
 
 import compi2.pascal.valitations.graphs.Graphicator;
-import compi2.pascal.valitations.graphs.Index;
+import compi2.pascal.valitations.util.Index;
 import lombok.Getter;
 import lombok.Setter;
 

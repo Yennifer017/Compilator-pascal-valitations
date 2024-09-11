@@ -45,8 +45,8 @@ public abstract class DefAst {
     }
     
     
-    protected void validateNumericIntegerType(Expression expression, List<String> semanticErrors){
-        Label type = expression.validateSimpleData(semanticErrors);
+    protected void validateNumericIntegerType(SymbolTable symbolTable, Expression expression, List<String> semanticErrors){
+        Label type = expression.validateSimpleData(symbolTable, semanticErrors);
         if(!tConvert.isNumericIntegerType(type.getName())){
             semanticErrors.add(errorsRep.inesperateTypeError(PrimitiveType.IntegerPT.getName(), 
                     type.getPosition()));

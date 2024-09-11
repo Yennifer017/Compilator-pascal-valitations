@@ -1,10 +1,12 @@
 
 package compi2.pascal.valitations.semantic.ast;
 
+import compi2.pascal.valitations.analysis.actree.PassActTree;
 import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.semantic.ReturnCase;
+import compi2.pascal.valitations.util.Index;
 import compi2.pascal.valitations.util.Position;
 import java.util.List;
 import lombok.Getter;
@@ -42,6 +44,11 @@ public class SimpleStmt extends Statement{
             default -> throw new AssertionError();
         }
         return new ReturnCase(false);
+    }
+
+    @Override
+    public PassActTree getActivationNodeTree(Index index) {
+        return null;
     }
     
 }

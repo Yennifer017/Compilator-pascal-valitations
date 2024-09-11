@@ -1,7 +1,7 @@
 
 package compi2.pascal.valitations.analysis.symbolt;
 
-import compi2.pascal.valitations.graphs.Index;
+import compi2.pascal.valitations.util.Index;
 import compi2.pascal.valitations.graphs.STGrapher;
 import lombok.Getter;
 import lombok.Setter;

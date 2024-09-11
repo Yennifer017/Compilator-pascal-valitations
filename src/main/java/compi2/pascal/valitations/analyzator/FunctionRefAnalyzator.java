@@ -39,7 +39,7 @@ public class FunctionRefAnalyzator {
         return list;
     }
     
-    public boolean existReference(Label name, SymbolTable symbolTable, TypeTable typeTable, 
+    public FunctionST existReference(Label name, SymbolTable symbolTable, TypeTable typeTable, 
             List<String> semanticErrors, List<String> typeArgs){
         SymbolTable currentTab = symbolTable;
         while (currentTab != null) {            
@@ -48,14 +48,14 @@ public class FunctionRefAnalyzator {
                 if (rowST instanceof FunctionST) {
                     FunctionST functionST = (FunctionST) rowST;
                     if (this.hasTheSameConvertArgs(functionST.getTypesParams(), typeArgs)) {
-                        return true;
+                        return functionST;
                     } else {
                         int index = 1;
                         while (symbolTable.containsKey(
                                 this.getSTName(name.getName(), index))) {
                             FunctionST f1 = (FunctionST) symbolTable.get(this.getSTName(name.getName(), index));
                             if (this.hasTheSameConvertArgs(f1.getTypesParams(), typeArgs)) {
-                                return true;
+                                return f1;
                             }
                             index++;
                         }
@@ -65,7 +65,7 @@ public class FunctionRefAnalyzator {
                                 name.getPosition())
                         );
                         //agregar error de no tiene parametros requeridos
-                        return false;
+                        return null;
                     }
                 } else {
                     //agregar error de que no se esta accediendo a una funcion
@@ -75,14 +75,14 @@ public class FunctionRefAnalyzator {
                             Category.Function.getName(), 
                             name.getPosition())
                     );
-                    return false;
+                    return null;
                 }
             } else {
                 currentTab = currentTab.getFather();
             }
         }
         semanticErrors.add(errorsRep.undefiniteFunctionError(name.getName(), name.getPosition()));
-        return false;
+        return null;
     }
     
     public String getTypeReturnFun(Label name, SymbolTable symbolTable, TypeTable typeTable, 

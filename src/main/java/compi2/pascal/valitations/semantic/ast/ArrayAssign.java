@@ -1,6 +1,8 @@
 
 package compi2.pascal.valitations.semantic.ast;
 
+import compi2.pascal.valitations.analysis.actree.ActTreeGen;
+import compi2.pascal.valitations.analysis.actree.PassActTree;
 import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.analysis.symbolt.Category;
 import compi2.pascal.valitations.analysis.symbolt.RowST;
@@ -10,6 +12,7 @@ import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.semantic.ReturnCase;
 import compi2.pascal.valitations.semantic.expr.Expression;
 import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.util.Index;
 import java.util.List;
 
 /**
@@ -18,21 +21,25 @@ import java.util.List;
  */
 public class ArrayAssign extends Statement{
     private Label identifier;
-    private Expression index;
+    private Expression indexExp;
     private Expression valToAssign;
+    
+    private ActTreeGen actTreeGen;
 
     public ArrayAssign(Label identifier, Expression index, Expression valToAssign) {
         super(identifier.getPosition());
         this.identifier = identifier;
-        this.index = index;
+        this.indexExp = index;
         this.valToAssign = valToAssign;
+        
+        actTreeGen = new ActTreeGen();
     }
     
     @Override
     public ReturnCase validate(SymbolTable symbolTable, TypeTable typeTable, 
             List<String> semanticErrors, SemanticRestrictions restrictions) {
         //validar el index
-        Label typeIndex = index.validateComplexData(symbolTable, typeTable, semanticErrors);
+        Label typeIndex = indexExp.validateComplexData(symbolTable, typeTable, semanticErrors);
         if(!super.tConvert.isNumericIntegerType(typeIndex.getName())){
             semanticErrors.add(errorsRep.incorrectTypeError(
                     typeIndex.getName(), 
@@ -63,6 +70,11 @@ public class ArrayAssign extends Statement{
         }
         
         return new ReturnCase(false);
+    }
+
+    @Override
+    public PassActTree getActivationNodeTree(Index index) {
+        return actTreeGen.generatePass(indexExp, valToAssign, index);
     }
     
 }

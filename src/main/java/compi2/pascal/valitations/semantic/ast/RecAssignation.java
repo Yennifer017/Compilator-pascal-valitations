@@ -1,12 +1,14 @@
 
 package compi2.pascal.valitations.semantic.ast;
 
+import compi2.pascal.valitations.analysis.actree.PassActTree;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.semantic.ReturnCase;
 import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.semantic.expr.Expression;
 import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.util.Index;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +32,11 @@ public class RecAssignation extends Statement{
     public ReturnCase validate(SymbolTable symbolTable, TypeTable typeTable, List<String> semanticErrors, SemanticRestrictions restrictions) {
         
         return new ReturnCase(false);
+    }
+
+    @Override
+    public PassActTree getActivationNodeTree(Index index) {
+        return expToAsign.getActivationNodeTree(index);
     }
     
     

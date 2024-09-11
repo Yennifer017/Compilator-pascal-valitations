@@ -1,12 +1,15 @@
 
 package compi2.pascal.valitations.semantic.expr;
 
+import compi2.pascal.valitations.analysis.actree.PassActTree;
+import compi2.pascal.valitations.analysis.symbolt.Category;
 import compi2.pascal.valitations.analysis.symbolt.RowST;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.PrimitiveType;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.util.Index;
 import compi2.pascal.valitations.util.Position;
 import java.util.List;
 import lombok.Getter;
@@ -54,10 +57,21 @@ public class SingleExp extends Expression{
     }
 
     @Override
-    public Label validateSimpleData(List<String> semanticErrors) {
+    public Label validateSimpleData(SymbolTable symbolTable, List<String> semanticErrors) {
         if(this.type != null){
             return new Label(this.type.getName(), pos);
         } else {
+            try {
+                if (accessId != null
+                        && refAnalyzator.existReference(symbolTable, semanticErrors,
+                                new Label(accessId, this.pos))) {
+                    RowST row = refAnalyzator.getFromST(symbolTable, accessId);
+                    if(row.getCategory() == Category.Constant){
+                        return new Label(row.getType(), pos);
+                    }
+                }
+            } catch (NullPointerException e) {
+            }
             semanticErrors.add(errorsRep.ilegalUseError(accessId, pos));
             return new Label(Analyzator.ERROR_TYPE, pos);
         }
@@ -87,5 +101,10 @@ public class SingleExp extends Expression{
             semanticErrors.add(errorsRep.undefiniteVarUseError(accessId, pos));
         }
         return new Label(Analyzator.ERROR_TYPE, pos);
+    }
+
+    @Override
+    public PassActTree getActivationNodeTree(Index index) {
+        return null;
     }
 }

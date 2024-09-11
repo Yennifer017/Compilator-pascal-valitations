@@ -1,6 +1,7 @@
 
 package compi2.pascal.valitations.semantic.ast;
 
+import compi2.pascal.valitations.analysis.actree.ActTreeGen;
 import compi2.pascal.valitations.semantic.SemanticRestrictions;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.PrimitiveType;
@@ -23,9 +24,12 @@ public abstract class ControlStruct extends Statement{
     protected List<Statement> internalStmts;
     protected StmtsAnalizator stmtsAnalizator;
     
+    protected ActTreeGen actTreeGen;
+    
     public ControlStruct(Position initPos){
         super(initPos);
         stmtsAnalizator = new StmtsAnalizator();
+        actTreeGen = new ActTreeGen();
     }
     
     protected ReturnCase validateInternalStmts(SymbolTable symbolTable, TypeTable typeTable, 

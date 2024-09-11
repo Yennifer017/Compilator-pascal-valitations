@@ -1,6 +1,7 @@
 
 package compi2.pascal.valitations.semantic.expr;
 
+import compi2.pascal.valitations.analysis.actree.PassActTree;
 import compi2.pascal.valitations.analysis.symbolt.RecordST;
 import compi2.pascal.valitations.analysis.symbolt.RowST;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
@@ -9,6 +10,7 @@ import compi2.pascal.valitations.analysis.typet.Type;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.util.Index;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +28,7 @@ public class RecordUse extends Expression{
     }
 
     @Override
-    public Label validateSimpleData(List<String> semanticErrors) {
+    public Label validateSimpleData(SymbolTable symbolTable, List<String> semanticErrors) {
         semanticErrors.add(errorsRep.ilegalUseError(access.get(0).getName(), pos));
         return new Label(Analyzator.ERROR_TYPE, pos);
     }
@@ -88,6 +90,11 @@ public class RecordUse extends Expression{
             }            
         }
         return new Label(Analyzator.ERROR_TYPE, pos);
+    }
+
+    @Override
+    public PassActTree getActivationNodeTree(Index index) {
+        return null;
     }
 
 }

@@ -1,5 +1,5 @@
 
-package compi2.pascal.valitations.graphs;
+package compi2.pascal.valitations.util;
 
 import lombok.Getter;
 

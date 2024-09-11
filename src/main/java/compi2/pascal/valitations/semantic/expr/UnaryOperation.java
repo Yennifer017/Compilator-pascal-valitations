@@ -1,11 +1,13 @@
 
 package compi2.pascal.valitations.semantic.expr;
 
+import compi2.pascal.valitations.analysis.actree.PassActTree;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import compi2.pascal.valitations.analysis.typet.TypeTable;
 import compi2.pascal.valitations.analyzator.Analyzator;
 import compi2.pascal.valitations.exceptions.ConvPrimitiveException;
 import compi2.pascal.valitations.semantic.obj.Label;
+import compi2.pascal.valitations.util.Index;
 import compi2.pascal.valitations.util.Position;
 import java.util.List;
 import lombok.Getter;
@@ -49,8 +51,8 @@ public class UnaryOperation extends Expression{
     }
 
     @Override
-    public Label validateSimpleData(List<String> semanticErrors) {
-        Label typeLabel = expression.validateSimpleData(semanticErrors);
+    public Label validateSimpleData(SymbolTable symbolTable, List<String> semanticErrors) {
+        Label typeLabel = expression.validateSimpleData(symbolTable, semanticErrors);
         try {
             return new Label(
                     super.tConvert.simpleConvert(operation, typeLabel, semanticErrors),
@@ -74,6 +76,11 @@ public class UnaryOperation extends Expression{
             );
             return new Label(Analyzator.ERROR_TYPE, pos);
         }
+    }
+
+    @Override
+    public PassActTree getActivationNodeTree(Index index) {
+        return expression.getActivationNodeTree(index);
     }
 
 }

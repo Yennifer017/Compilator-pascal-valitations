@@ -1,6 +1,7 @@
 
 package compi2.pascal.valitations.graphs;
 
+import compi2.pascal.valitations.util.Index;
 import compi2.pascal.valitations.analysis.symbolt.RowST;
 import compi2.pascal.valitations.analysis.symbolt.SymbolTable;
 import static compi2.pascal.valitations.graphs.Graphicator.TABLE_ID;

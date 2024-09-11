@@ -34,7 +34,7 @@ public class SubRangeDef extends DefAst{
             return new SubrangeType(
                     this.name.getName(), 
                     1, 
-                    range.validate(semanticErrors, this)
+                    range.validate(null, semanticErrors, this)
             );
         } else {
             return null;
@@ -48,7 +48,7 @@ public class SubRangeDef extends DefAst{
             symbolTable.incrementLastDir(1);
             return new SubrangeST(
                     name.getName(),
-                    range.validate(semanticErrors, this),
+                    range.validate(symbolTable, semanticErrors, this),
                     lastDir
             );
         }
